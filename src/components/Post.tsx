@@ -3,23 +3,23 @@ import { Button } from "./ui/button";
 import {IconHeart, IconMessageCircle, IconSend, IconBookmark} from "@tabler/icons-react"
 
 interface TextoProps {
-    nome?: string;
-    time?:string;
-    fotoPerfil?: string;
-    fotoPost?: string;
-    titulo?: string;
-    texto?:string;
+    nome?: string; //pra você colocar um nome no perfil
+    time?:string; //pra você colocar a quanto tempo foi postado
+    fotoPerfil?: string; //pra você colocar foto de perfil
+    fotoPost?: string; //pra você colocar foto no post
+    titulo?: string; //pra vc colocar um título no post (o em H2)
+    texto?:string; //pra vc coloca texto no seu post
     
 }
 
-function Texto ({ nome = "Usuário Anônimo", time = "agora", fotoPerfil="https://github.com/shadcn.png", fotoPost, titulo, texto }: TextoProps){
+function Post ({ nome = "Usuário Anônimo", time = "agora", fotoPerfil="https://github.com/shadcn.png", fotoPost, titulo, texto }: TextoProps){
     return (
         <div className="gap-[20px]  hover:bg-[#A8D5E2]/30 hover:rounded-lg">
             <header className="w-[700px] h-[42px] flex items-center pl-[16px] pr-[16px] flex-row gap-[5px]">
                 <Avatar  className=" relative w-[30px] h-[30px]">
                     <AvatarImage src={fotoPerfil} alt="@shadcn" />
                     <AvatarFallback>CN</AvatarFallback>
-                    <AvatarBadge className="bg-green-600 dark:bg-green-800" />
+                    <AvatarBadge className="bg-green-600 dark:bg-green-800" /> 
                 </Avatar>
                 <button className="flex items-center">
                     <span className="text-slate-800 text-xs font-medium">
@@ -98,4 +98,4 @@ function Texto ({ nome = "Usuário Anônimo", time = "agora", fotoPerfil="https:
     )
 }
 
-export default Texto
+export default Post

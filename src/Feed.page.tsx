@@ -1,4 +1,4 @@
-import Texto from "./components/text";
+import Texto from "./components/Post";
 import BotaoComu from "./components/botaocomunidades";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, 
   NavigationMenuTrigger} from "./components/ui/navigation-menu";
