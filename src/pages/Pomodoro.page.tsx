@@ -5,7 +5,7 @@ type TimerMode = 'pomodoro' | 'short pause' | 'long pause'
 
 function Pomodoro() {
     const modes: Record<TimerMode, number> = {
-        'pomodoro': 30 * 60,
+        'pomodoro': 40 * 60,
         'short pause': 5 * 60,
         'long pause': 15 * 60
     }
@@ -61,8 +61,14 @@ function Pomodoro() {
     return (
         <div className="relative flex h-screen w-screen flex-col items-center justify-center bg-cover bg-center font-sans text-white"
             style={{ backgroundImage: "url('/lo_fi(capivara2).jpg')" }}>
-            
+        
             <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
+
+            {/*<div className="absolute left-10 top-10 items-center gap-3">
+                <div className="flex w-2 h-auto items-center justify-center bg-transparent">
+                    <img src="/logo_caps_branco.png" alt="capibara" className="h-full w-auto" />
+                </div>
+            </div>*/}
 
             <div className="relative z-10 flex flex-col items-center gap-8">
                 <div className="flex gap-4">
