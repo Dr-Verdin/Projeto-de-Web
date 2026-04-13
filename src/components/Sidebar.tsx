@@ -10,7 +10,7 @@ import {
   IconApple
 } from "@tabler/icons-react"
 
-import logo from "../assets/logo_capys_preto.png";
+import logo from "/public/logo_capys_preto.png";
 import { user } from "../lib/mock"
 
 export function Sidebar() {
