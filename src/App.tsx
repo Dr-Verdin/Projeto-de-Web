@@ -1,4 +1,6 @@
 import { Route, Routes } from 'react-router-dom'
+import Login from './pages/Login.page'
+import Pomodoro from './pages/Pomodoro.page'
 import './App.css'
 import { Sidebar } from './components/Sidebar'
 import Profile from './pages/Profile.page'
@@ -15,7 +17,7 @@ function App() {
         </Routes>
       </main>
     </div>
-  )
+  );
 }
 
 export default App
