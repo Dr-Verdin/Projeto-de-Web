@@ -1,3 +1,9 @@
+import {
+  IconReload,
+  IconSettings, 
+  IconMaximize 
+} from "@tabler/icons-react";
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -64,12 +70,6 @@ function Pomodoro() {
         
             <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
 
-            {/*<div className="absolute left-10 top-10 items-center gap-3">
-                <div className="flex w-2 h-auto items-center justify-center bg-transparent">
-                    <img src="/logo_caps_branco.png" alt="capibara" className="h-full w-auto" />
-                </div>
-            </div>*/}
-
             <div className="relative z-10 flex flex-col items-center gap-8">
                 <div className="flex gap-4">
                     {(Object.keys(modes) as TimerMode[]).map((mode) => ( 
@@ -100,11 +100,11 @@ function Pomodoro() {
                         onClick={resetTimer}
                         className="opacity-90 hover:opacity-100 transition-opacity hover:scale-110 transition-transform">
 
-                        <img src="/restart.png" alt="restart" className="h-14 w-auto invert"/>
+                        <IconReload size={45} />
                     </button>
                     
                     <button className ="opacity-80 hover:opacity-100 transition-opacity hover:scale-110 transition-transform">
-                        <img src="/configuration.svg" alt="settings" className="h-12 w-auto invert"/>
+                        <IconSettings size={45} />
                     </button>
                 </div>
             </div>
@@ -114,7 +114,7 @@ function Pomodoro() {
                     onClick={fullScreen}
                     className="mt-auto opacity-85 hover:opacity-100 transition-opacity hover:scale-110 transition-transform">
                         
-                    <img src="/full_screen.svg" alt="Fullscreen" className="h-10 w-auto invert" />
+                    <IconMaximize size={60} />
                 </button>
             </div>
         </div>

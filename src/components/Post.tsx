@@ -2,32 +2,32 @@ import { Avatar, AvatarFallback, AvatarImage , AvatarBadge} from "@/components/u
 import { Button } from "./ui/button";
 import {IconHeart, IconMessageCircle, IconSend, IconBookmark} from "@tabler/icons-react"
 
-interface TextoProps {
-    nome?: string; //pra você colocar um nome no perfil
-    time?:string; //pra você colocar a quanto tempo foi postado
-    fotoPerfil?: string; //pra você colocar foto de perfil
-    fotoPost?: string; //pra você colocar foto no post
-    titulo?: string; //pra vc colocar um título no post (o em H2)
-    texto?:string; //pra vc coloca texto no seu post
+interface textProps {
+    name?: string; //pra você colocar um nome no perfil
+    createdAt?:string; //pra você colocar a quanto tempo foi postado
+    avatar?: string; //pra você colocar foto de perfil
+    image?: string; //pra você colocar foto no post
+    title?: string; //pra vc colocar um título no post (o em H2)
+    text?:string; //pra vc coloca text no seu post
     
 }
 
-function Post ({ nome = "Usuário Anônimo", time = "agora", fotoPerfil="https://github.com/shadcn.png", fotoPost, titulo, texto }: TextoProps){
+function Post ({ name = "Usuário Anônimo", createdAt = "agora", avatar="https://github.com/shadcn.png", image, title, text }: textProps){
     return (
         <div className="gap-[20px]  hover:bg-[#A8D5E2]/30 hover:rounded-lg">
             <header className="w-[700px] h-[42px] flex items-center pl-[16px] pr-[16px] flex-row gap-[5px]">
                 <Avatar  className=" relative w-[30px] h-[30px]">
-                    <AvatarImage src={fotoPerfil} alt="@shadcn" />
+                    <AvatarImage src={avatar} alt="@shadcn" />
                     <AvatarFallback>CN</AvatarFallback>
                     <AvatarBadge className="bg-green-600 dark:bg-green-800" /> 
                 </Avatar>
                 <button className="flex items-center">
                     <span className="text-slate-800 text-xs font-medium">
-                        {nome}
+                        {name}
                     </span>
                 </button>
                 
-                <span className="text-black text-xs font-thin"> • {time}</span>
+                <span className="text-black text-xs font-thin"> • {createdAt}</span>
                 <div className="ml-auto flex items-center gap-2">
                     <Button className="rounded-full px-2 h-4 text-xs text-white bg-[#5C8001] border border-[#5C8001]  hover:bg-[#7CB518] hover:border-[#7CB518] hover:text-white transition-colors">seguir</Button>
                     <Button className="w-8 h-8 p-0 flex items-center justify-center rounded-full bg-transparent hover:bg-slate-300 text-slate-900">
@@ -44,10 +44,10 @@ function Post ({ nome = "Usuário Anônimo", time = "agora", fotoPerfil="https:/
             </header>
             <main>
                 <div className="w-[700px] h-[660px]flex items-start text-start pl-[16px] pr-[16px] flex-col gap-[3px] text-slate-400">
-                    <h2 className="text-slate-900 font-bold text-lg">{titulo}</h2>
-                    {texto && (
+                    <h2 className="text-slate-900 font-bold text-lg">{title}</h2>
+                    {text && (
                         <div className="flex flex-col items-start gap-[3px] h-full">
-                            <div>{texto}</div>
+                            <div>{text}</div>
                             <button className="text-xs hover:text-slate-950 text-slate-700">
                                 ver mais
                             </button>
@@ -55,19 +55,19 @@ function Post ({ nome = "Usuário Anônimo", time = "agora", fotoPerfil="https:/
                     )}
                     
                     
-                    {fotoPost && (
+                    {image && (
                         <div className="relative w-[700px] h-[540px] overflow-hidden flex items-center justify-center rounded-lg bg-black">
                             
                             {/* 1. Imagem de Fundo (Desfocada e Escurecida) */}
                             <img 
-                                src={fotoPost} 
+                                src={image} 
                                 alt="Fundo desfocado" 
                                 className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40" 
                             />
                             
                             {/* 2. Imagem Principal (Nítida e na Frente) */}
                             <img 
-                                src={fotoPost} 
+                                src={image} 
                                 alt="Post content" 
                                 className="relative z-10 max-w-full max-h-full object-contain drop-shadow-lg" 
                             />

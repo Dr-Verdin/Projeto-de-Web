@@ -19,33 +19,48 @@ export const postsUser = [
   {
     id: 1,
     type: "user",
+
     title: "Quando você não pode estudar porque precisa dormir, mas não pode dormir porque precisa estudar...",
     text: "",
     image: "",
+
     tags: ["#faculdade", "#madrugada", "#hardstudy"],
+
+    createdAt: "2026-04-01",
+
     likes: 10,
     comments: 2,
-    createdAt: "2026-04-01",
+
     userId: 1,
   },
   {
     id: 2,
     type: "user",
+
     title: "📖 estudando cálculo hoje...",
     text: "integral dupla tá começando a fazer sentido, mas ainda me perco na hora de mudar a ordem 😭\n\nalguém mais sofre com isso ou sou só eu?",
+<<<<<<< HEAD
     image: "/public/post1_user.jpg",
+=======
+    image: "/post1_user.jpg",
+
+>>>>>>> main
     tags: ["#matematica", "#faculdade", "#calculo2"],
+    createdAt: "2026-04-11",
+
     likes: 5,
     comments: 1,
-    createdAt: "2026-04-11",
+
     userId: 1,
   },
 ];
 
 export const community = {
   id: 1,
+
   name: "Estudando com gatos",
   description: "Para quem estuda com um gato do lado 🐱📚",
+
   rules: "1. Respeitar os outros membros\n2. Compartilhar dicas e experiências\n3. Postar fotos dos seus gatos estudando",
   members: 120,
   image: "/community_perfil.jpg",
@@ -55,21 +70,29 @@ export const postsCommunity = [
   {
     id: 1,
     type: "community",
-    content: "Pitu não me deixa estudar... 🐾📖",
-    image: "/public/post1_community.jpg",
+
+    title: "Pitu não me deixa estudar... 🐾📖",
+    text: "",
+    image: "/post1_community.jpg",
+
     likes: 15,
     comments: 3,
     createdAt: "2026-04-05",
+
     userId: 1,
   },
   {
     id: 2,
     type: "community",
-    content: "Alguém tem que estudar nessa casa",
-    image: "/public/post2_community.jpg",
+
+    title: "Alguém tem que estudar nessa casa",
+    text: "Meu gato, o Pitu, é super carinhoso e adora ficar no meu colo enquanto estudo, mas às vezes ele fica tão grudado que não consigo me concentrarkk",
+    image: "/post2_community.jpg",
+
     likes: 8,
     comments: 2,
     createdAt: "2026-04-10",
+
     userId: 1,
   },
 ];
