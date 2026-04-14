@@ -10,20 +10,28 @@ import {
   IconApple
 } from "@tabler/icons-react"
 
-import logo from "/public/logo_capys_preto.png";
 import { user } from "../lib/mock"
 
 export function Sidebar() {
     const location = useLocation()
     const isProfileActive = location.pathname === "/perfil"
+    const isHomeActive = location.pathname === "/"
 
     return (
 
-        <aside className="group h-screen w-16 hover:w-64 transition-all duration-300 border-r border-gray-200 bg-white overflow-hidden text-black flex flex-col relative">
+        <aside className="group fixed top-0 left-0 h-screen w-16 hover:w-64 transition-all duration-300 border-r border-gray-200 bg-white overflow-hidden text-black flex flex-col z-50">
         
-            <Link to="/" className=" absolute top-2 left-0 inline-flex ml-1 items-center transition-all duration-200 cursor-pointer active:scale-95">
+            <Link 
+                to="/" 
+                className="absolute top-2 left-0 inline-flex ml-1 items-center transition-all duration-200 cursor-pointer active:scale-95"
+            >
                 <div className="p-2 rounded-full hover:bg-[#FFC300]/20 transition-all duration-200">
-                    <img src={logo} alt="Logo" className="w-10 h-10" />
+                    
+                    <img 
+                        src={isHomeActive ? "/logo_capys_laranja_esc.png" : "/logo_capys_preto.png"} 
+                        alt="Logo" 
+                        className="w-10 h-10" 
+                    />
                 </div>
             </Link>
 

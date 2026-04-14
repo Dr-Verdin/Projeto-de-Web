@@ -6,7 +6,7 @@ export default function Profile() {
   return (
     <div className="flex">
 
-      <div className="flex-1 p-6 flex gap-6">
+      <div className="flex-1 p-6 flex gap-6 ml-60">
         
         <UserProfileCard user={user} />
 
