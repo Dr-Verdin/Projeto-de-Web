@@ -1,8 +1,6 @@
-import avatar from "@/assets/avatar_camz.jpg";
-
 export const user = {
   id: 1,
-  avatar: avatar,
+  avatar: "/avatar_camz.jpg",
   name: "Camila Piscioneri",
   pronoun: "ela/dela",
   username: "@dr_verdin",

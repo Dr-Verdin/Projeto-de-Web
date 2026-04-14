@@ -1,7 +1,7 @@
-import Texto from "./components/Post";
-import BotaoComu from "./components/botaocomunidades";
+import Texto from "../components/Post";
+import BotaoComu from "../components/botaocomunidades";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, 
-  NavigationMenuTrigger} from "./components/ui/navigation-menu";
+  NavigationMenuTrigger} from "../components/ui/navigation-menu";
 import estudando from "@/assets/estudando.png"
 
 function Feed() {
