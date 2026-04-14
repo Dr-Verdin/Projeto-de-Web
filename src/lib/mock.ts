@@ -39,12 +39,7 @@ export const postsUser = [
 
     title: "📖 estudando cálculo hoje...",
     text: "integral dupla tá começando a fazer sentido, mas ainda me perco na hora de mudar a ordem 😭\n\nalguém mais sofre com isso ou sou só eu?",
-<<<<<<< HEAD
-    image: "/public/post1_user.jpg",
-=======
     image: "/post1_user.jpg",
-
->>>>>>> main
     tags: ["#matematica", "#faculdade", "#calculo2"],
     createdAt: "2026-04-11",
 
