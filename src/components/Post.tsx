@@ -12,7 +12,7 @@ interface textProps {
     
 }
 
-function Post ({ name = "Usuário Anônimo", createdAt = "agora", avatar="https://github.com/shadcn.png", image, title, text }: textProps){
+export function Post ({ name = "Usuário Anônimo", createdAt = "agora", avatar="https://github.com/shadcn.png", image, title, text }: textProps){
     return (
         <div className="gap-[20px]  hover:bg-[#A8D5E2]/30 hover:rounded-lg">
             <header className="w-[700px] h-[42px] flex items-center pl-[16px] pr-[16px] flex-row gap-[5px]">
@@ -97,5 +97,3 @@ function Post ({ name = "Usuário Anônimo", createdAt = "agora", avatar="https:
         </div>
     )
 }
-
-export default Post

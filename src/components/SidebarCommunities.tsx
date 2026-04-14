@@ -1,0 +1,33 @@
+import ButtonCommunity from "./ButtonCommunity";
+import { communities } from "../lib/mock";
+
+export function SidebarCommunities() {
+  return (
+    <section className="w-[320px] self-start min-h-full">
+      <div className="sticky top-8">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-col gap-4">
+          
+          <div className="text-sm font-semibold text-slate-500 tracking-wide">
+            Comunidades populares
+          </div>
+
+          <div className="flex flex-col gap-2 pr-1"> 
+            {Object.values(communities).map((community) => (
+              <ButtonCommunity
+                key={community.communityId}
+                nome={community.name}
+                inscritos={community.members.toLocaleString("pt-BR")}
+                imagem={community.image}
+              />
+            ))}
+          </div>
+
+          <button className="text-sm text-blue-500 hover:text-blue-600 font-medium transition text-left">
+            Ver mais →
+          </button>
+
+        </div>
+      </div>
+    </section>
+  );
+}

@@ -2,7 +2,7 @@ import {Input} from "@/components/ui/input"
 import {Button} from "@/components/ui/button" 
 import {useState} from "react"
 
-function Login(){
+export default function Login(){
 
     const [isLogin, setIsLogin] = useState(true)
 
@@ -45,5 +45,3 @@ function Login(){
         </div>
     )
 }
-
-export default Login

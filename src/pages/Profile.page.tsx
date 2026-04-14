@@ -1,6 +1,5 @@
-import UserProfileCard from "../components/UserProfileCard"
-import Post from "../components/Post"
-import { Checkbox } from "@/components/ui/checkbox";
+import { UserProfileCard } from "../components/UserProfileCard"
+import { Post } from "../components/Post"
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -12,7 +11,6 @@ import { posts, users, communities } from "../lib/mock";
 import { useParams } from "react-router-dom";
 
 export default function Profile() {
-  // junta os posts e ordena por data (mais recente primeiro)
   const { id } = useParams();
   const user = users[id!];
 
@@ -21,9 +19,7 @@ export default function Profile() {
   }
 
   const userPosts = posts
-    .filter((post) =>
-      post.userId === id
-    )
+    .filter((post) => post.userId === id)
     .sort(
       (a, b) =>
         new Date(b.createdAt).getTime() -
@@ -31,49 +27,50 @@ export default function Profile() {
     );
 
   return (
-    <div className="flex">
+    <main className="bg-slate-100 w-full min-h-screen p-4">
+      <div className="w-full max-w-[1200px]">
+        <div className="flex gap-[32px] items-start">
 
-      <div className="flex-1 p-6 flex gap-6 ml-100">
-        
-        {/* PERFIL */}
-        <UserProfileCard user={user} />
+          {/* PERFIL */}
+          <UserProfileCard user={user} />
 
-        {/* POSTS */}
-        <div className="w-[732px] min-h-screen flex items-center flex-col gap-[10px]">
-          
-          <div className="w-[732px] h-[40px] Post-black flex justify-start items-center gap-[20px] pl-[16px] pr-[16px]">
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
-                  <NavigationMenuTrigger>Item Two</NavigationMenuTrigger>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
-          </div>
+          {/* POSTS */}
+          <section className="w-[732px] flex flex-col gap-[10px]">
 
-          <div className="w-[732px] min-h-screen flex flex-col gap-[24px]">
-            {userPosts.map((post) => (
-              <Post
-                key={post.id}
-                name={
-                  post.type === "user"
-                    ? users[post.userId!]?.name
-                    : communities[post.communityId!]?.name
-                }
-                createdAt={post.createdAt}
+            {/* FILTROS */}
+            <div className="h-[40px] flex items-center gap-[20px] px-4">
+              <NavigationMenu>
+                <NavigationMenuList>
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger>Posts</NavigationMenuTrigger>
+                    <NavigationMenuTrigger>Comunidades</NavigationMenuTrigger>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+            </div>
 
-                title={post.title}
-                text={post.text}
-                image={post.image}
-              />
-            ))}
-          </div>
+            {/* LISTA DE POSTS */}
+            <div className="flex flex-col gap-[24px]">
+              {userPosts.map((post) => (
+                <Post
+                  key={post.id}
+                  name={
+                    post.type === "user"
+                      ? users[post.userId!]?.name
+                      : communities[post.communityId!]?.name
+                  }
+                  createdAt={post.createdAt}
+                  title={post.title}
+                  text={post.text}
+                  image={post.image}
+                />
+              ))}
+            </div>
+
+          </section>
+
         </div>
-
-        <Checkbox/>
-
       </div>
-    </div>
+    </main>
   );
 }

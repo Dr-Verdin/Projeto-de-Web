@@ -1,6 +1,6 @@
 import type { User } from "../types/User"
 
-export default function UserProfileCard({ user }: { user: User }) {
+export function UserProfileCard({ user }: { user: User }) {
   return (
     <div className="w-80 p-4 border border-gray-200 rounded-xl bg-white shadow-sm">
       

@@ -1,5 +1,5 @@
-import Post from "../components/Post";
-import BotaoComu from "../components/botaocomunidades";
+import { SidebarCommunities } from "../components/SidebarCommunities";
+import { Post } from "../components/Post";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -9,8 +9,7 @@ import {
 
 import { posts, users, communities } from "../lib/mock";
 
-function Feed() {
-  // junta os posts e ordena por data (mais recente primeiro)
+export default function Feed() {
   const feedPosts = [...posts].sort(
     (a, b) =>
       new Date(b.createdAt).getTime() -
@@ -18,27 +17,25 @@ function Feed() {
   );
 
   return (
-    <>
-      <header></header>
+    <main className="bg-slate-100 w-full min-h-screen p-4">
+      <div className="w-full max-w-[1200px]">
+        <div className="flex gap-[32px] items-start">
+          <section className="w-[732px] flex flex-col gap-[10px]">
 
-      <main className="bg-slate-100 w-full min-h-screen flex justify-center items-start flex-row p-4">
-        <div className="flex flex-row items-start gap-[64px]">
-          
-          {/* POSTS */}
-          <div className="w-[732px] min-h-screen flex items-center flex-col gap-[10px]">
-            
-            <div className="w-[732px] h-[40px] text-black flex justify-start items-center gap-[20px] pl-[16px] pr-[16px]">
+            {/* FILTROS */}
+            <div className="h-[40px] flex items-center gap-[20px] px-4">
               <NavigationMenu>
                 <NavigationMenuList>
                   <NavigationMenuItem>
-                    <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
-                    <NavigationMenuTrigger>Item Two</NavigationMenuTrigger>
+                    <NavigationMenuTrigger>For You</NavigationMenuTrigger>
+                    <NavigationMenuTrigger>Seguindo</NavigationMenuTrigger>
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
             </div>
 
-            <div className="w-[732px] min-h-screen flex flex-col gap-[24px]">
+            {/* POSTS */}
+            <div className="flex flex-col gap-[24px]">
               {feedPosts.map((post) => (
                 <Post
                   key={post.id}
@@ -48,45 +45,18 @@ function Feed() {
                       : communities[post.communityId!]?.name
                   }
                   createdAt={post.createdAt}
-
                   title={post.title}
                   text={post.text}
                   image={post.image}
                 />
               ))}
             </div>
-          </div>
 
-          {/* COMUNIDADES */}
-          <div className="w-[320px] sticky top-4">
-  
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-col gap-4">
-              
-              {/* Título */}
-              <div className="text-sm font-semibold text-slate-500 tracking-wide">
-                Comunidades populares
-              </div>
-
-              {/* Lista */}
-              <div className="flex flex-col gap-2 max-h-[260px] overflow-y-auto pr-1 custom-scrollbar">
-                <BotaoComu nome="Geografia" inscritos="1.000" />
-                <BotaoComu nome="Matemática" inscritos="1.000.000" />
-                <BotaoComu nome="Redes" inscritos="5.700.000" />
-                <BotaoComu nome="Web" inscritos="5.900.000" />
-                <BotaoComu nome="UI/UX" inscritos="320.000" />
-              </div>
-
-              {/* Botão */}
-              <button className="text-sm text-blue-500 hover:text-blue-600 font-medium transition">
-                Ver mais →
-              </button>
-
-            </div>
-          </div>
+          </section>
+          <SidebarCommunities />
         </div>
-      </main>
-    </>
+      </div>
+    </main>
   );
 }
 
-export default Feed;
