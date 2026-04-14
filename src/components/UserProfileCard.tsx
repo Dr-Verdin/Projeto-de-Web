@@ -1,13 +1,4 @@
-type User = {
-  name: string;
-  username: string;
-  bio: string;
-  pronoun: string;
-  avatar: string;
-  studyTime: number;
-  followers: number;
-  following: number;
-};
+import type { User } from "../types/User"
 
 export default function UserProfileCard({ user }: { user: User }) {
   return (

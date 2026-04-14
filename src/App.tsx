@@ -13,28 +13,45 @@ function App() {
   const location = useLocation()
   const [isFullscreen, setIsFullscreen] = useState(false)
 
+  // 👇 novo estado da sidebar
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+
   useEffect(() => {
     const handler = () => setIsFullscreen(!!document.fullscreenElement)
     document.addEventListener('fullscreenchange', handler)
     return () => document.removeEventListener('fullscreenchange', handler)
   }, [])
 
-  const showSidebar = !NO_SIDEBAR_ROUTES.includes(location.pathname) && !isFullscreen
+  const showSidebar =
+    !NO_SIDEBAR_ROUTES.includes(location.pathname) && !isFullscreen
 
   return (
     <div className="flex min-h-screen">
-      {showSidebar && <Sidebar />}
+      {showSidebar && (
+        <Sidebar
+          open={sidebarOpen}
+          setOpen={setSidebarOpen}
+        />
+      )}
 
-      <main className="flex-1">
+      <main
+        className={`flex-1 transition-all duration-300 ${
+          showSidebar
+            ? sidebarOpen
+              ? "ml-64"
+              : "ml-16"
+            : "ml-0"
+        }`}
+      >
         <Routes>
           <Route path="/" element={<Feed />} />
-          <Route path="/perfil" element={<Profile />} />
+          <Route path="/perfil/:id" element={<Profile />} />
           <Route path="/pomodoro" element={<Pomodoro />} />
           <Route path="/login" element={<Login />} />
         </Routes>
       </main>
     </div>
-  );
+  )
 }
 
 export default App

@@ -1,4 +1,4 @@
-import Text from "../components/Post";
+import Post from "../components/Post";
 import BotaoComu from "../components/botaocomunidades";
 import {
   NavigationMenu,
@@ -7,13 +7,14 @@ import {
   NavigationMenuTrigger,
 } from "../components/ui/navigation-menu";
 
-import { postsUser, postsCommunity, user, community } from "../lib/mock";
+import { posts, users, communities } from "../lib/mock";
 
 function Feed() {
   // junta os posts e ordena por data (mais recente primeiro)
-  const feedPosts = [...postsUser, ...postsCommunity].sort(
+  const feedPosts = [...posts].sort(
     (a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      new Date(b.createdAt).getTime() -
+      new Date(a.createdAt).getTime()
   );
 
   return (
@@ -23,7 +24,7 @@ function Feed() {
       <main className="bg-slate-100 w-full min-h-screen flex justify-center items-start flex-row p-4">
         <div className="flex flex-row items-start gap-[64px]">
           
-          {/* FEED */}
+          {/* POSTS */}
           <div className="w-[732px] min-h-screen flex items-center flex-col gap-[10px]">
             
             <div className="w-[732px] h-[40px] text-black flex justify-start items-center gap-[20px] pl-[16px] pr-[16px]">
@@ -39,12 +40,12 @@ function Feed() {
 
             <div className="w-[732px] min-h-screen flex flex-col gap-[24px]">
               {feedPosts.map((post) => (
-                <Text
+                <Post
                   key={post.id}
                   name={
                     post.type === "user"
-                      ? user.name
-                      : community.name
+                      ? users[post.userId!]?.name
+                      : communities[post.communityId!]?.name
                   }
                   createdAt={post.createdAt}
 
