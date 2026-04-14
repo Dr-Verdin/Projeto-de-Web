@@ -33,7 +33,7 @@ export const postsUser = [
     type: "user",
     title: "📖 estudando cálculo hoje...",
     text: "integral dupla tá começando a fazer sentido, mas ainda me perco na hora de mudar a ordem 😭\n\nalguém mais sofre com isso ou sou só eu?",
-    image: "/public/post1.jpg",
+    image: "/public/post1_user.jpg",
     tags: ["#matematica", "#faculdade", "#calculo2"],
     likes: 5,
     comments: 1,
