@@ -19,7 +19,7 @@ export function CommunityInfoCard({
 }: Props) {
   return (
     <div className="w-full max-w-[320px] min-w-[180px] h-auto rounded-2xl border border-slate-200 p-3 flex flex-col gap-3 text-sm text-slate-700">
-      <h2 className="font-bold text-base text-slate-800">{name}</h2>
+      <h2 className="font-bold text-base text-[#e1903e] text-slate-800">{name}</h2>
       <p>{description}</p>
 
       <div className="flex flex-col gap-2 text-slate-500">

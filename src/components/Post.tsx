@@ -33,7 +33,7 @@ export function Post({
   type,
 }: PostProps) {
   return (
-    <div className="w-full flex flex-col gap-3 hover:bg-[#A8D5E2]/30 hover:rounded-lg p-2">
+    <div className="w-full flex flex-col gap-3 hover:bg-[#efce7b]/30 hover:rounded-lg p-2">
       {/* HEADER */}
       <header className="w-full h-[42px] flex items-center gap-2 px-4">
         <Avatar className="w-[30px] h-[30px]">
@@ -51,7 +51,7 @@ export function Post({
         <span className="text-black text-xs font-thin">• {createdAt}</span>
 
         <div className="ml-auto flex items-center gap-2">
-          <Button className="rounded-full px-2 h-5 text-xs text-white bg-[#5C8001] hover:bg-[#7CB518]">
+          <Button className="rounded-full px-2 h-5 text-xs text-white bg-[#b7bb86] hover:bg-[#e1903e]">
             seguir
           </Button>
 
@@ -94,7 +94,7 @@ export function Post({
       {/* FOOTER */}
       <footer className="w-full flex items-center justify-between px-4 py-2">
         <div className="flex items-center gap-5">
-          <button className="hover:text-[#FFC300] transition-colors text-black">
+          <button className="hover:text-[#e63946] transition-colors text-black">
             <IconHeart size={26} />
           </button>
 

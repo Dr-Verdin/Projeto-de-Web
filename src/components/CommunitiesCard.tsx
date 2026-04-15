@@ -7,7 +7,7 @@ export function CommunitiesCard() {
     <section className="w-[320px] self-start min-h-full">
       <div className="sticky top-8">
         <div className="bg-gray-50 rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-col gap-4">
-          <div className="text-sm font-semibold text-slate-500 tracking-wide">
+          <div className="text-sm font-semibold tracking-wide text-[#e63946]">
             Comunidades populares
           </div>
 

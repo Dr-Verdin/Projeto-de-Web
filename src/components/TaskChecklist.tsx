@@ -38,7 +38,7 @@ export function TaskChecklist() {
 
   return (
     <div className="rounded-2xl p-4 shadow flex flex-col gap-4 overflow-hidden bg-gray-50">
-      <h2 className="font-semibold text-slate-900">Lista de Tarefas</h2>
+      <h2 className="font-semibold text-slate-900 text-[#e63946]">Lista de Tarefas</h2>
 
       <div className="flex">
         <Input
@@ -56,7 +56,7 @@ export function TaskChecklist() {
         {tasks.map((task) => (
           <label
             key={task.id}
-            className="flex items-center gap-2 cursor-pointer text-sm"
+            className="flex items-center gap-2 cursor-pointer text-sm p-2 rounded-md hover:bg-[#aadeff]/20 transition-colors"
           >
             <Checkbox
               checked={task.done}
