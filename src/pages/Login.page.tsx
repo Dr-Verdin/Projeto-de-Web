@@ -1,10 +1,26 @@
 import {Input} from "@/components/ui/input"
 import {Button} from "@/components/ui/button" 
 import {useState} from "react"
+import {useNavigate} from "react-router-dom"
+import {user} from "../lib/mock"
 
 function Login(){
 
     const [isLogin, setIsLogin] = useState(true)
+
+    const navigate = useNavigate()
+    const [email, setEmail] = useState("")
+    const [senha, setSenha] = useState("")
+    const [erro, setErro] = useState("")
+
+    function handleLogin(){
+        if(email === user.email && senha === user.senha){
+            navigate("/")
+        }else{
+            setErro("Email ou senha incorretos")
+            setTimeout(() => setErro(""), 5000)
+        }
+    }
 
     return(
         <div className="flex h-screen w-screen justify bg-[#fafafa]">
@@ -13,18 +29,22 @@ function Login(){
             <div className="w-px bg-[#3a3a3a]"></div>
 
             <div className="flex w-[550px] flex-col items-center justify-center px-10 gap-5 bg-white">
-                <img src="/logo_caps_preto.png" alt="capibara" className="h-20 w-auto" />
+                <img src="/logo_capys_preto.png" alt="capibara" className="h-20 w-auto" />
                 <h2 className="text-2xl font-semibold text-gray-700">
-                    {isLogin ? "Bem-vindo de volta 👋" : "Junte-se a nós"} 
+                    {isLogin ? "De volta aos estudos 📚" : "Comece sua jornada estudantil"} 
                 </h2>
 
-                <Input type ="text" placeholder="Seu email" className=" h-10 bg-[#fafafa] text-xs border-[#363636] placeholder:text-gray-500 focus-visible:ring-1 focus-visible:ring-[#548C2F]c rounded-2xl"></Input>
-                <Input type ="password" 
+                <Input value={email} type ="text" placeholder="Seu email" onChange={(e) => setEmail(e.target.value)} className=" h-10 bg-[#fafafa] text-xs border-[#363636] placeholder:text-gray-500 focus-visible:ring-1 focus-visible:ring-[#548C2F]c rounded-2xl"></Input>
+                <Input value={senha} type ="password" 
                     placeholder={isLogin ? "Sua senha": "Crie uma senha (minimo de 8 caracteres)"} 
+                    onChange={(e) => setSenha(e.target.value)}
+                    onKeyDown={(e) => {if(e.key === "Enter") handleLogin()}}
                     className=" h-10 bg-[#fafafa] border-[#363636] text-xs placeholder:text-gray-500 focus-visible:ring-1 focus-visible:ring-[#548C2F]c rounded-2xl">
                 </Input>
 
-                <Button className="w-full font-semibold text-white/100 bg-[#f9a620]/85 hover:bg-[#f9a620] rounded-3xl">
+                {erro && <p className="text-red-500 text-xs">{erro}</p>}
+
+                <Button onClick={handleLogin} className="w-full font-semibold text-white/100 bg-[#f9a620]/85 hover:bg-[#f9a620] rounded-3xl">
                     {isLogin ? "Acessar conta":"Cadastrar"}
                 </Button>
 

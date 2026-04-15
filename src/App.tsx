@@ -6,6 +6,7 @@ import './App.css'
 import { Sidebar } from './components/Sidebar'
 import Profile from './pages/Profile.page'
 import { useState, useEffect } from 'react'
+import Branco from './pages/branco'
 
 const NO_SIDEBAR_ROUTES = ['/login']
 
@@ -31,6 +32,7 @@ function App() {
           <Route path="/perfil" element={<Profile />} />
           <Route path="/pomodoro" element={<Pomodoro />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/branco" element={<Branco />}/>
         </Routes>
       </main>
     </div>
