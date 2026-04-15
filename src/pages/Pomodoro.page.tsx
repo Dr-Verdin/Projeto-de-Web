@@ -11,7 +11,7 @@ type TimerMode = 'pomodoro' | 'short pause' | 'long pause'
 
 function Pomodoro() {
     const modes: Record<TimerMode, number> = {
-        'pomodoro': 40 * 60,
+        'pomodoro': 25 * 60,
         'short pause': 5 * 60,
         'long pause': 15 * 60
     }

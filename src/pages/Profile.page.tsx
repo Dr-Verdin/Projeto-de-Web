@@ -65,6 +65,7 @@ export default function Profile() {
                       ? users[post.userId!]?.name
                       : communities[post.communityId!]?.name
                   }
+                  type={post.type}
                   createdAt={post.createdAt}
                   title={post.title}
                   text={post.text}
