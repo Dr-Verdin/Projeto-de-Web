@@ -57,7 +57,7 @@ export const community = {
   name: "Estudando com gatos",
   description: "Para quem estuda com um gato do lado 🐱📚",
   createdAt: "2026-04-01",
-  visibility: "pública",
+  visibility: "Pública",
 
   rules: "1. Respeitar os outros membros\n2. Compartilhar dicas e experiências\n3. Postar fotos dos seus gatos estudando",
   members: 120,
