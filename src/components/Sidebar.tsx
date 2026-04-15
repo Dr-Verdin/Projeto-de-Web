@@ -51,12 +51,12 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           to="/buscar"
           open={open}
         />
-        <SidebarItem
+        {/*<SidebarItem
           icon={IconCompass}
           label="Explorar"
           to="/explorar"
           open={open}
-        />
+        />*/}
         <SidebarItem icon={IconPlus} label="Criar" to="/criar" open={open} />
         <SidebarItem
           icon={IconHeart}
