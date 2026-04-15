@@ -40,6 +40,7 @@ function App() {
           {/*<Route path="/comunidade/:id" element={<Comunidade />} />*/}
           <Route path="/pomodoro" element={<Pomodoro />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/comunidade" element={<Comunidade />} />
         </Routes>
       </div>
     </div>
