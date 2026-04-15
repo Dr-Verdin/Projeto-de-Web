@@ -33,7 +33,7 @@ export function Post({
   type,
 }: PostProps) {
   return (
-    <div className="w-full flex flex-col gap-3 hover:bg-[#efce7b]/30 hover:rounded-lg p-2">
+    <div className="w-full flex flex-col gap-3 p-2 rounded-lg transition-colors duration-300 hover:bg-[#efce7b]/30">
       {/* HEADER */}
       <header className="w-full h-[42px] flex items-center gap-2 px-4">
         <Avatar className="w-[30px] h-[30px]">
