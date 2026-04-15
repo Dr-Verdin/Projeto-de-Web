@@ -69,6 +69,7 @@ export default function Profile() {
                   createdAt={post.createdAt}
                   title={post.title}
                   text={post.text}
+                  avatar={post.avatar}
                   image={post.image}
                 />
               ))}

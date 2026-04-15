@@ -1,7 +1,8 @@
 import ButtonCommunity from "./ButtonCommunity";
 import { communities } from "../lib/mock";
+import { Link } from "react-router-dom";
 
-export function SidebarCommunities() {
+export function CommunitiesCard() {
   return (
     <section className="w-[320px] self-start min-h-full">
       <div className="sticky top-8">
@@ -12,12 +13,17 @@ export function SidebarCommunities() {
 
           <div className="flex flex-col gap-2 pr-1">
             {Object.values(communities).map((community) => (
-              <ButtonCommunity
+              <Link
                 key={community.communityId}
-                nome={community.name}
-                inscritos={community.members.toLocaleString("pt-BR")}
-                imagem={community.avatar || ""}
-              />
+                to={`/comunidade/${community.communityId}`}
+              >
+                <ButtonCommunity
+                  
+                  nome={community.name}
+                  inscritos={community.members.toLocaleString("pt-BR")}
+                  imagem={community.avatar || ""}
+                />
+              </Link>
             ))}
           </div>
 

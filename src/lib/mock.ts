@@ -6,17 +6,17 @@ import type { User } from "../types/User";
 export const users: Record<string, User> = {
   "1": {
     avatar: "/avatar_camz.jpg",
-    name: "Camila Piscioneri",
+    name: "Larissa Rocha",
     pronoun: "ela/dela",
-    username: "@dr_verdin",
+    username: "@lari_lari",
     
-    bio: "Estudante de Ciência de Computação no ICMC-USP 📚✨",
+    bio: "Estudante de Matemática Aplicada no ICMC-USP 📚✨",
     
     studyTime: 345,
     followers: 120,
     following: 80,
 
-    email: "piscioneri@gmail.com",
+    email: "lari@gmail.com",
     senha: "123456",
   }
 }
@@ -28,25 +28,16 @@ export const communities: Record<string, Community> = {
 
     name: "Estudando com gatos",
     description: "Para quem estuda com um gato do lado 🐱📚",
+    
+    createdAt: "2025-12-01",
+    visibility: "public",
 
     rules: "1. Respeitar os outros membros\n2. Compartilhar dicas e experiências\n3. Postar fotos dos seus gatos estudando",
     members: 120,
     avatar: "/community_perfil.jpg",
+    background: "/community_fundo.jpg",
   }
 }
-
-export const community = {
-  id: 1,
-
-  name: "Estudando com gatos",
-  description: "Para quem estuda com um gato do lado 🐱📚",
-  createdAt: "2025-12-01",
-  visibility: "Pública",
-  rules: "1. Respeitar os outros membros\n2. Compartilhar dicas e experiências\n3. Postar fotos dos seus gatos estudando",
-  members: 120,
-  background: "/community_fundo.jpg",
-  image: "/community_perfil.jpg",
-};
 
 {/* POSTS */}
 export const posts: Post[] = [
@@ -82,11 +73,6 @@ export const posts: Post[] = [
 
     userId: "1",
   },
-];
-
-
-
-export const postsCommunity = [
   {
     id: "3",
     type: "community",
@@ -117,4 +103,4 @@ export const postsCommunity = [
 
     communityId: "1",
   }
-]
+];

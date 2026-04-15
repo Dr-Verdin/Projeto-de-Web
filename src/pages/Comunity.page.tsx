@@ -1,5 +1,5 @@
-import { Informacoes } from "@/components/Informacoes";
-import Fundo from "../components/FundoComunidade";
+import { CommunityInfoCard } from "@/components/CommunityInfoCard";
+import WallpaperCommunity from "../components/WallpaperCommunity";
 import { Post } from "../components/Post";
 import {
   NavigationMenu,
@@ -7,22 +7,31 @@ import {
   NavigationMenuItem,
   NavigationMenuTrigger,
 } from "../components/ui/navigation-menu";
-import { posts, postsCommunity, users, community } from "../lib/mock";
+import { posts, users, communities } from "../lib/mock";
+import { useParams } from "react-router-dom";
 
 export default function Comunidade() {
   // junta os posts e ordena por data (mais recente primeiro)
-  const feedPosts = [...posts, ...postsCommunity].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  const { id } = useParams();
+  const community = communities[id!];
+  const feedPosts = posts
+    .filter((post) => post.type === "community" && post.communityId === id)
+    .sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 
   return (
     <div className="flex flex-col">
+
+      {/* WALLPAPER DA COMUNIDADE */}
       <header className="w-full h-auto flex mx-auto py-4 pb-4">
-        <Fundo />
+        <WallpaperCommunity community={community} />
       </header>
 
       <main className="w-full min-h-screen flex justify-center items-start flex-row p-4 relative">
         <div className="flex flex-row items-start gap-[64px]">
+          
           {/* FEED */}
           <div className="w-[732px] min-h-screen flex items-center flex-col gap-[10px]">
             <div className="w-[732px] h-[40px] text-black flex justify-start items-center gap-[20px] pl-[16px] pr-[16px]">
@@ -40,7 +49,11 @@ export default function Comunidade() {
               {feedPosts.map((post) => (
                 <Post
                   key={post.id}
-                  name={post.type === "user" ? users.name : community.name}
+                  name={
+                    post.type === "user"
+                      ? users[post.userId!]?.name
+                      : communities[post.communityId!]?.name
+                  }
                   createdAt={post.createdAt}
                   avatar={post.avatar}
                   title={post.title}
@@ -50,15 +63,16 @@ export default function Comunidade() {
               ))}
             </div>
           </div>
-          {/*BARRA LATERAL*/}
+
+          {/*INFOS*/}
           <div className="mt-10 sticky top-4">
-            <Informacoes
-              name={community.name}
-              description={community.description}
-              createdAt={community.createdAt}
-              visibility={community.visibility}
-              members={community.members}
-              rules={community.rules}
+            <CommunityInfoCard
+              name={communities["1"].name}
+              description={communities["1"].description}
+              createdAt={communities["1"].createdAt}
+              visibility={communities["1"].visibility}
+              members={communities["1"].members}
+              rules={communities["1"].rules}
             />
           </div>
         </div>

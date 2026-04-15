@@ -9,7 +9,7 @@ interface Props {
   rules?: string;
 }
 
-export function Informacoes({
+export function CommunityInfoCard({
   name,
   description,
   createdAt,
