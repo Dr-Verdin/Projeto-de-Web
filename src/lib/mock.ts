@@ -31,7 +31,7 @@ export const communities: Record<string, Community> = {
 
     rules: "1. Respeitar os outros membros\n2. Compartilhar dicas e experiências\n3. Postar fotos dos seus gatos estudando",
     members: 120,
-    image: "/community_perfil.jpg",
+    avatar: "/community_perfil.jpg",
   }
 }
 
@@ -44,6 +44,7 @@ export const posts: Post[] = [
     title: "Quando você não pode estudar porque precisa dormir, mas não pode dormir porque precisa estudar...",
 
     tags: ["#faculdade", "#madrugada", "#hardstudy"],
+    avatar: "/avatar_camz.jpg",
 
     createdAt: "2026-04-01",
 
@@ -59,6 +60,7 @@ export const posts: Post[] = [
     title: "📖 estudando cálculo hoje...",
     text: "integral dupla tá começando a fazer sentido, mas ainda me perco na hora de mudar a ordem 😭\n\nalguém mais sofre com isso ou sou só eu?",
     image: "/post1_user.jpg",
+    avatar: "/avatar_camz.jpg",
     tags: ["#matematica", "#faculdade", "#calculo2"],
     createdAt: "2026-04-11",
 
@@ -74,6 +76,7 @@ export const posts: Post[] = [
     title: "Pitu não me deixa estudar... 🐾📖",
     text: "Meu gato, o Pitu, é super carinhoso e adora ficar no meu colo enquanto estudo, mas às vezes ele fica tão grudado que não consigo me concentrarkk",
     image: "/post1_community.jpg",
+    avatar: "/community_perfil.jpg",
 
     likes: 15,
     comments: 3,
@@ -88,6 +91,7 @@ export const posts: Post[] = [
     title: "Alguém tem que estudar nessa casa",
     text: "",
     image: "/post2_community.jpg",
+    avatar: "/community_perfil.jpg",
 
     likes: 8,
     comments: 2,

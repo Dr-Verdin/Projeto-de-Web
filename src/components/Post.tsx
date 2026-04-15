@@ -1,99 +1,116 @@
-import { Avatar, AvatarFallback, AvatarImage , AvatarBadge} from "@/components/ui/avatar"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+  AvatarBadge,
+} from "@/components/ui/avatar";
 import { Button } from "./ui/button";
-import {IconHeart, IconMessageCircle, IconSend, IconBookmark} from "@tabler/icons-react"
+import {
+  IconHeart,
+  IconMessageCircle,
+  IconSend,
+  IconBookmark,
+  IconDots,
+} from "@tabler/icons-react";
 
-interface textProps {
-    name?: string; //pra você colocar um nome no perfil
-    createdAt?:string; //pra você colocar a quanto tempo foi postado
-    avatar?: string; //pra você colocar foto de perfil
-    image?: string; //pra você colocar foto no post
-    title?: string; //pra vc colocar um título no post (o em H2)
-    text?:string; //pra vc coloca text no seu post
-    
+interface PostProps {
+  name?: string;
+  createdAt?: string;
+  avatar?: string;
+  image?: string;
+  title?: string;
+  text?: string;
+  type?: "user" | "community";
 }
 
-export function Post ({ name = "Usuário Anônimo", createdAt = "agora", avatar="https://github.com/shadcn.png", image, title, text }: textProps){
-    return (
-        <div className="gap-[20px]  hover:bg-[#A8D5E2]/30 hover:rounded-lg">
-            <header className="w-[700px] h-[42px] flex items-center pl-[16px] pr-[16px] flex-row gap-[5px]">
-                <Avatar  className=" relative w-[30px] h-[30px]">
-                    <AvatarImage src={avatar} alt="@shadcn" />
-                    <AvatarFallback>CN</AvatarFallback>
-                    <AvatarBadge className="bg-green-600 dark:bg-green-800" /> 
-                </Avatar>
-                <button className="flex items-center">
-                    <span className="text-slate-800 text-xs font-medium">
-                        {name}
-                    </span>
-                </button>
-                
-                <span className="text-black text-xs font-thin"> • {createdAt}</span>
-                <div className="ml-auto flex items-center gap-2">
-                    <Button className="rounded-full px-2 h-4 text-xs text-white bg-[#5C8001] border border-[#5C8001]  hover:bg-[#7CB518] hover:border-[#7CB518] hover:text-white transition-colors">seguir</Button>
-                    <Button className="w-8 h-8 p-0 flex items-center justify-center rounded-full bg-transparent hover:bg-slate-300 text-slate-900">
-                        {/* 1. 'leading-[0]' remove o espaço extra de linha.
-                            2. '-translate-y-[20%]' sobe os pontos em relação ao próprio tamanho.
-                            3. 'text-xl' deixa os pontos mais gordinhos e visíveis.
-                        */}
-                        <span className="flex items-center justify-center leading-[0] text-xl transform -translate-y-[4px]">
-                            ...
-                        </span>
-                    </Button>
-                </div>
-                
-            </header>
-            <main>
-                <div className="w-[700px] h-[660px]flex items-start text-start pl-[16px] pr-[16px] flex-col gap-[3px] text-slate-400">
-                    <h2 className="text-slate-900 font-bold text-lg">{title}</h2>
-                    {text && (
-                        <div className="flex flex-col items-start gap-[3px] h-full">
-                            <div>{text}</div>
-                            <button className="text-xs hover:text-slate-950 text-slate-700">
-                                ver mais
-                            </button>
-                        </div>
-                    )}
-                    
-                    
-                    {image && (
-                        <div className="relative w-[700px] h-[540px] overflow-hidden flex items-center justify-center rounded-lg bg-black">
-                            
-                            {/* 1. Imagem de Fundo (Desfocada e Escurecida) */}
-                            <img 
-                                src={image} 
-                                alt="Fundo desfocado" 
-                                className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40" 
-                            />
-                            
-                            {/* 2. Imagem Principal (Nítida e na Frente) */}
-                            <img 
-                                src={image} 
-                                alt="Post content" 
-                                className="relative z-10 max-w-full max-h-full object-contain drop-shadow-lg" 
-                            />
-                            
-                        </div>
-                    )}
-                </div>
-                <div className="w-[700px] h-[40px] flex items-center justify-between py-[20px] pl-[16px] pr-[16px]">
+export function Post({
+  name = "Usuário Anônimo",
+  createdAt = "agora",
+  avatar = "https://github.com/shadcn.png",
+  image,
+  title,
+  text,
+  type,
+}: PostProps) {
+  return (
+    <div className="w-full flex flex-col gap-3 hover:bg-[#A8D5E2]/30 hover:rounded-lg p-2">
+      {/* HEADER */}
+      <header className="w-full h-[42px] flex items-center gap-2 px-4">
+        <Avatar className="w-[30px] h-[30px]">
+          <AvatarImage src={avatar} alt={name} />
+          <AvatarFallback>CN</AvatarFallback>
+          <AvatarBadge className="bg-green-600 dark:bg-green-800" />
+        </Avatar>
 
-                    <div className="flex items-center gap-[20px]">
-                        <button className="hover:text-[#FFC300] transition-colors text-black">
-                            <IconHeart size={30} />
-                        </button>
-                        <button className="text-black">
-                            <IconMessageCircle size={30}/>
-                        </button>
-                        <button className="text-black">
-                            <IconSend size={30}/>
-                        </button>
-                    </div>
-                    <button className="text-black">
-                        <IconBookmark size={30}/>
-                    </button>
-                    
-                </div>
-            </main>
+        <button className="flex items-center">
+          <span className="text-slate-800 text-xs font-medium">
+            {type === "user" ? "u/" + name : "c/" + name}
+          </span>
+        </button>
+
+        <span className="text-black text-xs font-thin">• {createdAt}</span>
+
+        <div className="ml-auto flex items-center gap-2">
+          <Button className="rounded-full px-2 h-5 text-xs text-white bg-[#5C8001] hover:bg-[#7CB518]">
+            seguir
+          </Button>
+
+          <Button className="w-8 h-8 p-0 flex items-center justify-center rounded-full bg-transparent hover:bg-slate-300 text-slate-900">
+            <IconDots size={18} />
+          </Button>
         </div>
-    )
+      </header>
+
+      {/* CONTENT */}
+      <main className="w-full flex flex-col gap-2 px-4">
+        {title && <h2 className="text-slate-900 font-bold text-lg">{title}</h2>}
+
+        {text && (
+          <div className="flex flex-col gap-1 text-slate-700 text-sm">
+            <p>{text}</p>
+            <button className="text-xs hover:text-slate-950 text-slate-600 w-fit">
+              ver mais
+            </button>
+          </div>
+        )}
+
+        {image && (
+          <div className="relative w-full h-[540px] overflow-hidden rounded-lg bg-black">
+            <img
+              src={image}
+              alt="blur background"
+              className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40"
+            />
+
+            <img
+              src={image}
+              alt="post"
+              className="relative z-10 w-full h-full object-contain"
+            />
+          </div>
+        )}
+      </main>
+
+      {/* FOOTER */}
+      <footer className="w-full flex items-center justify-between px-4 py-2">
+        <div className="flex items-center gap-5">
+          <button className="hover:text-[#FFC300] transition-colors text-black">
+            <IconHeart size={26} />
+          </button>
+
+          <button className="text-black">
+            <IconMessageCircle size={26} />
+          </button>
+
+          <button className="text-black">
+            <IconSend size={26} />
+          </button>
+        </div>
+
+        <button className="text-black">
+          <IconBookmark size={26} />
+        </button>
+      </footer>
+    </div>
+  );
 }

@@ -4,6 +4,7 @@ export type Post = {
   title: string
   text?: string
   image?: string
+  avatar?: string
   tags?: string[]
   createdAt: string
   likes: number

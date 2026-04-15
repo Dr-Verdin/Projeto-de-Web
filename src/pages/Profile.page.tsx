@@ -1,5 +1,6 @@
-import { UserProfileCard } from "../components/UserProfileCard"
-import { Post } from "../components/Post"
+import { UserProfileCard } from "../components/UserProfileCard";
+import { Post } from "../components/Post";
+import { TaskChecklist } from "@/components/TaskChecklist";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -14,31 +15,36 @@ export default function Profile() {
   const { id } = useParams();
   const user = users[id!];
 
-  if (!user) {
-    return <div>Usuário não encontrado</div>;
-  }
+  if (!user) return <div>Usuário não encontrado</div>;
 
   const userPosts = posts
     .filter((post) => post.userId === id)
     .sort(
       (a, b) =>
-        new Date(b.createdAt).getTime() -
-        new Date(a.createdAt).getTime()
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
 
   return (
-    <main className="bg-slate-100 w-full min-h-screen p-4">
-      <div className="w-full max-w-[1200px]">
-        <div className="flex gap-[32px] items-start">
-
-          {/* PERFIL */}
-          <UserProfileCard user={user} />
-
+    <main className="w-full min-h-screen p-8">
+      <div className="w-full max-w-[1300px] mx-auto">
+        <div className="justify-center gap-8 relative">
           {/* POSTS */}
-          <section className="w-[732px] flex flex-col gap-[10px]">
+          <section className="flex-1 min-w-0 max-w-[640px] mx-auto">
+            {/* PERFIL */}
+            <aside className="w-[280px] shrink-0 absolute top-10 left-0 h-full">
+              <div className="sticky top-4">
+                <UserProfileCard user={user} />
+              </div>
+            </aside>
 
+            {/* TASKS (direita) */}
+            <aside className="w-[260px] shrink-0 absolute top-10 right-1 h-full">
+              <div className="sticky top-4">
+                <TaskChecklist />
+              </div>
+            </aside>
             {/* FILTROS */}
-            <div className="h-[40px] flex items-center gap-[20px] px-4">
+            <div className="h-[40px] flex items-center gap-4 px-4">
               <NavigationMenu>
                 <NavigationMenuList>
                   <NavigationMenuItem>
@@ -49,8 +55,8 @@ export default function Profile() {
               </NavigationMenu>
             </div>
 
-            {/* LISTA DE POSTS */}
-            <div className="flex flex-col gap-[24px]">
+            {/* LISTA */}
+            <div className="flex flex-col gap-6">
               {userPosts.map((post) => (
                 <Post
                   key={post.id}
@@ -66,9 +72,7 @@ export default function Profile() {
                 />
               ))}
             </div>
-
           </section>
-
         </div>
       </div>
     </main>

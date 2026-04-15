@@ -5,5 +5,6 @@ export type Community = {
   description: string
   rules: string
   members: number
-  image: string
+  avatar?: string
+  image?: string
 }
