@@ -3,8 +3,10 @@ export type Community = {
   userId: string
   name: string
   description: string
+  visibility: "public" | "private"
+  createdAt: string
   rules: string
   members: number
   avatar?: string
-  image?: string
+  background?: string
 }

@@ -8,6 +8,7 @@ import Feed from "./pages/Feed.page";
 import Profile from "./pages/Profile.page";
 
 import { Sidebar } from "./components/Sidebar";
+import Comunidade from "./pages/Comunity.page";
 
 const NO_SIDEBAR_ROUTES = ["/login"];
 
@@ -37,9 +38,9 @@ function App() {
         <Routes>
           <Route path="/" element={<Feed />} />
           <Route path="/perfil/:id" element={<Profile />} />
-          {/*<Route path="/comunidade/:id" element={<Comunidade />} />*/}
           <Route path="/pomodoro" element={<Pomodoro />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/comunidade/:id" element={<Comunidade />} />
         </Routes>
       </div>
     </div>

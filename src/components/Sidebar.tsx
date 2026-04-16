@@ -5,7 +5,6 @@ import {
   IconSearch,
   IconPlus,
   IconHeart,
-  IconCompass,
   IconMessageCircle,
   IconApple,
 } from "@tabler/icons-react";
@@ -33,7 +32,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
         to="/"
         className="absolute top-2 left-0 inline-flex ml-1 items-center transition-all duration-200 cursor-pointer active:scale-95"
       >
-        <div className="p-2 rounded-full hover:bg-[#FFC300]/20 transition-all duration-200">
+        <div className="p-2 rounded-full hover:bg-[#efce7b]/20 transition-all duration-200">
           <img src={"/logo_capys_preto.png"} alt="Logo" className="w-10 h-10" />
         </div>
       </Link>
@@ -49,12 +48,6 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           icon={IconSearch}
           label="Buscar"
           to="/buscar"
-          open={open}
-        />
-        <SidebarItem
-          icon={IconCompass}
-          label="Explorar"
-          to="/explorar"
           open={open}
         />
         <SidebarItem icon={IconPlus} label="Criar" to="/criar" open={open} />
@@ -79,20 +72,20 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
 
         <Link
           to={`/perfil/${currentUserId}`}
-          className="flex items-center px-1 py-3 mx-2 rounded-2xl hover:bg-[#FFC300]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95 relative"
+          className="flex items-center px-1 py-3 mx-2 rounded-2xl hover:bg-[#efce7b]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95 relative"
         >
           <img
             src={users[currentUserId].avatar}
             alt="Perfil"
             className={`w-9 h-9 rounded-full object-cover shrink-0 ${
-              isProfileActive ? "ring-2 ring-[#FB6107]" : ""
+              isProfileActive ? "ring-2 ring-[#e1903e]" : ""
             }`}
           />
 
           {open && (
             <span
               className={`ml-3 transition-all duration-200 whitespace-nowrap ${
-                isProfileActive ? "text-[#FB6107] font-bold" : "text-black"
+                isProfileActive ? "text-[#e1903e] font-bold" : "text-black"
               }`}
             >
               Perfil
@@ -121,18 +114,18 @@ function SidebarItem({
   return (
     <Link
       to={to}
-      className="flex items-center px-3 py-3 mx-2 rounded-2xl hover:bg-[#FFC300]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95"
+      className="flex items-center px-3 py-3 mx-2 rounded-2xl hover:bg-[#efce7b]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95"
     >
       <Icon
         className="w-6 h-6 shrink-0 transition-all"
         stroke={isActive ? 2.8 : 2}
-        color={isActive ? "#FB6107" : "black"}
+        color={isActive ? "#e1903e" : "black"}
       />
 
       {open && (
         <span
           className={`ml-3 whitespace-nowrap transition-all duration-200 ${
-            isActive ? "text-[#FB6107] font-bold" : "text-black"
+            isActive ? "text-[#e1903e] font-bold" : "text-black"
           }`}
         >
           {label}

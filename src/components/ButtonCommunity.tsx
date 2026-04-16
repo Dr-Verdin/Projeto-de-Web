@@ -9,7 +9,7 @@ interface TextoProps {
 export default function Botao({ nome, inscritos, imagem }: TextoProps) {
   return (
     <button
-      className="flex items-center gap-3 w-full h-[60px] px-4 rounded-md hover:bg-[#88B19D]/20 transition-colors"
+      className="flex items-center gap-3 w-full h-[60px] px-4 rounded-md hover:bg-[#aadeff]/20 transition-colors"
     >
       {/* Avatar */}
       <Avatar className="w-10 h-10">
