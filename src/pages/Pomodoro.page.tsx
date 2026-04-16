@@ -66,7 +66,7 @@ function Pomodoro() {
 
     return (
         <div className="relative flex h-screen w-full flex-col items-center justify-center bg-cover bg-center font-sans text-white"
-            style={{ backgroundImage: "url('/lo_fi(capivara2).jpg')" }}>
+            style={{ backgroundImage: "url('/wallpaper_pomodoro.jpg')" }}>
         
             <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
 
