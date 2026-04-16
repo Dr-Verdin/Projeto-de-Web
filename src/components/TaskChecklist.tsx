@@ -38,7 +38,7 @@ export function TaskChecklist() {
 
   return (
     <div className="rounded-2xl p-4 shadow flex flex-col gap-4 overflow-hidden bg-gray-50">
-      <h2 className="font-semibold text-slate-900 text-[#e63946]">Lista de Tarefas</h2>
+      <h2 className="font-semibold text-slate-900 text-[#e1903e]">Lista de Tarefas</h2>
 
       <div className="flex">
         <Input

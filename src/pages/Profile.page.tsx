@@ -8,7 +8,7 @@ import {
   NavigationMenuTrigger,
 } from "../components/ui/navigation-menu";
 
-import { posts, users, communities } from "../lib/mock";
+import { posts, users } from "../lib/mock";
 import { useParams } from "react-router-dom";
 
 export default function Profile() {
@@ -58,20 +58,7 @@ export default function Profile() {
             {/* LISTA */}
             <div className="flex flex-col gap-6">
               {userPosts.map((post) => (
-                <Post
-                  key={post.id}
-                  name={
-                    post.type === "user"
-                      ? users[post.userId!]?.name
-                      : communities[post.communityId!]?.name
-                  }
-                  type={post.type}
-                  createdAt={post.createdAt}
-                  title={post.title}
-                  text={post.text}
-                  avatar={post.avatar}
-                  image={post.image}
-                />
+                <Post key={post.id} {...post} />
               ))}
             </div>
           </section>

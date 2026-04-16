@@ -12,41 +12,47 @@ import {
   IconBookmark,
   IconDots,
 } from "@tabler/icons-react";
-
-interface PostProps {
-  name?: string;
-  createdAt?: string;
-  avatar?: string;
-  image?: string;
-  title?: string;
-  text?: string;
-  type?: "user" | "community";
-}
+import { Link } from "react-router-dom";
+import type { Post as PostType } from "../types/Post";
+import { users, communities } from "../lib/mock";
 
 export function Post({
-  name = "Usuário Anônimo",
   createdAt = "agora",
   avatar = "https://github.com/shadcn.png",
   image,
   title,
   text,
   type,
-}: PostProps) {
+  userId,
+  communityId,
+}: PostType) {
+  const displayName =
+  type === "user"
+    ? users[userId!]?.name
+    : communities[communityId!]?.name;
+
   return (
     <div className="w-full flex flex-col gap-3 p-2 rounded-lg transition-colors duration-300 hover:bg-[#efce7b]/30">
       {/* HEADER */}
       <header className="w-full h-[42px] flex items-center gap-2 px-4">
         <Avatar className="w-[30px] h-[30px]">
-          <AvatarImage src={avatar} alt={name} />
+          <AvatarImage src={avatar} alt={displayName} />
           <AvatarFallback>CN</AvatarFallback>
           <AvatarBadge className="bg-green-600 dark:bg-green-800" />
         </Avatar>
 
-        <button className="flex items-center">
+        <Link
+            to={
+              type === "user"
+                ? `/perfil/${userId}`
+                : `/comunidade/${communityId}`
+            }
+            className="flex items-center"
+          >
           <span className="text-slate-800 text-xs font-medium">
-            {type === "user" ? "u/" + name : "c/" + name}
+            {type === "user" ? "u/" + displayName : "c/" + displayName}
           </span>
-        </button>
+        </Link>
 
         <span className="text-black text-xs font-thin">• {createdAt}</span>
 

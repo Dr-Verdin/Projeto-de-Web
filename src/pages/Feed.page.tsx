@@ -7,7 +7,7 @@ import {
   NavigationMenuTrigger,
 } from "../components/ui/navigation-menu";
 
-import { posts, users, communities } from "../lib/mock";
+import { posts } from "../lib/mock";
 
 export default function Feed() {
   const feedPosts = [...posts].sort(
@@ -37,20 +37,7 @@ export default function Feed() {
           {/* POSTS */}
           <div className="flex flex-col gap-6">
             {feedPosts.map((post) => (
-              <Post
-                key={post.id}
-                name={
-                  post.type === "user"
-                    ? users[post.userId!]?.name
-                    : communities[post.communityId!]?.name
-                }
-                type={post.type}
-                createdAt={post.createdAt}
-                title={post.title}
-                text={post.text}
-                image={post.image}
-                avatar={post.avatar}
-              />
+              <Post key={post.id} {...post} />
             ))}
           </div>
         </section>

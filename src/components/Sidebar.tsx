@@ -7,6 +7,7 @@ import {
   IconHeart,
   IconMessageCircle,
   IconApple,
+  IconDoorExit,
 } from "@tabler/icons-react";
 
 import { users } from "../lib/mock";
@@ -37,7 +38,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
         </div>
       </Link>
 
-      <nav className="h-full flex flex-col justify-center">
+      <nav className="flex-1 flex flex-col justify-center">
         <SidebarItem
           icon={IconHome}
           label="Página Inicial"
@@ -93,6 +94,16 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           )}
         </Link>
       </nav>
+
+      <Link
+        to="/login"
+        className={`flex items-center px-3 py-3 mx-2 mb-4 rounded-2xl hover:bg-red-100 transition-all duration-300 ${
+          open ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <IconDoorExit className="w-6 h-6" color="#e63946" />
+        <span className="ml-3 text-red-500 font-medium">Sair</span>
+      </Link>
     </aside>
   );
 }
