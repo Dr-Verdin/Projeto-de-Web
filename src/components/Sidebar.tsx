@@ -5,7 +5,6 @@ import {
   IconSearch,
   IconPlus,
   IconHeart,
-  IconCompass,
   IconMessageCircle,
   IconApple,
 } from "@tabler/icons-react";
@@ -51,12 +50,6 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           to="/buscar"
           open={open}
         />
-        {/*<SidebarItem
-          icon={IconCompass}
-          label="Explorar"
-          to="/explorar"
-          open={open}
-        />*/}
         <SidebarItem icon={IconPlus} label="Criar" to="/criar" open={open} />
         <SidebarItem
           icon={IconHeart}
