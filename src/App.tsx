@@ -1,3 +1,5 @@
+// teste de commit
+
 import { Route, Routes, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "./App.css";
@@ -16,7 +18,6 @@ function App() {
   const location = useLocation();
   const [isFullscreen, setIsFullscreen] = useState(false);
 
-  // 👇 novo estado da sidebar
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
