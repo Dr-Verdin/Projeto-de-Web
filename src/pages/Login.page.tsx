@@ -21,14 +21,19 @@ export default function Login() {
   function handleLogin() {
     setError("");
 
-    const user = Object.values(users).find(
-      (u) => u.email === email && u.senha === senha,
+    const entry = Object.entries(users).find(
+      ([_, u]) => u.email === email && u.senha === senha,
     );
 
-    if (!user) {
+    if (!entry) {
       setError("Email ou senha inválidos");
       return;
     }
+
+    const [userId, user] = entry;
+
+    localStorage.setItem("userId", userId);
+    localStorage.setItem("user", JSON.stringify(user));
 
     navigate("/");
   }

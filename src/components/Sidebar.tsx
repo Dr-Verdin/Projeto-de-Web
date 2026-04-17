@@ -19,7 +19,7 @@ type SidebarProps = {
 
 export function Sidebar({ open, setOpen }: SidebarProps) {
   const location = useLocation();
-  const currentUserId = "1"
+  const currentUserId = localStorage.getItem("userId")!;
   const isProfileActive = location.pathname === `/perfil/${currentUserId}`;
   
 
@@ -98,6 +98,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
 
       <Link
         to="/login"
+        onClick={() => localStorage.removeItem("userId")}
         className={`flex items-center px-3 py-3 mx-2 mb-4 rounded-2xl hover:bg-red-100 transition-all duration-300 ${
           open ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}

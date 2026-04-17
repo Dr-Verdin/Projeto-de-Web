@@ -55,12 +55,12 @@ export default function Community() {
           {/*INFOS*/}
           <div className="mt-10 sticky top-4">
             <CommunityInfoCard
-              name={communities["1"].name}
-              description={communities["1"].description}
-              createdAt={communities["1"].createdAt}
-              visibility={communities["1"].visibility}
-              members={communities["1"].members}
-              rules={communities["1"].rules}
+              name={community.name}
+              description={community.description}
+              createdAt={community.createdAt}
+              visibility={community.visibility}
+              members={community.members}
+              rules={community.rules}
             />
           </div>
         </div>
