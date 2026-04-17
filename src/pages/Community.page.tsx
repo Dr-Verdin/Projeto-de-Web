@@ -7,10 +7,10 @@ import {
   NavigationMenuItem,
   NavigationMenuTrigger,
 } from "../components/ui/navigation-menu";
-import { posts, users, communities } from "../lib/mock";
+import { posts, communities } from "../lib/mock";
 import { useParams } from "react-router-dom";
 
-export default function Comunidade() {
+export default function Community() {
   // junta os posts e ordena por data (mais recente primeiro)
   const { id } = useParams();
   const community = communities[id!];
@@ -18,51 +18,39 @@ export default function Comunidade() {
     .filter((post) => post.type === "community" && post.communityId === id)
     .sort(
       (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
 
   return (
-    <div className="flex flex-col">
-
+    <main className="flex flex-col">
       {/* WALLPAPER DA COMUNIDADE */}
       <header className="w-full h-auto flex mx-auto py-4 pb-4">
         <WallpaperCommunity community={community} />
       </header>
 
-      <main className="w-full min-h-screen flex justify-center items-start flex-row p-4 relative">
+      <div className="w-full min-h-screen flex justify-center items-start flex-row p-4 relative">
         <div className="flex flex-row items-start gap-[64px]">
-          
           {/* FEED */}
-          <div className="w-[732px] min-h-screen flex items-center flex-col gap-[10px]">
-            <div className="w-[732px] h-[40px] text-black flex justify-start items-center gap-[20px] pl-[16px] pr-[16px]">
+          <section className="flex-1 max-w-2xl flex flex-col">
+            {/* FILTROS */}
+            <div className="h-11 flex items-center gap-4 px-4">
               <NavigationMenu>
                 <NavigationMenuList>
                   <NavigationMenuItem>
-                    <NavigationMenuTrigger>Melhores</NavigationMenuTrigger>
-                    <NavigationMenuTrigger>Filtrar</NavigationMenuTrigger>
+                    <NavigationMenuTrigger>For You</NavigationMenuTrigger>
+                    <NavigationMenuTrigger>Seguindo</NavigationMenuTrigger>
                   </NavigationMenuItem>
                 </NavigationMenuList>
               </NavigationMenu>
             </div>
 
-            <div className="w-[732px] min-h-screen flex flex-col gap-[24px]">
+            {/* POSTS */}
+            <div className="flex flex-col gap-6">
               {feedPosts.map((post) => (
-                <Post
-                  key={post.id}
-                  name={
-                    post.type === "user"
-                      ? users[post.userId!]?.name
-                      : communities[post.communityId!]?.name
-                  }
-                  createdAt={post.createdAt}
-                  avatar={post.avatar}
-                  title={post.title}
-                  text={post.text}
-                  image={post.image}
-                />
+                <Post key={post.id} {...post} />
               ))}
             </div>
-          </div>
+          </section>
 
           {/*INFOS*/}
           <div className="mt-10 sticky top-4">
@@ -76,7 +64,7 @@ export default function Comunidade() {
             />
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </main>
   );
 }

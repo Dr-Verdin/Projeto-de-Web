@@ -19,8 +19,9 @@ type SidebarProps = {
 
 export function Sidebar({ open, setOpen }: SidebarProps) {
   const location = useLocation();
-  const isProfileActive = location.pathname === "/perfil";
-  const currentUserId = "1"; // Simulando usuário logado
+  const currentUserId = "1"
+  const isProfileActive = location.pathname === `/perfil/${currentUserId}`;
+  
 
   return (
     <aside
@@ -34,7 +35,7 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
         className="absolute top-2 left-0 inline-flex ml-1 items-center transition-all duration-200 cursor-pointer active:scale-95"
       >
         <div className="p-2 rounded-full hover:bg-[#efce7b]/20 transition-all duration-200">
-          <img src={"/logo_capys_preto.png"} alt="Logo" className="w-10 h-10" />
+          <img src={"/logo_capys.png"} alt="Logo" className="w-10 h-10" />
         </div>
       </Link>
 

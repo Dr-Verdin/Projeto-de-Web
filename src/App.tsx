@@ -8,7 +8,7 @@ import Feed from "./pages/Feed.page";
 import Profile from "./pages/Profile.page";
 
 import { Sidebar } from "./components/Sidebar";
-import Comunidade from "./pages/Comunity.page";
+import Comunidade from "./pages/Community.page";
 
 const NO_SIDEBAR_ROUTES = ["/login"];
 

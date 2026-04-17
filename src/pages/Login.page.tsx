@@ -1,3 +1,8 @@
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -11,7 +16,6 @@ export default function Login() {
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-
   const navigate = useNavigate();
 
   function handleLogin() {
@@ -31,11 +35,8 @@ export default function Login() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-
     if (isLogin) {
       handleLogin();
-    } else {
-      setError("Cadastro desativado no mock 😅");
     }
   }
 
@@ -47,55 +48,59 @@ export default function Login() {
       {/* formulário */}
       <form
         onSubmit={handleSubmit}
-        className="flex w-[550px] flex-col items-center justify-center px-10 gap-5 bg-white"
+        className="flex flex-col w-full max-w-md min-h-xl items-center justify-center px-10 gap-5 bg-white"
       >
-        <img
-          src="/logo_capys_preto.png"
-          alt="capibara"
-          className="h-20 w-auto"
-        />
+        <div className="flex justify-center flex-col">
+          <div className="flex justify-center">
+            <img src="/logo_capys.png" alt="capibara" className="h-20 w-20" />
+          </div>
 
-        <h1 className="text-4xl font-semibold text-gray-700 text-center">
-          {isLogin
-            ? "De volta aos estudos 📚"
-            : "Comece sua jornada estudantil ✏️"}
-        </h1>
+          <h1 className="text-4xl font-semibold text-gray-700 text-center">
+            {isLogin
+              ? "De volta aos estudos 📚"
+              : "Comece sua jornada estudantil ✏️"}
+          </h1>
+        </div>
 
-        {/* email */}
-        <Input
-          placeholder="Insira seu email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="h-10 pr-10 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs"
-        />
+        <div className="w-full">
+          {/* email */}
+          <div className="flex flex-col gap-3">
+            <Input
+              placeholder="Insira seu email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-10 pr-10 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs"
+            />
 
-        {/* senha */}
-        <div className="relative w-full">
-          <Input
-            type={showPassword ? "text" : "password"}
-            placeholder="Insira sua senha"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            className="h-10 pr-10 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs"
-          />
+            {/* senha */}
+            <InputGroup className="h-10 pr-2 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs">
+              <InputGroupInput
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+              />
+              <InputGroupAddon align="inline-end">
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <IconEyeOff /> : <IconEye />}
+                </button>
+              </InputGroupAddon>
+            </InputGroup>
+          </div>
 
+          {/* esqueci senha */}
           <button
             type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+            className="text-xs text-gray-500 hover:underline hover:decoration-gray-500"
           >
-            {showPassword ? <IconEyeOff size={24} /> : <IconEye size={24} />}
+            Esqueci minha senha
           </button>
         </div>
 
-        {/* erro */}
-        {error && (
-          <p className="text-[#e63946] text-sm bg-[#e63946]/10 px-3 py-2 rounded-lg">
-            {error}
-          </p>
-        )}
-
-        <div className="flex flex-col gap-2 items-center">
+        <div className="flex flex-col gap-3">
           {/* botão principal */}
           <Button
             type="submit"
@@ -104,23 +109,24 @@ export default function Login() {
             {isLogin ? "Acessar conta" : "Cadastrar"}
           </Button>
 
-          {/* esqueci senha */}
-          <button
+          {/* toggle */}
+          <Button
             type="button"
-            className="text-xs text-gray-500 hover:text-gray-700"
+            onClick={() => setIsLogin(!isLogin)}
+            className="w-52 py-5 font-semibold bg-[#b7bb86]/85 text-white hover:bg-[#b7bb86] rounded-3xl"
           >
-            Esqueci minha senha
-          </button>
+            {isLogin ? "Criar nova conta" : "Já tem uma conta? Faça login"}
+          </Button>
         </div>
 
-        {/* toggle */}
-        <Button
-          type="button"
-          onClick={() => setIsLogin(!isLogin)}
-          className="w-52 py-5 font-semibold bg-[#b7bb86]/85 text-white hover:bg-[#b7bb86] rounded-3xl"
+        {/* erro */}
+        <p
+          className={`text-[#e63946] text-sm px-3 py-2 rounded-lg transition-opacity duration-300 ${
+            error ? "opacity-100" : "opacity-0"
+          }`}
         >
-          {isLogin ? "Criar nova conta" : "Já tem uma conta? Faça login"}
-        </Button>
+          {error || "placeholder"}
+        </p>
       </form>
     </div>
   );

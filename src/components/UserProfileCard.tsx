@@ -2,7 +2,7 @@ import type { User } from "../types/User";
 
 export function UserProfileCard({ user }: { user: User }) {
   return (
-    <div className="w-[320px] shrink-0 shrink-0 p-4 rounded-xl bg-gray-50">
+    <div className="max-h-2xl w-72 shrink-0 p-4 rounded-xl bg-gray-50">
       <div className="flex flex-col items-center text-center">
         <img
           src={user.avatar}

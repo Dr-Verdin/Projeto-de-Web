@@ -25,6 +25,8 @@ export function Post({
   type,
   userId,
   communityId,
+  comments,
+  likes,
 }: PostType) {
   const displayName =
   type === "user"
@@ -33,9 +35,9 @@ export function Post({
 
   return (
     <div className="w-full flex flex-col gap-3 p-2 rounded-lg transition-colors duration-300 hover:bg-[#efce7b]/30">
-      {/* HEADER */}
-      <header className="w-full h-[42px] flex items-center gap-2 px-4">
-        <Avatar className="w-[30px] h-[30px]">
+      {/* CABEÇALHO */}
+      <header className="w-full h-12 flex items-center gap-2 px-4">
+        <Avatar className="w-10 h-10">
           <AvatarImage src={avatar} alt={displayName} />
           <AvatarFallback>CN</AvatarFallback>
           <AvatarBadge className="bg-green-600 dark:bg-green-800" />
@@ -54,10 +56,10 @@ export function Post({
           </span>
         </Link>
 
-        <span className="text-black text-xs font-thin">• {createdAt}</span>
+        <span className="text-gray-500 text-xs">• {createdAt}</span>
 
         <div className="ml-auto flex items-center gap-2">
-          <Button className="rounded-full px-2 h-5 text-xs text-white bg-[#b7bb86] hover:bg-[#e1903e]">
+          <Button className="rounded-full px-4 h-8 text-xs text-white bg-[#b7bb86] hover:bg-[#e1903e]">
             seguir
           </Button>
 
@@ -67,8 +69,8 @@ export function Post({
         </div>
       </header>
 
-      {/* CONTENT */}
-      <main className="w-full flex flex-col gap-2 px-4">
+      {/* CONTEUDO */}
+      <div className="w-full flex flex-col gap-2 px-4">
         {title && <h2 className="text-slate-900 font-bold text-lg">{title}</h2>}
 
         {text && (
@@ -81,7 +83,7 @@ export function Post({
         )}
 
         {image && (
-          <div className="relative w-full h-[540px] overflow-hidden rounded-lg bg-black">
+          <div className="relative w-full h-[60vh] overflow-hidden rounded-lg bg-black">
             <img
               src={image}
               alt="blur background"
@@ -95,26 +97,28 @@ export function Post({
             />
           </div>
         )}
-      </main>
+      </div>
 
       {/* FOOTER */}
       <footer className="w-full flex items-center justify-between px-4 py-2">
         <div className="flex items-center gap-5">
-          <button className="hover:text-[#e63946] transition-colors text-black">
-            <IconHeart size={26} />
+          <button className="flex items-center gap-1 hover:text-[#e63946] transition-colors text-black">
+            <IconHeart size={30} />
+            {likes}
+          </button>
+
+          <button className="flex gap-1 items-center text-black">
+            <IconMessageCircle size={30} />
+            {comments}
           </button>
 
           <button className="text-black">
-            <IconMessageCircle size={26} />
-          </button>
-
-          <button className="text-black">
-            <IconSend size={26} />
+            <IconSend size={30} />
           </button>
         </div>
 
-        <button className="text-black">
-          <IconBookmark size={26} />
+        <button className="text-black hover:text-[#aadeff] transition-colors">
+          <IconBookmark size={30} />
         </button>
       </footer>
     </div>

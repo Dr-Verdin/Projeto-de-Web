@@ -6,12 +6,13 @@ type WallpaperCommunityProps = {
   community: Community;
 };
 
-export default function WallpaperCommunity({ community }: WallpaperCommunityProps) {
+export default function WallpaperCommunity({
+  community,
+}: WallpaperCommunityProps) {
   return (
     <div className="w-full mx-auto">
-      
       {/* Banner */}
-      <div className="w-full aspect-[1072/136] overflow-hidden flex justify-center items-center rounded-lg bg-gray-200">
+      <div className="w-full aspect-[1072/136] overflow-hidden flex justify-center items-center rounded-lg">
         <img
           src={community.background}
           alt={community.name}
@@ -21,7 +22,6 @@ export default function WallpaperCommunity({ community }: WallpaperCommunityProp
 
       {/* Infos */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:gap-1 gap-4">
-
         {/* LADO ESQUERDO */}
         <div className="flex flex-row items-end gap-3">
           <div className="-mt-8 sm:-mt-10 ml-2">
@@ -40,15 +40,14 @@ export default function WallpaperCommunity({ community }: WallpaperCommunityProp
 
         {/* BOTÕES */}
         <div className="flex items-center gap-2 mt-4 sm:mt-6">
-            <button className="px-6 py-1.5 rounded-full text-white bg-[#5C8001] border border-[#5C8001] hover:bg-[#7CB518] hover:border-[#7CB518] transition-colors">
-                seguir
-            </button>
+          <button className="flex justify-center items-center px-6 py-1.5 rounded-full text-white bg-[#b7bb86] border border-[#b7bb86] hover:bg-[#e1903e] hover:border-[#e1903e] transition-colors">
+            seguir
+          </button>
 
-            <button className="w-12 h-12 flex items-center justify-center rounded-full text-white bg-[#5C8001] border border-[#5C8001] hover:bg-[#7CB518] hover:border-[#7CB518] transition-colors">
-                <IconPlus size={24} />
-            </button>
+          <button className="w-12 h-12 flex items-center justify-center rounded-full text-black bg-gray-50 border border-gray-300 hover:border-black transition-colors">
+            <IconPlus size={24} />
+          </button>
         </div>
-
       </div>
     </div>
   );

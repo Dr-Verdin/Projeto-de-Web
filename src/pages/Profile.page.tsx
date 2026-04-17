@@ -26,25 +26,25 @@ export default function Profile() {
 
   return (
     <main className="w-full min-h-screen p-8">
-      <div className="w-full max-w-[1300px] mx-auto">
+      <div className="w-full max-w-7xl mx-auto">
         <div className="justify-center gap-8 relative">
           {/* POSTS */}
-          <section className="flex-1 min-w-0 max-w-[640px] mx-auto">
+          <section className="min-w-0 max-w-2xl mx-auto">
             {/* PERFIL */}
-            <aside className="w-[280px] shrink-0 absolute top-10 left-0 h-full">
+            <aside className="shrink-0 absolute top-10 left-0 h-full">
               <div className="sticky top-4">
                 <UserProfileCard user={user} />
               </div>
             </aside>
 
             {/* TASKS (direita) */}
-            <aside className="w-[260px] shrink-0 absolute top-10 right-1 h-full">
+            <aside className="shrink-0 absolute top-10 right-1 h-full">
               <div className="sticky top-4">
                 <TaskChecklist />
               </div>
             </aside>
             {/* FILTROS */}
-            <div className="h-[40px] flex items-center gap-4 px-4">
+            <div className="h-11 flex items-center gap-4 px-4">
               <NavigationMenu>
                 <NavigationMenuList>
                   <NavigationMenuItem>
