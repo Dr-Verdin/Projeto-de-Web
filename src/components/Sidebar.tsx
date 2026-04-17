@@ -21,7 +21,6 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
   const location = useLocation();
   const currentUserId = localStorage.getItem("userId")!;
   const isProfileActive = location.pathname === `/perfil/${currentUserId}`;
-  
 
   return (
     <aside
