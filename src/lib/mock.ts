@@ -174,7 +174,7 @@ export const posts: Post[] = [
     1 colher de chá de essência de baunilha (opcional)
     50ml de licor de café ou 50ml de café expresso`,
     image: "/post1community 2.jpg",
-    avatar: "/community_perfil.jpg",
+    avatar: "/community_perfil2.jpg",
 
     likes: 8,
     comments: 2,
@@ -189,7 +189,7 @@ export const posts: Post[] = [
     title: "Dia de torta de manteiga Escocesa! 🧈🥧",
     text:"",
     image: "/post2_community2.jpg",
-    avatar: "/community_perfil.jpg",
+    avatar: "/community_perfil2.jpg",
 
     likes: 8,
     comments: 2,
@@ -205,7 +205,7 @@ export const posts: Post[] = [
     title: "Probleminha computacional clássico. Quem lenbra o nome??💻🌍",
     text:"",
     image: "/post1_community3.jpeg",
-    avatar: "/community_perfil.jpg",
+    avatar: "/community_perfil3.png",
 
     likes: 8,
     comments: 2,
@@ -220,7 +220,7 @@ export const posts: Post[] = [
   title: "Grafos direcionados, o que são? 🤔📊",
   text:"Um grafo dirigido (= directed graph) é um par (V,E) de conjuntos em que é um conjunto finito não vazio e um conjunto de pares ordenados de elementos de V.",
   image: "/post2_community3.png",
-  avatar: "/community_perfil.jpg",
+  avatar: "/community_perfil3.png",
 
   likes: 8,
   comments: 2,
@@ -235,7 +235,7 @@ export const posts: Post[] = [
   title: "Não consigo visualizar outra coisa além de números nesse momento... 🤯📊",
   text:"",
   image: "/post1_community4.jpg",
-  avatar: "/community_perfil.jpg",
+  avatar: "/community_perfil4.jpg",
 
   likes: 8,
   comments: 2,
@@ -250,7 +250,7 @@ export const posts: Post[] = [
   title: "Algumas integrais pra quem quiser treinar! 📚🧠",
   text:"",
   image: "/post2_community4.jpg",
-  avatar: "/community_perfil.jpg",
+  avatar: "/community_perfil4.jpg",
 
   likes: 8,
   comments: 2,
