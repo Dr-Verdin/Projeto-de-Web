@@ -18,6 +18,21 @@ export const users: Record<string, User> = {
 
     email: "lari@gmail.com",
     senha: "123456",
+  },
+    "2": {
+    avatar: "/avatar_alice.jpg",
+    name: "Alice",
+    pronoun: "ela/dela",
+    username: "@lice_alice",
+    
+    bio: "Estudante de Ciência da Computação no ICMC-USP 📚✨",
+    
+    studyTime: 1000,
+    followers: 400,
+    following: 80,
+
+    email: "alice@gmail.com",
+    senha: "345678",
   }
 }
 
@@ -36,6 +51,51 @@ export const communities: Record<string, Community> = {
     members: 120,
     avatar: "/community_perfil.jpg",
     background: "/community_fundo.jpg",
+  },
+  "2": {
+    communityId: "2",
+    userId: "1",
+
+    name: "Aprendizes da culinária",
+    description: "Comunidade para quem gosta de cozinhar e aprender receitas novas",
+    
+    createdAt: "2025-12-01",
+    visibility: "public",
+
+    rules: "1. Respeitar os outros membros\n2. Compartilhar dicas e experiências\n3. Postar receitas e dicas de cozinha",
+    members: 10000,
+    avatar: "/community_perfil2.jpg",
+    background: "/community_background2.jpg",
+  },
+  "3": {
+    communityId: "3",
+    userId: "1",
+
+    name: "Grafos e afins",
+    description: "Comunidade para aprender e compartilhar conhecimento sobre grafos e algoritmos relacionados",
+    
+    createdAt: "2025-12-01",
+    visibility: "public",
+
+    rules: "1. Respeitar os outros membros\n2. Compartilhar dicas e experiências\n3. Postar códigos e projetos",
+    members: 10000,
+    avatar: "/community_perfil3.png",
+    background: "/community_fundo3.jpg",
+  },
+  "4": {
+    communityId: "4",
+    userId: "1",
+
+    name: "Matemática é vida",
+    description: "Comunidade para aprender e compartilhar conhecimento sobre matemática em geral, desde o ensino médio até a pós-graduação",
+    
+    createdAt: "2025-11-01",
+    visibility: "public",
+
+    rules: "1. Respeitar os outros membros\n2. Compartilhar dicas e experiências\n3. Postar problemas e curiosidades matemáticas",
+    members: 10000,
+    avatar: "/community_perfil4.jpg",
+    background: "/community_fundo4.jpg",
   }
 }
 
@@ -102,5 +162,102 @@ export const posts: Post[] = [
     createdAt: "2026-04-10",
 
     communityId: "1",
-  }
+  },
+  {
+    id: "5",
+    type: "community",
+
+    title: "Mousse delicioso 🤤",
+    text: `    6 ovos\n100g de açúcar refinado
+    150g de manteiga sem sal
+    300g de chocolate 70% cacau
+    1 colher de chá de essência de baunilha (opcional)
+    50ml de licor de café ou 50ml de café expresso`,
+    image: "/post1community 2.jpg",
+    avatar: "/community_perfil.jpg",
+
+    likes: 8,
+    comments: 2,
+    createdAt: "2026-02-10",
+
+    communityId: "2",
+  },
+  {
+    id: "6",
+    type: "community",
+
+    title: "Dia de torta de manteiga Escocesa! 🧈🥧",
+    text:"",
+    image: "/post2_community2.jpg",
+    avatar: "/community_perfil.jpg",
+
+    likes: 8,
+    comments: 2,
+    createdAt: "2026-02-10",
+
+    communityId: "2",
+  },
+
+  {
+    id: "6",
+    type: "community",
+
+    title: "Probleminha computacional clássico. Quem lenbra o nome??💻🌍",
+    text:"",
+    image: "/post1_community3.jpeg",
+    avatar: "/community_perfil.jpg",
+
+    likes: 8,
+    comments: 2,
+    createdAt: "2026-02-10",
+
+    communityId: "3",
+},
+{
+  id: "7",
+  type: "community",
+
+  title: "Grafos direcionados, o que são? 🤔📊",
+  text:"Um grafo dirigido (= directed graph) é um par (V,E) de conjuntos em que é um conjunto finito não vazio e um conjunto de pares ordenados de elementos de V.",
+  image: "/post2_community3.png",
+  avatar: "/community_perfil.jpg",
+
+  likes: 8,
+  comments: 2,
+  createdAt: "2026-02-10",
+
+  communityId: "3",
+},
+{
+  id: "7",
+  type: "community",
+
+  title: "Não consigo visualizar outra coisa além de números nesse momento... 🤯📊",
+  text:"",
+  image: "/post1_community4.jpg",
+  avatar: "/community_perfil.jpg",
+
+  likes: 8,
+  comments: 2,
+  createdAt: "2026-02-10",
+
+  communityId: "4",
+},
+{
+  id: "8",
+  type: "community",
+
+  title: "Algumas integrais pra quem quiser treinar! 📚🧠",
+  text:"",
+  image: "/post2_community4.jpg",
+  avatar: "/community_perfil.jpg",
+
+  likes: 8,
+  comments: 2,
+  createdAt: "2026-02-10",
+
+  communityId: "4",
+}
+
+
 ];
