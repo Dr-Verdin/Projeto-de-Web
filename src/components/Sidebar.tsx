@@ -8,6 +8,7 @@ import {
   IconMessageCircle,
   IconApple,
   IconDoorExit,
+  IconSettings,
 } from "@tabler/icons-react";
 
 import { users } from "../lib/mock";
@@ -95,10 +96,19 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
         </Link>
       </nav>
 
+      <div
+        className={`flex items-center px-3 py-3 mx-2 mb-4 rounded-2xl hover:bg-gray-300 transition-all duration-300 hover:scale-[1.02] cursor-pointer active:scale-95 relative ${
+          open ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <IconSettings className="w-6 h-6" color="#000000" />
+        <span className="ml-3 text-black font-medium">Configurações</span>
+      </div>
+
       <Link
         to="/login"
         onClick={() => localStorage.removeItem("userId")}
-        className={`flex items-center px-3 py-3 mx-2 mb-4 rounded-2xl hover:bg-red-100 transition-all duration-300 ${
+        className={`flex items-center px-3 py-3 mx-2 mb-4 rounded-2xl hover:bg-red-100 transition-all duration-300 hover:scale-[1.02] cursor-pointer active:scale-95 relative ${
           open ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
