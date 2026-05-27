@@ -1,9 +1,17 @@
 import { Dialog, DialogContent } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Avatar, AvatarImage, AvatarFallback, AvatarBadge } from "./ui/avatar";
+import { Input } from "./ui/input";
 import { IconDots } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import type { Post as PostType } from "../types/Post";
+
+import {
+  IconHeart,
+  IconMessageCircle,
+  IconSend,
+  IconBookmark,
+} from "@tabler/icons-react";
 
 type PostModalProps = {
   open: boolean;
@@ -106,7 +114,9 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
                 className="flex items-center"
               >
                 <span className="text-slate-800 text-xs font-medium">
-                  {post.type === "user" ? "u/" + post.displayName : "c/" + post.displayName}
+                  {post.type === "user"
+                    ? "u/" + post.displayName
+                    : "c/" + post.displayName}
                 </span>
               </Link>
 
@@ -152,17 +162,97 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
             </div>
 
             {/* FOOTER */}
-            <div
+            <footer
               className="
+                w-full
+                flex
+                items-center
+                justify-between
+
+                px-5
+                pt-3
+                pb-2
+
                 border-t border-zinc-200
-                px-6
-                py-4
-                text-sm
-                text-zinc-500
+                bg-white
+
                 shrink-0
               "
             >
-              {post.comments} comentários • {post.likes} curtidas
+              <div className="flex items-center gap-5">
+                <button
+                  onClick={(e) => e.stopPropagation()}
+                  className="
+                    flex items-center gap-1
+                    text-zinc-800
+                    hover:text-red-500
+                    transition-colors
+                  "
+                >
+                  <IconHeart size={28} />
+                  <span className="text-sm">{post.likes}</span>
+                </button>
+
+                <button
+                  onClick={(e) => e.stopPropagation()}
+                  className="
+                    text-zinc-800
+                    transition-colors
+                  "
+                >
+                  <IconSend size={28} />
+                </button>
+              </div>
+
+              <button
+                onClick={(e) => e.stopPropagation()}
+                className="
+                  text-zinc-800
+                  hover:text-sky-300
+                  transition-colors
+                "
+              >
+                <IconBookmark size={28} />
+              </button>
+            </footer>
+
+            {/* INPUT COMENTÁRIO */}
+            <div
+              className="
+                px-5
+                pt-1
+                pb-4
+
+                bg-white
+                shrink-0
+              "
+            >
+              <div className="flex items-center gap-3">
+                <Input
+                  placeholder="Adicione um comentário..."
+                  className="
+                    h-11
+                    rounded-full
+                    border-zinc-200
+                    bg-zinc-100
+                    focus-visible:ring-1
+                    focus-visible:ring-zinc-300
+                  "
+                />
+
+                <Button
+                  className="
+                    rounded-full
+                    px-5
+                    h-11
+                    bg-[#b7bb86]
+                    hover:bg-[#e1903e]
+                    text-white
+                  "
+                >
+                  Enviar
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -174,8 +264,6 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
 {
   /*
   Ponstos para arrumar:
-  - botão de fechar (tirar ou ajustar), titulo
-  - icone de curtidas e comentarios
   - comentarios visiveis embaixo (fazer no mock talvez alguns) e ser scrolavel
   - mostrar usuario que postou no caso de comunidades
   - colocar as tags visiveis
