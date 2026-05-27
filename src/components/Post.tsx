@@ -164,6 +164,7 @@ export function Post({
           type,
           userId,
           communityId,
+          displayName,
           comments,
           likes,
         }}

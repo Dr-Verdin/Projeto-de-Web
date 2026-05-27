@@ -1,6 +1,7 @@
 export type Post = {
   id: string
   type: "user" | "community"
+  displayName: string
   title: string
   text?: string
   image?: string
