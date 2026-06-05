@@ -4,14 +4,13 @@ import { Avatar, AvatarImage, AvatarFallback, AvatarBadge } from "./ui/avatar";
 import { Input } from "./ui/input";
 import { IconDots } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
+
 import type { Post as PostType } from "../types/Post";
 
-import {
-  IconHeart,
-  IconMessageCircle,
-  IconSend,
-  IconBookmark,
-} from "@tabler/icons-react";
+import { users, communities, comments } from "../lib/mock";
+
+import { IconHeart, IconSend, IconBookmark } from "@tabler/icons-react";
+import { CommentItem } from "./Comment";
 
 type PostModalProps = {
   open: boolean;
@@ -20,6 +19,14 @@ type PostModalProps = {
 };
 
 export function PostModal({ open, onOpenChange, post }: PostModalProps) {
+  const isCommunityPost = !!post.communityId;
+
+  const author = isCommunityPost
+    ? communities[post.communityId!]
+    : users[post.userId];
+
+  const displayName = author.name;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -37,7 +44,7 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
           [&_[data-radix-dialog-close]]:hidden
         "
       >
-        <div className="flex h-full flex-col md:flex-row">
+        <div className="flex h-full min-h-0 flex-col md:flex-row">
           {/* IMAGEM */}
           {post.image && (
             <div
@@ -93,32 +100,52 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
               bg-white
               flex
               flex-col
+              h-full
               min-h-0
+              overflow-hidden
             "
           >
             {/* HEADER */}
-            <header className="w-full px-5 py-5 flex items-center gap-2">
-              <Avatar className="w-10 h-10">
-                <AvatarImage src={post.avatar} alt={post.displayName} />
-                <AvatarFallback>CN</AvatarFallback>
-                <AvatarBadge className="bg-green-600 dark:bg-green-800" />
-              </Avatar>
-
+            <header className="w-full border-b border-zinc-200 px-5 pt-4 pb-4 flex items-center gap-2">
               <Link
                 to={
-                  post.type === "user"
-                    ? `/perfil/${post.userId}`
-                    : `/comunidade/${post.communityId}`
+                  isCommunityPost
+                    ? `/comunidade/${post.communityId}`
+                    : `/perfil/${post.userId}`
                 }
                 onClick={(e) => e.stopPropagation()}
-                className="flex items-center"
               >
-                <span className="text-slate-800 text-xs font-medium">
-                  {post.type === "user"
-                    ? "u/" + post.displayName
-                    : "c/" + post.displayName}
-                </span>
+                <Avatar className="w-10 h-10">
+                  <AvatarImage src={author.avatar} alt={displayName} />
+                  <AvatarFallback>CN</AvatarFallback>
+                  <AvatarBadge className="bg-green-600 dark:bg-green-800" />
+                </Avatar>
               </Link>
+
+              <div className="flex flex-col leading-tight">
+                <Link
+                  to={
+                    isCommunityPost
+                      ? `/comunidade/${post.communityId}`
+                      : `/perfil/${post.userId}`
+                  }
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-slate-800 text-xs font-medium hover:underline"
+                >
+                  {isCommunityPost ? "c/" : "u/"}
+                  {displayName}
+                </Link>
+
+                {isCommunityPost && (
+                  <Link
+                    to={`/perfil/${post.userId}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-[11px] text-zinc-500 hover:underline"
+                  >
+                    por u/{users[post.userId].name}
+                  </Link>
+                )}
+              </div>
 
               <span className="text-gray-500 text-xs">• {post.createdAt}</span>
 
@@ -143,9 +170,15 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
             <div
               className="
                 flex-1
+                min-h-0
                 overflow-y-auto
                 px-6
                 py-4
+
+                scrollbar-thin
+                scrollbar-thumb-zinc-300
+                scrollbar-track-transparent
+                hover:scrollbar-thumb-zinc-400
               "
             >
               {post.title && (
@@ -155,10 +188,16 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
               )}
 
               {post.text && (
-                <p className="text-sm leading-6 text-zinc-700 whitespace-pre-line">
+                <p className="text-sm leading-6 text-zinc-700 whitespace-pre-line pb-10">
                   {post.text}
                 </p>
               )}
+
+              {comments
+                .filter((comment) => comment.postId === post.id)
+                .map((comment) => (
+                  <CommentItem key={comment.id} {...comment} />
+                ))}
             </div>
 
             {/* FOOTER */}
@@ -170,8 +209,8 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
                 justify-between
 
                 px-5
-                pt-3
-                pb-2
+                pt-4
+                pb-3
 
                 border-t border-zinc-200
                 bg-white
@@ -267,7 +306,6 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
   - comentarios visiveis embaixo (fazer no mock talvez alguns) e ser scrolavel
   - mostrar usuario que postou no caso de comunidades
   - colocar as tags visiveis
-  - ter um input para adiconar comentarios
   - depois: designer dos comentarios -> componente
   */
 }

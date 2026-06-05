@@ -15,25 +15,32 @@ import {
 import { Link } from "react-router-dom";
 import { PostModal } from "./PostModal";
 import type { Post as PostType } from "../types/Post";
-import { users, communities } from "../lib/mock";
+import { users, communities, comments } from "../lib/mock";
 import { useState } from "react";
 
 export function Post({
   id,
   createdAt = "agora",
-  avatar = "https://github.com/shadcn.png",
   image,
   title,
   text,
   type,
   userId,
   communityId,
-  comments,
   likes,
 }: PostType) {
   const [open, setOpen] = useState(false);
-  const displayName =
-    type === "user" ? users[userId!]?.name : communities[communityId!]?.name;
+
+  const commentCount = comments.filter(c => c.postId === id).length
+
+  const isCommunityPost = !!communityId;
+
+  const author = isCommunityPost
+    ? communities[communityId!]
+    : users[userId];
+
+  const avatar = author?.avatar ?? "";
+  const displayName = author?.name ?? "unknown";
 
   return (
     <>
@@ -133,7 +140,7 @@ export function Post({
               className="flex gap-1 items-center text-black"
             >
               <IconMessageCircle size={30} />
-              {comments}
+              {commentCount}
             </button>
 
             <button onClick={(e) => e.stopPropagation()} className="text-black">
@@ -157,15 +164,12 @@ export function Post({
         post={{
           id,
           createdAt,
-          avatar,
           image,
           title,
           text,
           type,
           userId,
           communityId,
-          displayName,
-          comments,
           likes,
         }}
       />

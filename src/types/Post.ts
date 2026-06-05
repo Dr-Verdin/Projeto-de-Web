@@ -1,7 +1,6 @@
 export type Post = {
   id: string
   type: "user" | "community"
-  displayName: string
   title: string
   text?: string
   image?: string
@@ -9,7 +8,6 @@ export type Post = {
   tags?: string[]
   createdAt: string
   likes: number
-  comments: number
-  userId?: string
+  userId: string
   communityId?: string
 }
