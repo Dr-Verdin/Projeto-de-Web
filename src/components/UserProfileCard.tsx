@@ -15,18 +15,24 @@ export function UserProfileCard({ user }: { user: User }) {
           <span className="text-gray-400">{user.pronoun}</span>
         </p>
 
-        <div className="flex gap-6 mt-3 text-sm">
+        <div className="flex justify-center fle gap-6 mt-3 text-sm">
           <p>
-            <span className="font-semibold text-gray-900 cursor-pointer">
+            <span className="flex flex-col font-semibold text-gray-900 cursor-pointer">
               {user.followers}
             </span>{" "}
             <span className="text-gray-500">followers</span>
           </p>
           <p>
-            <span className="font-semibold text-gray-900 cursor-pointer">
+            <span className="flex flex-col font-semibold text-gray-900 cursor-pointer">
               {user.following}
             </span>{" "}
             <span className="text-gray-500">following</span>
+          </p>
+          <p>
+            <span className="flex flex-col font-semibold text-gray-900 cursor-pointer">
+              {user.studyTime}h
+            </span>{" "}
+            <span className="flex flex-col text-gray-500">study time</span>
           </p>
         </div>
 
