@@ -1,66 +1,138 @@
-import {Input} from "@/components/ui/input"
-import {Button} from "@/components/ui/button" 
-import {useState} from "react"
-import {useNavigate} from "react-router-dom"
-import {user} from "../lib/mock"
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { users } from "../lib/mock";
+import { IconEye, IconEyeOff } from "@tabler/icons-react";
 
-function Login(){
+export default function Login() {
+  const [isLogin, setIsLogin] = useState(true);
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
-    const [isLogin, setIsLogin] = useState(true)
+  function handleLogin() {
+    setError("");
 
-    const navigate = useNavigate()
-    const [email, setEmail] = useState("")
-    const [senha, setSenha] = useState("")
-    const [erro, setErro] = useState("")
+    const entry = Object.entries(users).find(
+      ([_, u]) => u.email === email && u.senha === senha,
+    );
 
-    function handleLogin(){
-        if(email === user.email && senha === user.senha){
-            navigate("/")
-        }else{
-            setErro("Email ou senha incorretos")
-            setTimeout(() => setErro(""), 5000)
-        }
+    if (!entry) {
+      setError("Email ou senha inválidos");
+      return;
     }
 
-    return(
-        <div className="flex h-screen w-screen justify bg-[#fafafa]">
-            <div className="relative flex flex-1 flex-col items-center bg-[url('/capivaras.jpg')] bg-cover bg-center">
-            </div>
-            <div className="w-px bg-[#3a3a3a]"></div>
+    const [userId, user] = entry;
 
-            <div className="flex w-[550px] flex-col items-center justify-center px-10 gap-5 bg-white">
-                <img src="/logo_capys_preto.png" alt="capibara" className="h-20 w-auto" />
-                <h2 className="text-2xl font-semibold text-gray-700">
-                    {isLogin ? "De volta aos estudos 📚" : "Comece sua jornada estudantil"} 
-                </h2>
+    localStorage.setItem("userId", userId);
+    localStorage.setItem("user", JSON.stringify(user));
 
-                <Input value={email} type ="text" placeholder="Seu email" onChange={(e) => setEmail(e.target.value)} className=" h-10 bg-[#fafafa] text-xs border-[#363636] placeholder:text-gray-500 focus-visible:ring-1 focus-visible:ring-[#548C2F]c rounded-2xl"></Input>
-                <Input value={senha} type ="password" 
-                    placeholder={isLogin ? "Sua senha": "Crie uma senha (minimo de 8 caracteres)"} 
-                    onChange={(e) => setSenha(e.target.value)}
-                    onKeyDown={(e) => {if(e.key === "Enter") handleLogin()}}
-                    className=" h-10 bg-[#fafafa] border-[#363636] text-xs placeholder:text-gray-500 focus-visible:ring-1 focus-visible:ring-[#548C2F]c rounded-2xl">
-                </Input>
+    navigate("/");
+  }
 
-                {erro && <p className="text-red-500 text-xs">{erro}</p>}
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (isLogin) {
+      handleLogin();
+    }
+  }
 
-                <Button onClick={handleLogin} className="w-full font-semibold text-white/100 bg-[#f9a620]/85 hover:bg-[#f9a620] rounded-3xl">
-                    {isLogin ? "Acessar conta":"Cadastrar"}
-                </Button>
+  return (
+    <div className="flex h-screen w-screen bg-gray-50">
+      {/* imagem lateral */}
+      <div className="flex flex-1 bg-[url('/capivaras.jpg')] bg-cover bg-center" />
 
-                <div className="flex items-center gap-2">
-                    <div className="h-px flex-1 bg-gray-200"></div>
-                    <span className="text-xs text-black/80 font-bold uppercase">ou</span>
-                    <div className="h-px flex-1 bg-gray-200"></div>
-                </div>
+      {/* formulário */}
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col w-full max-w-md min-h-xl items-center justify-center px-10 gap-5 bg-white"
+      >
+        <div className="flex justify-center flex-col">
+          <div className="flex justify-center">
+            <img src="/logo_capys.png" alt="capibara" className="h-20 w-20" />
+          </div>
 
-                <Button onClick={() => setIsLogin(!isLogin)} className=" w-full bg-[#A2B7AD]/90 text-white/100 hover:bg-[#A2B7AD] rounded-3xl">
-                    {isLogin ? "Criar nova conta" : "Já tem uma conta? Faça login"}
-                </Button>
-                
-            </div>
+          <h1 className="text-4xl font-semibold text-gray-700 text-center">
+            {isLogin
+              ? "De volta aos estudos 📚"
+              : "Comece sua jornada estudantil ✏️"}
+          </h1>
         </div>
-    )
-}
 
-export default Login
+        <div className="w-full">
+          {/* email */}
+          <div className="flex flex-col gap-3">
+            <Input
+              placeholder="Insira seu email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-10 pr-10 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs"
+            />
+
+            {/* senha */}
+            <InputGroup className="h-10 pr-2 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs">
+              <InputGroupInput
+                type={showPassword ? "text" : "password"}
+                placeholder="Enter password"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+              />
+              <InputGroupAddon align="inline-end">
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <IconEyeOff /> : <IconEye />}
+                </button>
+              </InputGroupAddon>
+            </InputGroup>
+          </div>
+
+          {/* esqueci senha */}
+          <button
+            type="button"
+            className="text-xs text-gray-500 hover:underline hover:decoration-gray-500"
+          >
+            Esqueci minha senha
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {/* botão principal */}
+          <Button
+            type="submit"
+            className="w-52 py-5 font-semibold text-white bg-[#e1903e]/85 hover:bg-[#e1903e] rounded-3xl"
+          >
+            {isLogin ? "Acessar conta" : "Cadastrar"}
+          </Button>
+
+          {/* toggle */}
+          <Button
+            type="button"
+            onClick={() => setIsLogin(!isLogin)}
+            className="w-52 py-5 font-semibold bg-[#b7bb86]/85 text-white hover:bg-[#b7bb86] rounded-3xl"
+          >
+            {isLogin ? "Criar nova conta" : "Já tem uma conta? Faça login"}
+          </Button>
+        </div>
+
+        {/* erro */}
+        <p
+          className={`text-[#e63946] text-sm px-3 py-2 rounded-lg transition-opacity duration-300 ${
+            error ? "opacity-100" : "opacity-0"
+          }`}
+        >
+          {error || "placeholder"}
+        </p>
+      </form>
+    </div>
+  );
+}

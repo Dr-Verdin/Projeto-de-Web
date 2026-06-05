@@ -1,5 +1,5 @@
-import Text from "../components/Post";
-import BotaoComu from "../components/botaocomunidades";
+import { CommunitiesCard } from "../components/CommunitiesCard";
+import { Post } from "../components/Post";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -7,85 +7,46 @@ import {
   NavigationMenuTrigger,
 } from "../components/ui/navigation-menu";
 
-import { postsUser, postsCommunity, user, community } from "../lib/mock";
+import { posts } from "../lib/mock";
 
-function Feed() {
-  // junta os posts e ordena por data (mais recente primeiro)
-  const feedPosts = [...postsUser, ...postsCommunity].sort(
-    (a, b) =>
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+export default function Feed() {
+  const feedPosts = [...posts].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
   return (
-    <>
-      <header></header>
+    <main className="w-full min-h-screen p-8 relative">
+      {/* CONTAINER PRINCIPAL */}
+      <div className="max-w-7xl mx-auto flex justify-center gap-8 relative">
 
-      <main className="bg-slate-100 w-full min-h-screen flex justify-center items-start flex-row p-4">
-        <div className="flex flex-row items-start gap-[64px]">
-          
-          {/* FEED */}
-          <div className="w-[732px] min-h-screen flex items-center flex-col gap-[10px]">
-            
-            <div className="w-[732px] h-[40px] text-black flex justify-start items-center gap-[20px] pl-[16px] pr-[16px]">
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuTrigger>Item One</NavigationMenuTrigger>
-                    <NavigationMenuTrigger>Item Two</NavigationMenuTrigger>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            </div>
+        {/* FEED */}
+        <section className="flex-1 max-w-2xl flex flex-col">
 
-            <div className="w-[732px] min-h-screen flex flex-col gap-[24px]">
-              {feedPosts.map((post) => (
-                <Text
-                  key={post.id}
-                  name={
-                    post.type === "user"
-                      ? user.name
-                      : community.name
-                  }
-                  createdAt={post.createdAt}
-
-                  title={post.title}
-                  text={post.text}
-                  image={post.image}
-                />
-              ))}
-            </div>
+          {/* FILTROS */}
+          <div className="h-11 flex items-center gap-4 px-4">
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger>For You</NavigationMenuTrigger>
+                  <NavigationMenuTrigger>Seguindo</NavigationMenuTrigger>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
           </div>
 
-          {/* COMUNIDADES */}
-          <div className="w-[320px] sticky top-4">
-  
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-col gap-4">
-              
-              {/* Título */}
-              <div className="text-sm font-semibold text-slate-500 tracking-wide">
-                Comunidades populares
-              </div>
-
-              {/* Lista */}
-              <div className="flex flex-col gap-2 max-h-[260px] overflow-y-auto pr-1 custom-scrollbar">
-                <BotaoComu nome="Geografia" inscritos="1.000" />
-                <BotaoComu nome="Matemática" inscritos="1.000.000" />
-                <BotaoComu nome="Redes" inscritos="5.700.000" />
-                <BotaoComu nome="Web" inscritos="5.900.000" />
-                <BotaoComu nome="UI/UX" inscritos="320.000" />
-              </div>
-
-              {/* Botão */}
-              <button className="text-sm text-blue-500 hover:text-blue-600 font-medium transition">
-                Ver mais →
-              </button>
-
-            </div>
+          {/* POSTS */}
+          <div className="flex flex-col gap-6">
+            {feedPosts.map((post) => (
+              <Post key={post.id} {...post} />
+            ))}
           </div>
-        </div>
-      </main>
-    </>
+        </section>
+
+        {/* COMUNIDADES */}
+        <aside className="shrink-0 absolute top-10 -right-1 h-full">
+          <CommunitiesCard />
+        </aside>
+      </div>
+    </main>
   );
 }
-
-export default Feed;

@@ -11,7 +11,7 @@ type TimerMode = 'pomodoro' | 'short pause' | 'long pause'
 
 function Pomodoro() {
     const modes: Record<TimerMode, number> = {
-        'pomodoro': 40 * 60,
+        'pomodoro': 25 * 60,
         'short pause': 5 * 60,
         'long pause': 15 * 60
     }
@@ -66,7 +66,7 @@ function Pomodoro() {
 
     return (
         <div className="relative flex h-screen w-full flex-col items-center justify-center bg-cover bg-center font-sans text-white"
-            style={{ backgroundImage: "url('/lo_fi(capivara2).jpg')" }}>
+            style={{ backgroundImage: "url('/wallpaper_pomodoro.jpg')" }}>
         
             <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
 
@@ -84,7 +84,7 @@ function Pomodoro() {
                     ))}
                 </div>
 
-                <h2 className="text-[180px] font-bold leading-none tracking-tighter drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]">
+                <h2 className="text-9xl font-bold leading-none tracking-tighter drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)]">
                     {formatTime(secondsLeft)}
                 </h2>
 
@@ -98,12 +98,12 @@ function Pomodoro() {
 
                     <button 
                         onClick={resetTimer}
-                        className="opacity-90 hover:opacity-100 transition-opacity hover:scale-110 transition-transform">
+                        className="opacity-90 hover:opacity-100 hover:scale-110 transition-transform">
 
                         <IconReload size={45} />
                     </button>
                     
-                    <button className ="opacity-80 hover:opacity-100 transition-opacity hover:scale-110 transition-transform">
+                    <button className ="opacity-80 hover:opacity-100 hover:scale-110 transition-transform">
                         <IconSettings size={45} />
                     </button>
                 </div>
@@ -112,7 +112,7 @@ function Pomodoro() {
             <div className="absolute right-10 flex h-full flex-col items-center justify-center py-10 z-20">
                 <button 
                     onClick={fullScreen}
-                    className="mt-auto opacity-85 hover:opacity-100 transition-opacity hover:scale-110 transition-transform">
+                    className="mt-auto opacity-85 hover:opacity-100 hover:scale-110 transition-transform">
                         
                     <IconMaximize size={60} />
                 </button>

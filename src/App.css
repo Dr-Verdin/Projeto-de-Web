@@ -14,3 +14,11 @@ body {
   color: black;
   font-family: sans-serif;
 }
+
+body {
+  font-family: 'Noto Sans', sans-serif; /* texto normal */
+}
+
+h1, h2, h3, .titulo-grande {
+  font-family: 'Playpen Sans', cursive; /* títulos */
+}
