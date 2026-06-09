@@ -17,9 +17,10 @@ type SidebarProps = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   panelOpen: boolean;
   setPanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  openCreateModal: () => void;
 };
 
-export function Sidebar({ open, setOpen, panelOpen, setPanelOpen }: SidebarProps) {
+export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, openCreateModal }: SidebarProps) {
   const location = useLocation();
   const currentUserId = localStorage.getItem("userId")!;
   const isProfileActive = location.pathname === `/perfil/${currentUserId}`;
@@ -56,7 +57,15 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen }: SidebarProps
           active={panelOpen}
           onClick={() => setPanelOpen(!panelOpen)}
         />
-        <SidebarItem icon={IconPlus} label="Criar" to="/criar" open={open} panelOpen={panelOpen} />
+        {/* 2. O item "Criar" agora chama a função openCreateModal através do onClick */}
+        <SidebarItem 
+          icon={IconPlus} 
+          label="Criar"
+          onClick={openCreateModal}
+          open={open} 
+          panelOpen={panelOpen}
+        />
+
         <SidebarItem
           icon={IconHeart}
           label="Notificações"

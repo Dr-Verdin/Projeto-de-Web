@@ -13,6 +13,8 @@ import { Sidebar } from "./components/Sidebar";
 import { SearchPainel } from "./components/SearchPainel";
 import Comunidade from "./pages/Community.page";
 
+import CreateModal from "./components/CreateModal";
+
 const NO_SIDEBAR_ROUTES = ["/login"];
 
 function App() {
@@ -21,6 +23,7 @@ function App() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setIsFullscreen(!!document.fullscreenElement);
@@ -33,7 +36,7 @@ function App() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} panelOpen={panelOpen} setPanelOpen={setPanelOpen} />}
+      {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} panelOpen={panelOpen} setPanelOpen={setPanelOpen} openCreateModal={() => setIsCreateModalOpen(true)} />}
       {showSidebar && <SearchPainel open={panelOpen} onClose={() => setPanelOpen(false)} />}
 
       <div
@@ -45,8 +48,10 @@ function App() {
           <Route path="/pomodoro" element={<Pomodoro />} />
           <Route path="/login" element={<Login />} />
           <Route path="/comunidade/:id" element={<Comunidade />} />
+          {/*<Route path="/criar" element={<Create />} />*/}
         </Routes>
       </div>
+      {isCreateModalOpen && <CreateModal onClose={() => setIsCreateModalOpen(false)} />}
     </div>
   );
 }
