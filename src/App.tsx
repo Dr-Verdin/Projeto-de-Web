@@ -36,6 +36,7 @@ function App() {
 
   return (
     <div className="flex h-screen overflow-hidden">
+      
       {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} panelOpen={panelOpen} setPanelOpen={setPanelOpen} openCreateModal={() => setIsCreateModalOpen(true)} />}
       {showSidebar && <SearchPanel open={panelOpen} onClose={() => setPanelOpen(false)} />}
 
@@ -48,7 +49,6 @@ function App() {
           <Route path="/pomodoro" element={<Pomodoro />} />
           <Route path="/login" element={<Login />} />
           <Route path="/comunidade/:id" element={<Comunidade />} />
-          {/*<Route path="/criar" element={<Create />} />*/}
         </Routes>
       </div>
       {isCreateModalOpen && <CreateModal onClose={() => setIsCreateModalOpen(false)} />}

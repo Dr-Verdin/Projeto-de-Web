@@ -8,6 +8,7 @@ import {
   IconMessageCircle,
   IconApple,
   IconDoorExit,
+  IconSettings,
 } from "@tabler/icons-react";
 
 import { users } from "../lib/mock";
@@ -22,7 +23,16 @@ type SidebarProps = {
 
 export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, openCreateModal }: SidebarProps) {
   const location = useLocation();
-  const currentUserId = localStorage.getItem("userId")!;
+
+  const storedUserId = localStorage.getItem("userId");
+
+  const currentUserId =
+    storedUserId && users[storedUserId]
+      ? storedUserId
+      : "u1";
+
+  const user = users[currentUserId];
+
   const isProfileActive = location.pathname === `/perfil/${currentUserId}`;
 
   return (
@@ -93,7 +103,7 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, openCreateModa
           className="flex items-center px-1 py-3 mx-2 rounded-2xl hover:bg-[#efce7b]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95 relative"
         >
           <img
-            src={users[currentUserId].avatar}
+            src={user.avatar}
             alt="Perfil"
             className={`w-9 h-9 rounded-full object-cover shrink-0 ${
               isProfileActive ? "ring-2 ring-[#e1903e]" : ""
@@ -112,10 +122,19 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, openCreateModa
         </Link>
       </nav>
 
+      <div
+        className={`flex items-center px-3 py-3 mx-2 mb-4 rounded-2xl hover:bg-gray-300 transition-all duration-300 hover:scale-[1.02] cursor-pointer active:scale-95 relative ${
+          open && !panelOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <IconSettings className="w-6 h-6" color="#000000" />
+        <span className="ml-3 text-black font-medium">Configurações</span>
+      </div>
+
       <Link
         to="/login"
         onClick={() => localStorage.removeItem("userId")}
-        className={`flex items-center px-3 py-3 mx-2 mb-4 rounded-2xl hover:bg-red-100 transition-all duration-300 ${
+        className={`flex items-center px-3 py-3 mx-2 mb-4 rounded-2xl hover:bg-red-100 transition-all duration-300 hover:scale-[1.02] cursor-pointer active:scale-95 relative ${
           open && !panelOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
@@ -184,3 +203,4 @@ function SidebarItem({
     </button>
   );
 }
+localStorage.clear()

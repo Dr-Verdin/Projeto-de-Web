@@ -8,7 +8,6 @@ export type Post = {
   tags?: string[]
   createdAt: string
   likes: number
-  comments: number
-  userId?: string
+  userId: string
   communityId?: string
 }
