@@ -15,11 +15,11 @@ import { users } from "../lib/mock";
 type SidebarProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  searchOpen: boolean;
-  setSearchOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  panelOpen: boolean;
+  setPanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export function Sidebar({ open, setOpen, searchOpen, setSearchOpen }: SidebarProps) {
+export function Sidebar({ open, setOpen, panelOpen, setPanelOpen }: SidebarProps) {
   const location = useLocation();
   const currentUserId = localStorage.getItem("userId")!;
   const isProfileActive = location.pathname === `/perfil/${currentUserId}`;
@@ -29,7 +29,7 @@ export function Sidebar({ open, setOpen, searchOpen, setSearchOpen }: SidebarPro
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       className={`fixed top-0 left-0 h-screen transition-all duration-300 border-r border-gray-200 bg-white overflow-hidden text-black flex flex-col z-50 shadow-lg
-      ${open && !searchOpen ? "w-64" : "w-16"}`}
+      ${open && !panelOpen ? "w-64" : "w-16"}`}
     >
       <Link
         to="/"
@@ -46,36 +46,37 @@ export function Sidebar({ open, setOpen, searchOpen, setSearchOpen }: SidebarPro
           label="Página Inicial"
           to="/"
           open={open}
-          searchOpen={searchOpen}
+          panelOpen={panelOpen}
         />
-        <SidebarButton
+        <SidebarItem
           icon={IconSearch}
           label="Buscar"
           open={open}
-          active={searchOpen}
-          onClick={() => setSearchOpen(!searchOpen)}
+          panelOpen={panelOpen}
+          active={panelOpen}
+          onClick={() => setPanelOpen(!panelOpen)}
         />
-        <SidebarItem icon={IconPlus} label="Criar" to="/criar" open={open} searchOpen={searchOpen} />
+        <SidebarItem icon={IconPlus} label="Criar" to="/criar" open={open} panelOpen={panelOpen} />
         <SidebarItem
           icon={IconHeart}
           label="Notificações"
           to="/notificacoes"
           open={open}
-          searchOpen={searchOpen}
+          panelOpen={panelOpen}
         />
         <SidebarItem
           icon={IconMessageCircle}
           label="Mensagens"
           to="/mensagens"
           open={open}
-          searchOpen={searchOpen}
+          panelOpen={panelOpen}
         />
         <SidebarItem
           icon={IconApple}
           label="Pomodoro"
           to="/pomodoro"
           open={open}
-          searchOpen={searchOpen}
+          panelOpen={panelOpen}
         />
 
         <Link
@@ -90,7 +91,7 @@ export function Sidebar({ open, setOpen, searchOpen, setSearchOpen }: SidebarPro
             }`}
           />
 
-          {open && !searchOpen &&(
+          {open && !panelOpen &&(
             <span
               className={`ml-3 transition-all duration-200 whitespace-nowrap ${
                 isProfileActive ? "text-[#e1903e] font-bold" : "text-black"
@@ -106,7 +107,7 @@ export function Sidebar({ open, setOpen, searchOpen, setSearchOpen }: SidebarPro
         to="/login"
         onClick={() => localStorage.removeItem("userId")}
         className={`flex items-center px-3 py-3 mx-2 mb-4 rounded-2xl hover:bg-red-100 transition-all duration-300 ${
-          open ? "opacity-100" : "opacity-0 pointer-events-none"
+          open && !panelOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
         <IconDoorExit className="w-6 h-6" color="#e63946" />
@@ -116,34 +117,39 @@ export function Sidebar({ open, setOpen, searchOpen, setSearchOpen }: SidebarPro
   );
 }
 
+
+
 function SidebarItem({
   icon: Icon,
   label,
+  panelOpen = false,
   to,
   open,
-  searchOpen
+  onClick,
+  active = false,
 }: {
   icon: React.ComponentType<any>;
   label: string;
-  to: string;
   open: boolean;
-  searchOpen: boolean;
+  panelOpen?: boolean;
+  to?: string;
+  onClick?: () => void;
+  active?: boolean;
 }) {
   const location = useLocation();
-  const isActive = location.pathname === to;
+  const isActive = to ? location.pathname === to : active;
 
-  return (
-    <Link
-      to={to}
-      className="flex items-center px-3 py-3 mx-2 rounded-2xl hover:bg-[#efce7b]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95"
-    >
+  const className ="flex items-center px-3 py-3 mx-2 rounded-2xl hover:bg-[#efce7b]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95";
+
+  const content = (
+    <>
       <Icon
         className="w-6 h-6 shrink-0 transition-all"
         stroke={isActive ? 2.8 : 2}
         color={isActive ? "#e1903e" : "black"}
       />
 
-      {open && !searchOpen && (
+      {open && !panelOpen && (
         <span
           className={`ml-3 whitespace-nowrap transition-all duration-200 ${
             isActive ? "text-[#e1903e] font-bold" : "text-black"
@@ -152,38 +158,20 @@ function SidebarItem({
           {label}
         </span>
       )}
-    </Link>
+    </>
   );
-}
 
-function SidebarButton({
-  icon: Icon,
-  label,
-  open,
-  active,
-  onClick,
-}: {
-  icon: React.ComponentType<any>;
-  label: string;
-  open: boolean;
-  active: boolean;
-  onClick: () => void;
-}) {
+  if (to) {
+    return (
+      <Link to={to} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
   return (
-    <button
-      onClick={onClick}
-      className="flex items-center px-3 py-3 mx-2 rounded-2xl hover:bg-[#efce7b]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95"
-    >
-      <Icon
-        className="w-6 h-6 shrink-0 transition-all"
-        stroke={active ? 2.8 : 2}
-        color={active ? "#e1903e" : "black"}
-      />
-      {open && !active && (
-        <span className={`ml-3 whitespace-nowrap transition-all duration-200 ${active ? "text-[#e1903e] font-bold" : "text-black"}`}>
-          {label}
-        </span>
-      )}
+    <button onClick={onClick} className={className}>
+      {content}
     </button>
   );
 }

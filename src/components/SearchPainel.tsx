@@ -4,12 +4,12 @@ import { useState, useRef, useEffect } from "react";
 import { users, communities } from "../lib/mock";
 import { Link } from "react-router-dom";
 
-type SearchPainelProps = {
+type SearchPanelProps = {
     open: boolean;
     onClose: () => void;
 };
 
-export function SearchPainel({open, onClose}: SearchPainelProps){
+export function SearchPainel({open, onClose}: SearchPanelProps){
     const [query, setQuery] = useState("");
 
     const painelRef = useRef<HTMLDivElement>(null);
@@ -38,11 +38,13 @@ export function SearchPainel({open, onClose}: SearchPainelProps){
     }
 
     const filteredUsers = Object.entries(users).filter(([, u]) =>
-    normalize(u.name).startsWith(normalize(query))
+        normalize(u.name).startsWith(normalize(query)) ||
+        normalize(u.username).startsWith(normalize(query))
     );
 
+
     const filteredCommunities = Object.entries(communities).filter(([, c]) =>
-    normalize(c.name).startsWith(normalize(query))
+        normalize(c.name).startsWith(normalize(query))
     );
 
     return(

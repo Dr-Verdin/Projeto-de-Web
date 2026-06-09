@@ -20,7 +20,7 @@ function App() {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setIsFullscreen(!!document.fullscreenElement);
@@ -33,8 +33,8 @@ function App() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} searchOpen={searchOpen} setSearchOpen={setSearchOpen} />}
-      {showSidebar && <SearchPainel open={searchOpen} onClose={() => setSearchOpen(false)} />}
+      {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} panelOpen={panelOpen} setPanelOpen={setPanelOpen} />}
+      {showSidebar && <SearchPainel open={panelOpen} onClose={() => setPanelOpen(false)} />}
 
       <div
         className={`flex-1 overflow-y-auto transition-all duration-300 flex justify-center bg-gray-50`}
