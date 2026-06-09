@@ -10,6 +10,7 @@ import Feed from "./pages/Feed.page";
 import Profile from "./pages/Profile.page";
 
 import { Sidebar } from "./components/Sidebar";
+import { SearchPainel } from "./components/SearchPainel";
 import Comunidade from "./pages/Community.page";
 
 const NO_SIDEBAR_ROUTES = ["/login"];
@@ -19,6 +20,7 @@ function App() {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setIsFullscreen(!!document.fullscreenElement);
@@ -31,7 +33,8 @@ function App() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />}
+      {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} searchOpen={searchOpen} setSearchOpen={setSearchOpen} />}
+      {showSidebar && <SearchPainel open={searchOpen} onClose={() => setSearchOpen(false)} />}
 
       <div
         className={`flex-1 overflow-y-auto transition-all duration-300 flex justify-center bg-gray-50`}
