@@ -14,9 +14,10 @@ import { users } from "../lib/mock";
 type SidebarProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  openCreateModal: () => void;
 };
 
-export function Sidebar({ open, setOpen }: SidebarProps) {
+export function Sidebar({ open, setOpen, openCreateModal }: SidebarProps) {
   const location = useLocation();
   const isProfileActive = location.pathname === "/perfil";
   const currentUserId = "1"; // Simulando usuário logado
@@ -50,7 +51,14 @@ export function Sidebar({ open, setOpen }: SidebarProps) {
           to="/buscar"
           open={open}
         />
-        <SidebarItem icon={IconPlus} label="Criar" to="/criar" open={open} />
+        {/* 2. O item "Criar" agora chama a função openCreateModal através do onClick */}
+        <SidebarItem 
+          icon={IconPlus} 
+          label="Criar" 
+          onClick={openCreateModal} 
+          open={open} 
+        />
+
         <SidebarItem
           icon={IconHeart}
           label="Notificações"
@@ -102,18 +110,42 @@ function SidebarItem({
   label,
   to,
   open,
+  onClick,
 }: {
   icon: React.ComponentType<any>;
   label: string;
-  to: string;
+  to?: string;
   open: boolean;
+  onClick?: () => void;
 }) {
   const location = useLocation();
   const isActive = location.pathname === to;
 
+  const content = (
+    <>
+      <Icon className="w-6 h-6 shrink-0 transition-all" stroke={isActive ? 2.8 : 2} color={isActive ? "#e1903e" : "black"} />
+      {open && (
+        <span className={`ml-3 whitespace-nowrap transition-all duration-200 ${isActive ? "text-[#e1903e] font-bold" : "text-black"}`}>
+          {label}
+        </span>
+      )}
+    </>
+  );
+
+  const className = "flex w-full items-center px-3 py-3 mx-2 rounded-2xl hover:bg-[#efce7b]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95";
+
+  // Se tiver um "onClick" e não tiver "to", renderiza como botão
+  if (onClick && !to) {
+    return (
+      <button onClick={onClick} className={className}>
+        {content}
+      </button>
+    );
+  }
+
   return (
     <Link
-      to={to}
+      to={to || "#"}
       className="flex items-center px-3 py-3 mx-2 rounded-2xl hover:bg-[#efce7b]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95"
     >
       <Icon

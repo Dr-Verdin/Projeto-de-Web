@@ -10,6 +10,8 @@ import Profile from "./pages/Profile.page";
 import { Sidebar } from "./components/Sidebar";
 import Comunidade from "./pages/Comunity.page";
 
+import CreateModal from "./components/CreateModal";
+
 const NO_SIDEBAR_ROUTES = ["/login"];
 
 function App() {
@@ -18,6 +20,7 @@ function App() {
 
   // 👇 novo estado da sidebar
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setIsFullscreen(!!document.fullscreenElement);
@@ -30,7 +33,7 @@ function App() {
 
   return (
     <div className="flex h-screen overflow-hidden">
-      {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />}
+      {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} openCreateModal={() => setIsCreateModalOpen(true)} />}
 
       <div
         className={`flex-1 overflow-y-auto transition-all duration-300 flex justify-center bg-gray-50`}
@@ -41,8 +44,10 @@ function App() {
           <Route path="/pomodoro" element={<Pomodoro />} />
           <Route path="/login" element={<Login />} />
           <Route path="/comunidade/:id" element={<Comunidade />} />
+          {/*<Route path="/criar" element={<Create />} />*/}
         </Routes>
       </div>
+      {isCreateModalOpen && <CreateModal onClose={() => setIsCreateModalOpen(false)} />}
     </div>
   );
 }
