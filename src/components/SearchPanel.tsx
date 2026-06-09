@@ -9,7 +9,7 @@ type SearchPanelProps = {
     onClose: () => void;
 };
 
-export function SearchPainel({open, onClose}: SearchPanelProps){
+export function SearchPanel({open, onClose}: SearchPanelProps){
     const [query, setQuery] = useState("");
 
     const painelRef = useRef<HTMLDivElement>(null);

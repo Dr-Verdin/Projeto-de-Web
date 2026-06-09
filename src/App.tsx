@@ -10,7 +10,7 @@ import Feed from "./pages/Feed.page";
 import Profile from "./pages/Profile.page";
 
 import { Sidebar } from "./components/Sidebar";
-import { SearchPainel } from "./components/SearchPainel";
+import { SearchPanel } from "./components/SearchPanel";
 import Comunidade from "./pages/Community.page";
 
 import CreateModal from "./components/CreateModal";
@@ -37,7 +37,7 @@ function App() {
   return (
     <div className="flex h-screen overflow-hidden">
       {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} panelOpen={panelOpen} setPanelOpen={setPanelOpen} openCreateModal={() => setIsCreateModalOpen(true)} />}
-      {showSidebar && <SearchPainel open={panelOpen} onClose={() => setPanelOpen(false)} />}
+      {showSidebar && <SearchPanel open={panelOpen} onClose={() => setPanelOpen(false)} />}
 
       <div
         className={`flex-1 overflow-y-auto transition-all duration-300 flex justify-center bg-gray-50`}
