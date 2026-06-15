@@ -13,6 +13,7 @@ import { IconEye, IconEyeOff } from "@tabler/icons-react";
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -71,11 +72,20 @@ export default function Login() {
           {/* email */}
           <div className="flex flex-col gap-3">
             <Input
-              placeholder="Insira seu email"
+              placeholder="Enter email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="h-10 pr-10 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs"
             />
+
+            {!isLogin && (
+              <Input
+                placeholder="Create an username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="h-10 pr-10 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs"
+              />
+            )}
 
             {/* senha */}
             <InputGroup className="h-10 pr-2 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs">
@@ -97,12 +107,12 @@ export default function Login() {
           </div>
 
           {/* esqueci senha */}
-          <button
+          {isLogin && (<button
             type="button"
             className="text-xs text-gray-500 hover:underline hover:decoration-gray-500"
           >
             Esqueci minha senha
-          </button>
+          </button>)}
         </div>
 
         <div className="flex flex-col gap-3">
@@ -117,7 +127,13 @@ export default function Login() {
           {/* toggle */}
           <Button
             type="button"
-            onClick={() => setIsLogin(!isLogin)}
+            onClick={() => {
+              setIsLogin(!isLogin);
+              setError("");
+              setEmail("");
+              setSenha("");
+              setUsername("");
+            }}
             className="w-52 py-5 font-semibold bg-[#b7bb86]/85 text-white hover:bg-[#b7bb86] rounded-3xl"
           >
             {isLogin ? "Criar nova conta" : "Já tem uma conta? Faça login"}
