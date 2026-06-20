@@ -18,10 +18,12 @@ type SidebarProps = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   panelOpen: boolean;
   setPanelOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  activePanelType: "search" | "notifications" | null;
+  setActivePanelType: React.Dispatch<React.SetStateAction<"search" | "notifications" | null>>;
   openCreateModal: () => void;
 };
 
-export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, openCreateModal }: SidebarProps) {
+export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelType, setActivePanelType, openCreateModal }: SidebarProps) {
   const location = useLocation();
 
   const storedUserId = localStorage.getItem("userId");
@@ -37,7 +39,7 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, openCreateModa
 
   return (
     <aside
-      onMouseEnter={() => setOpen(true)}
+      onMouseEnter={() => !panelOpen && setOpen(true)}
       onMouseLeave={() => setOpen(false)}
       className={`fixed top-0 left-0 h-screen transition-all duration-300 border-r border-gray-200 bg-white overflow-hidden text-black flex flex-col z-50 shadow-lg
       ${open && !panelOpen ? "w-64" : "w-16"}`}
@@ -64,8 +66,16 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, openCreateModa
           label="Buscar"
           open={open}
           panelOpen={panelOpen}
-          active={panelOpen}
-          onClick={() => setPanelOpen(!panelOpen)}
+          active={activePanelType === "search"}
+          onClick={() => {
+            if (activePanelType === "search") {
+              setPanelOpen(false);
+              setActivePanelType(null);
+            } else {
+              setPanelOpen(true);
+              setActivePanelType("search");
+            }
+          }}
         />
         {/* 2. O item "Criar" agora chama a função openCreateModal através do onClick */}
         <SidebarItem 
@@ -79,7 +89,16 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, openCreateModa
         <SidebarItem
           icon={IconHeart}
           label="Notificações"
-          to="/notificacoes"
+          active={activePanelType === "notifications"}
+          onClick={() => {
+            if (activePanelType === "notifications") {
+              setPanelOpen(false);
+              setActivePanelType(null);
+            } else {
+              setPanelOpen(true);
+              setActivePanelType("notifications");
+            }
+          }}
           open={open}
           panelOpen={panelOpen}
         />
@@ -203,4 +222,3 @@ function SidebarItem({
     </button>
   );
 }
-localStorage.clear()

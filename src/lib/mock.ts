@@ -2,6 +2,7 @@ import type { Community } from "../types/Community";
 import type { Post } from "../types/Post";
 import type { User } from "../types/User";
 import type { Comment } from "../types/Comment";
+import type { Notification } from "../types/Notification";
 
 {/* USERS E COMMUNITIES */ }
 export const users: Record<string, User> = {
@@ -272,5 +273,62 @@ export const comments: Comment[] = [
     text: "acho que isso é um grafo dirigido! mas sempre confundo quando tem peso junto 😅",
     createdAt: "2026-02-10",
     likes: 2,
+  },
+];
+
+{/* NOTIFICATIONS */}
+export const notifications: Notification[] = [
+  {
+    id: "n1",
+    userId: "u1",
+    type: "like",
+    title: "Alice curtiu seu post",
+    message: "Alice curtiu: 📖 estudando cálculo hoje...",
+    avatar: "/avatar_alice.jpg",
+    createdAt: "2026-04-12T10:30:00Z",
+    read: false,
+    relatedId: "p2",
+  },
+  {
+    id: "n2",
+    userId: "u1",
+    type: "comment",
+    title: "Alice comentou no seu post",
+    message: "Alice: isso de mudar a ordem da integral é sofrido mesmo 😭",
+    avatar: "/avatar_alice.jpg",
+    createdAt: "2026-04-11T14:30:00Z",
+    read: true,
+    relatedId: "p2",
+  },
+  {
+    id: "n3",
+    userId: "u1",
+    type: "follow",
+    title: "Alice começou a te seguir",
+    message: "Alice está seguindo você agora",
+    avatar: "/avatar_alice.jpg",
+    createdAt: "2026-04-10T09:15:00Z",
+    read: true,
+  },
+  {
+    id: "n4",
+    userId: "u1",
+    type: "community",
+    title: "Novo post em Estudando com gatos",
+    message: "Alguém tem que estudar nessa casa",
+    avatar: "/community_perfil.jpg",
+    createdAt: "2026-04-10T08:45:00Z",
+    read: false,
+    relatedId: "c1",
+  },
+  {
+    id: "n5",
+    userId: "u1",
+    type: "message",
+    title: "Você tem uma nova mensagem",
+    message: "Alice enviou uma mensagem para você",
+    avatar: "/avatar_alice.jpg",
+    createdAt: "2026-04-09T16:20:00Z",
+    read: true,
   },
 ];

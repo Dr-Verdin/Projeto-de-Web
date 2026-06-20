@@ -1,7 +1,6 @@
 import {
   IconReload,
-  IconSettings, 
-  IconMaximize 
+  IconMaximize,
 } from "@tabler/icons-react";
 
 import { useState, useEffect } from "react";
@@ -11,7 +10,7 @@ type TimerMode = 'pomodoro' | 'short pause' | 'long pause'
 
 function Pomodoro() {
     const modes: Record<TimerMode, number> = {
-        'pomodoro': 25 * 60,
+        'pomodoro': 30 * 60,
         'short pause': 5 * 60,
         'long pause': 15 * 60
     }
@@ -103,9 +102,9 @@ function Pomodoro() {
                         <IconReload size={45} />
                     </button>
                     
-                    <button className ="opacity-80 hover:opacity-100 hover:scale-110 transition-transform">
+                   {/* <button className ="opacity-80 hover:opacity-100 hover:scale-110 transition-transform">
                         <IconSettings size={45} />
-                    </button>
+                    </button>*/}
                 </div>
             </div>
 

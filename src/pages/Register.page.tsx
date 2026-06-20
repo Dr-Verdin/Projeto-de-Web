@@ -10,28 +10,50 @@ import { useNavigate } from "react-router-dom";
 import { users } from "../lib/mock";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 
-export default function Login() {
+export default function Register() {
+
+  function createUser({ email, username, senha, name, id }: { email: string; username: string; senha: string; name?: string; id: string }) {
+    const user = {
+      avatar: "/avatar_camz.jpg",
+      name: name ?? username,
+      pronoun: "",
+      username: `@${username.replace(/\s+/g, "").toLowerCase()}`,
+      bio: "",
+      studyTime: 0,
+      followers: 0,
+      following: 0,
+      email,
+      senha,
+    };
+    users[id] = user;
+    return user ;
+  }
+
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  function handleLogin() {
+  function handleRegister() {
     setError("");
 
-    const entry = Object.entries(users).find(
-      ([_, u]) => u.email === email && u.senha === senha,
-    );
-
-    if (!entry) {
-      setError("Email ou senha inválidos");
+    if (!email || !senha || !username) {
+      setError("Preencha todos os campos");
       return;
     }
 
-    const [userId, user] = entry;
+    const exists = Object.values(users).find((u) => u.email === email);
+    if (exists) {
+      setError("Email já cadastrado");
+      return;
+    }
 
-    localStorage.setItem("userId", userId);
+    var id = "u" + (Object.keys(users).length + 1);
+    const user = createUser({ email, username, senha, id });
+
+    localStorage.setItem("userId", id);
     localStorage.setItem("user", JSON.stringify(user));
 
     navigate("/");
@@ -39,7 +61,7 @@ export default function Login() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    handleLogin();
+    handleRegister();
   }
 
   return (
@@ -58,7 +80,7 @@ export default function Login() {
           </div>
 
           <h1 className="text-4xl font-semibold text-gray-700 text-center">
-            De volta aos estudos 📚
+            Comece sua jornada estudantil ✏️
           </h1>
         </div>
 
@@ -72,7 +94,12 @@ export default function Login() {
               className="h-10 pr-10 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs"
             />
 
-            {/* username only on register (navigates to register page) */}
+            <Input
+              placeholder="Create an username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="h-10 pr-10 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs"
+            />
 
             {/* senha */}
             <InputGroup className="h-10 pr-2 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs">
@@ -83,50 +110,28 @@ export default function Login() {
                 onChange={(e) => setSenha(e.target.value)}
               />
               <InputGroupAddon align="inline-end">
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                <button type="button" onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? <IconEyeOff /> : <IconEye />}
                 </button>
               </InputGroupAddon>
             </InputGroup>
           </div>
-
-          {/* esqueci senha */}
-          <button
-            type="button"
-            className="text-xs text-gray-500 hover:underline hover:decoration-gray-500"
-          >
-            Esqueci minha senha
-          </button>
         </div>
 
         <div className="flex flex-col gap-3">
           {/* botão principal */}
-          <Button
-            type="submit"
-            className="w-52 py-5 font-semibold text-white bg-[#e1903e]/85 hover:bg-[#e1903e] rounded-3xl"
-          >
-            Acessar conta
+          <Button type="submit" className="w-52 py-5 font-semibold text-white bg-[#e1903e]/85 hover:bg-[#e1903e] rounded-3xl">
+            Cadastrar
           </Button>
 
           {/* toggle */}
-          <Button
-            type="button"
-            onClick={() => navigate("/register")}
-            className="w-52 py-5 font-semibold bg-[#b7bb86]/85 text-white hover:bg-[#b7bb86] rounded-3xl"
-          >
-            Criar nova conta
+          <Button type="button" onClick={() => navigate('/login')} className="w-52 py-5 font-semibold bg-[#b7bb86]/85 text-white hover:bg-[#b7bb86] rounded-3xl">
+            Já tem uma conta? Faça login
           </Button>
         </div>
 
         {/* erro */}
-        <p
-          className={`text-[#e63946] text-sm px-3 py-2 rounded-lg transition-opacity duration-300 ${
-            error ? "opacity-100" : "opacity-0"
-          }`}
-        >
+        <p className={`text-[#e63946] text-sm px-3 py-2 rounded-lg transition-opacity duration-300 ${error ? "opacity-100" : "opacity-0"}`}>
           {error || "placeholder"}
         </p>
       </form>

@@ -5,17 +5,19 @@ import { useState, useEffect } from "react";
 import "./App.css";
 
 import Login from "./pages/Login.page";
+import Register from "./pages/Register.page";
 import Pomodoro from "./pages/Pomodoro.page";
 import Feed from "./pages/Feed.page";
 import Profile from "./pages/Profile.page";
 
 import { Sidebar } from "./components/Sidebar";
 import { SearchPanel } from "./components/SearchPanel";
+import { NotificationPanel } from "./components/NotificationPanel";
 import Comunidade from "./pages/Community.page";
 
 import CreateModal from "./components/CreateModal";
 
-const NO_SIDEBAR_ROUTES = ["/login"];
+const NO_SIDEBAR_ROUTES = ["/login", "/register"];
 
 function App() {
   const location = useLocation();
@@ -23,6 +25,7 @@ function App() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [activePanelType, setActivePanelType] = useState<"search" | "notifications" | null>(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
@@ -37,8 +40,9 @@ function App() {
   return (
     <div className="flex h-screen overflow-hidden">
       
-      {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} panelOpen={panelOpen} setPanelOpen={setPanelOpen} openCreateModal={() => setIsCreateModalOpen(true)} />}
-      {showSidebar && <SearchPanel open={panelOpen} onClose={() => setPanelOpen(false)} />}
+      {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} panelOpen={panelOpen} setPanelOpen={setPanelOpen} activePanelType={activePanelType} setActivePanelType={setActivePanelType} openCreateModal={() => setIsCreateModalOpen(true)} />}
+      {showSidebar && <SearchPanel open={panelOpen && activePanelType === "search"} onClose={() => { setPanelOpen(false); setActivePanelType(null); }} />}
+      {showSidebar && <NotificationPanel open={panelOpen && activePanelType === "notifications"} onClose={() => { setPanelOpen(false); setActivePanelType(null); }} />}
 
       <div
         className={`flex-1 overflow-y-auto transition-all duration-300 flex justify-center bg-gray-50`}
@@ -48,6 +52,7 @@ function App() {
           <Route path="/perfil/:id" element={<Profile />} />
           <Route path="/pomodoro" element={<Pomodoro />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/comunidade/:id" element={<Comunidade />} />
         </Routes>
       </div>
