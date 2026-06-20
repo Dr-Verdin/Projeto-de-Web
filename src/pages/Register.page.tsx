@@ -12,10 +12,10 @@ import { IconEye, IconEyeOff } from "@tabler/icons-react";
 
 export default function Register() {
 
-  function createUser({ email, username, senha, name, id }: { email: string; username: string; senha: string; name?: string; id: string }) {
+  function createUser({ email, username, senha, name, id }: { email: string; username: string; senha: string; name: string; id: string }) {
     const user = {
       avatar: "/avatar_camz.jpg",
-      name: name ?? username,
+      name,
       pronoun: "",
       username: `@${username.replace(/\s+/g, "").toLowerCase()}`,
       bio: "",
@@ -26,10 +26,11 @@ export default function Register() {
       senha,
     };
     users[id] = user;
-    return user ;
+    return user;
   }
 
   const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
@@ -39,7 +40,7 @@ export default function Register() {
   function handleRegister() {
     setError("");
 
-    if (!email || !senha || !username) {
+    if (!email || !senha || !username || !name) {
       setError("Preencha todos os campos");
       return;
     }
@@ -51,7 +52,7 @@ export default function Register() {
     }
 
     var id = "u" + (Object.keys(users).length + 1);
-    const user = createUser({ email, username, senha, id });
+    const user = createUser({ email, username, senha, name, id });
 
     localStorage.setItem("userId", id);
     localStorage.setItem("user", JSON.stringify(user));
@@ -91,6 +92,13 @@ export default function Register() {
               placeholder="Enter email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              className="h-10 pr-10 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs"
+            />
+
+            <Input
+              placeholder="Enter your name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               className="h-10 pr-10 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs"
             />
 
