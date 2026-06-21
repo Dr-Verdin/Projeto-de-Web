@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 import {
   IconHome,
@@ -32,8 +33,31 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelTyp
     storedUserId && users[storedUserId]
       ? storedUserId
       : "u1";
+  const [user, setUser] = useState(() => users[currentUserId]);
 
-  const user = users[currentUserId];
+  // Update local user state when user-updated event is dispatched or when localStorage userId changes
+  useEffect(() => {
+    function onUserUpdated(e: any) {
+      const id = e?.detail?.userId || localStorage.getItem("userId");
+      if (id && users[id]) setUser(users[id]);
+    }
+
+    window.addEventListener("user-updated", onUserUpdated as EventListener);
+
+    // also update if localStorage userId changed in this tab
+    const onStorage = (ev: StorageEvent) => {
+      if (ev.key === "userId") {
+        const id = localStorage.getItem("userId");
+        if (id && users[id]) setUser(users[id]);
+      }
+    };
+    window.addEventListener("storage", onStorage);
+
+    return () => {
+      window.removeEventListener("user-updated", onUserUpdated as EventListener);
+      window.removeEventListener("storage", onStorage);
+    };
+  }, [currentUserId]);
 
   const isProfileActive = location.pathname === `/perfil/${currentUserId}`;
 

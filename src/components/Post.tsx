@@ -16,7 +16,7 @@ import { Link } from "react-router-dom";
 import { PostModal } from "./PostModal";
 import type { Post as PostType } from "../types/Post";
 import { users, communities, comments } from "../lib/mock";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export function Post({
   id,
@@ -31,6 +31,15 @@ export function Post({
 }: PostType) {
   const [open, setOpen] = useState(false);
 
+  useEffect(() => {
+    function handleCloseAll() {
+      setOpen(false);
+    }
+
+    window.addEventListener("closePostModals", handleCloseAll);
+    return () => window.removeEventListener("closePostModals", handleCloseAll);
+  }, []);
+
   const commentCount = comments.filter(c => c.postId === id).length
 
   const isCommunityPost = !!communityId;
@@ -41,6 +50,8 @@ export function Post({
 
   const avatar = author?.avatar ?? "";
   const displayName = author?.name ?? "unknown";
+
+  const modalOpen = open && !document.body.classList.contains("profile-editor-open");
 
   return (
     <>
@@ -159,7 +170,7 @@ export function Post({
 
       {/* MODAL */}
       <PostModal
-        open={open}
+        open={modalOpen}
         onOpenChange={setOpen}
         post={{
           id,
