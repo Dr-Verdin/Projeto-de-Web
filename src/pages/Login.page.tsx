@@ -6,35 +6,28 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { users } from "../lib/mock";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 
 export default function Login() {
+  const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  function handleLogin() {
+  async function handleLogin() {
     setError("");
 
-    const entry = Object.entries(users).find(
-      ([_, u]) => u.email === email && u.senha === senha,
-    );
-
-    if (!entry) {
+    try {
+      await login(email, senha);
+      navigate("/");
+    } catch (err: any) {
       setError("Email ou senha inválidos");
-      return;
     }
-
-    const [userId, user] = entry;
-
-    localStorage.setItem("userId", userId);
-    localStorage.setItem("user", JSON.stringify(user));
-
-    navigate("/");
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -72,8 +65,6 @@ export default function Login() {
               className="h-10 pr-10 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs"
             />
 
-            {/* username only on register (navigates to register page) */}
-
             {/* senha */}
             <InputGroup className="h-10 pr-2 opacity-80 focus:opacity-100 transition-opacity rounded-2xl text-xs">
               <InputGroupInput
@@ -108,7 +99,7 @@ export default function Login() {
             type="submit"
             className="w-52 py-5 font-semibold text-white bg-[#e1903e]/85 hover:bg-[#e1903e] rounded-3xl"
           >
-            Acessar conta
+            Entrar
           </Button>
 
           {/* toggle */}

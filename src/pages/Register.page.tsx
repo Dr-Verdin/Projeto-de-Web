@@ -7,28 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { users } from "../lib/mock";
+import { authService } from "../services/authService";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
 
 export default function Register() {
-
-  function createUser({ email, username, senha, name, id }: { email: string; username: string; senha: string; name: string; id: string }) {
-    const user = {
-      avatar: "/avatar_camz.jpg",
-      name,
-      pronoun: "",
-      username: `@${username.replace(/\s+/g, "").toLowerCase()}`,
-      bio: "",
-      studyTime: 0,
-      followers: 0,
-      following: 0,
-      email,
-      senha,
-    };
-    users[id] = user;
-    return user;
-  }
-
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -37,7 +19,7 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  function handleRegister() {
+  async function handleRegister() {
     setError("");
 
     if (!email || !senha || !username || !name) {
@@ -45,22 +27,20 @@ export default function Register() {
       return;
     }
 
-    const exists = Object.values(users).find((u) => u.email === email);
-    if (exists) {
-      setError("Email já cadastrado");
-      return;
+    try {
+      await authService.register({
+        username,
+        email,
+        password: senha,
+      });
+
+      navigate("/login");
+    } catch (err: any) {
+      setError("Erro ao criar conta");
     }
-
-    var id = "u" + (Object.keys(users).length + 1);
-    const user = createUser({ email, username, senha, name, id });
-
-    localStorage.setItem("userId", id);
-    localStorage.setItem("user", JSON.stringify(user));
-
-    navigate("/");
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     handleRegister();
   }
