@@ -25,7 +25,9 @@ function App() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
-  const [activePanelType, setActivePanelType] = useState<"search" | "notifications" | null>(null);
+  const [activePanelType, setActivePanelType] =
+    useState<"search" | "notifications" | null>(null);
+
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   useEffect(() => {
@@ -37,16 +39,40 @@ function App() {
   const showSidebar =
     !NO_SIDEBAR_ROUTES.includes(location.pathname) && !isFullscreen;
 
+  function closePanels() {
+    setPanelOpen(false);
+    setActivePanelType(null);
+  }
+
   return (
     <div className="flex h-screen overflow-hidden">
-      
-      {showSidebar && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} panelOpen={panelOpen} setPanelOpen={setPanelOpen} activePanelType={activePanelType} setActivePanelType={setActivePanelType} openCreateModal={() => setIsCreateModalOpen(true)} />}
-      {showSidebar && <SearchPanel open={panelOpen && activePanelType === "search"} onClose={() => { setPanelOpen(false); setActivePanelType(null); }} />}
-      {showSidebar && <NotificationPanel open={panelOpen && activePanelType === "notifications"} onClose={() => { setPanelOpen(false); setActivePanelType(null); }} />}
+      {showSidebar && (
+        <Sidebar
+          open={sidebarOpen}
+          setOpen={setSidebarOpen}
+          panelOpen={panelOpen}
+          setPanelOpen={setPanelOpen}
+          activePanelType={activePanelType}
+          setActivePanelType={setActivePanelType}
+          openCreateModal={() => setIsCreateModalOpen(true)}
+        />
+      )}
 
-      <div
-        className={`flex-1 overflow-y-auto transition-all duration-300 flex justify-center bg-gray-50`}
-      >
+      {showSidebar && (
+        <SearchPanel
+          open={panelOpen && activePanelType === "search"}
+          onClose={closePanels}
+        />
+      )}
+
+      {showSidebar && (
+        <NotificationPanel
+          open={activePanelType === "notifications"}
+          onClose={closePanels}
+        />
+      )}
+
+      <div className="flex-1 overflow-y-auto transition-all duration-300 flex justify-center bg-gray-50">
         <Routes>
           <Route path="/" element={<Feed />} />
           <Route path="/perfil/:id" element={<Profile />} />
@@ -56,7 +82,10 @@ function App() {
           <Route path="/comunidade/:id" element={<Comunidade />} />
         </Routes>
       </div>
-      {isCreateModalOpen && <CreateModal onClose={() => setIsCreateModalOpen(false)} />}
+
+      {isCreateModalOpen && (
+        <CreateModal onClose={() => setIsCreateModalOpen(false)} />
+      )}
     </div>
   );
 }
