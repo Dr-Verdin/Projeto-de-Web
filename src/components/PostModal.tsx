@@ -3,13 +3,13 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarImage, AvatarFallback, AvatarBadge } from "./ui/avatar";
 import { Input } from "./ui/input";
 import { IconDots } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import type { Post as PostType } from "../types/Post";
 
 import { users, communities, comments } from "../lib/mock";
 
-import { IconHeart, IconSend, IconBookmark } from "@tabler/icons-react";
+import { IconHeart, IconSend } from "@tabler/icons-react";
 import { CommentItem } from "./Comment";
 
 type PostModalProps = {
@@ -26,6 +26,7 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
     : users[post.userId];
 
   const displayName = author.name;
+  const navigate = useNavigate();
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -233,7 +234,7 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
                 </button>
 
                 <button
-                  onClick={(e) => e.stopPropagation()}
+                  onClick={(e) => {e.stopPropagation(); navigate('\mensagens');}}
                   className="
                     text-zinc-800
                     transition-colors
@@ -242,17 +243,6 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
                   <IconSend size={28} />
                 </button>
               </div>
-
-              <button
-                onClick={(e) => e.stopPropagation()}
-                className="
-                  text-zinc-800
-                  hover:text-sky-300
-                  transition-colors
-                "
-              >
-                <IconBookmark size={28} />
-              </button>
             </footer>
 
             {/* INPUT COMENTÁRIO */}

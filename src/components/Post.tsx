@@ -172,15 +172,7 @@ export function Post({
           )}
 
           {text && (
-            <div className="flex flex-col gap-1 text-slate-700 text-sm">
-              <p>{text}</p>
-              <button
-                onClick={(e) => {e.stopPropagation(); setOpen(true);}}
-                className="text-xs hover:text-slate-950 text-slate-600 w-fit"
-              >
-                ver mais
-              </button>
-            </div>
+            <TextWithReadMore text={text} onOpenModal={() => setOpen(true)} />
           )}
 
           {image && (
@@ -248,5 +240,29 @@ export function Post({
         post={{ id, createdAt, image, title, text, type, userId, communityId, likes }}
       />
     </>
+  );
+}
+
+function TextWithReadMore({ text, onOpenModal }: { text: string; onOpenModal: () => void }) {
+  const pRef = useRef<HTMLParagraphElement>(null);
+  const [isClamped, setIsClamped] = useState(false);
+
+  useEffect(() => {
+    const el = pRef.current;
+    if (el) setIsClamped(el.scrollHeight > el.clientHeight);
+  }, [text]);
+
+  return (
+    <div className="flex flex-col gap-1 text-slate-700 text-sm">
+      <p ref={pRef} className="line-clamp-3">{text}</p>
+      {isClamped && (
+        <button
+          onClick={(e) => { e.stopPropagation(); onOpenModal(); }}
+          className="text-xs hover:text-slate-950 text-slate-600 w-fit"
+        >
+          ver mais
+        </button>
+      )}
+    </div>
   );
 }
