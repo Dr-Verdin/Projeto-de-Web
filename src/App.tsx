@@ -16,6 +16,8 @@ import { NotificationPanel } from "./components/NotificationPanel";
 import Comunidade from "./pages/Community.page";
 
 import CreateModal from "./components/CreateModal";
+import Mensagechat from "./pages/Chat.page";
+
 
 const NO_SIDEBAR_ROUTES = ["/login", "/register"];
 
@@ -54,6 +56,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/comunidade/:id" element={<Comunidade />} />
+          <Route path="/comunidade/:id" element={<Comunidade />} />
+          <Route path="/mensagens" element={<Mensagechat />} />
         </Routes>
       </div>
       {isCreateModalOpen && <CreateModal onClose={() => setIsCreateModalOpen(false)} />}
