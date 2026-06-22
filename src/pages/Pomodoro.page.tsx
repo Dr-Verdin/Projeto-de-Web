@@ -12,7 +12,7 @@ function Pomodoro() {
   const hasSavedRef = useRef(false);
 
   const modes: Record<TimerMode, number> = {
-    pomodoro: 30 * 60,
+    "pomodoro": 1 * 60,
     "short pause": 5 * 60,
     "long pause": 15 * 60,
   };
@@ -22,32 +22,37 @@ function Pomodoro() {
   const [isActive, setIsActive] = useState<boolean>(false);
 
   const formatTime = (totalSeconds: number): string => {
-    const minutes = Math.floor(totalSeconds / 60);
+    const hours = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
-    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+    return `${hours.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
   useEffect(() => {
     let interval = null;
 
     if (isActive && secondsLeft > 0) {
-        interval = setInterval(() => {
+      interval = setInterval(() => {
         setSecondsLeft((prev) => prev - 1);
-        }, 1000);
+      }, 1000);
     }
 
-    if (isActive && secondsLeft === 0 && !hasSavedRef.current) {
-        setIsActive(false);
-        hasSavedRef.current = true;
+    if (
+      isActive &&
+      secondsLeft === 0 &&
+      !hasSavedRef.current &&
+      currentMode === "pomodoro"
+    ) {
+      setIsActive(false);
+      hasSavedRef.current = true;
 
-        const hours = Math.round((modes[currentMode] / 3600) * 100) / 100;
-        saveStudyTime(hours);
+      const hours = Math.round((modes[currentMode] / 3600) * 100) / 100;
+      saveStudyTime(hours);
     }
 
     return () => {
-        if (interval) clearInterval(interval);
+      if (interval) clearInterval(interval);
     };
-    }, [isActive, secondsLeft, currentMode]);
+  }, [isActive, secondsLeft, currentMode]);
 
   const handleModeChange = (mode: TimerMode): void => {
     setCurrentMode(mode);
@@ -75,16 +80,19 @@ function Pomodoro() {
 
     const token = localStorage.getItem("token");
 
+    console.log("TOKEN:", token);
+    console.log("USER:", user);
+
     await fetch(`http://localhost:3000/users/${user.sub}/study-time`, {
-        method: "PATCH",
-        headers: {
+      method: "PATCH",
+      headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ hours }),
+      },
+      body: JSON.stringify({ hours }),
     });
-    }
-
+  }
+  
   return (
     <div
       className="relative flex h-screen w-full flex-col items-center justify-center bg-cover bg-center font-sans text-white"

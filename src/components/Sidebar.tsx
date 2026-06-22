@@ -25,9 +25,6 @@ type SidebarProps = {
 export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelType, setActivePanelType, openCreateModal }: SidebarProps) {
   const { user } = useAuth();
   const currentUserId = user?.sub;
-  
-  console.log("AUTH USER:", user);
-  console.log("CURRENT USER ID:", currentUserId);
 
   const location = useLocation();
   const isProfileActive = location.pathname === `/perfil/${currentUserId}`;
