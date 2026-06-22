@@ -9,14 +9,17 @@ import {
   IconHeart,
   IconMessageCircle,
   IconSend,
-  IconBookmark,
   IconDots,
+  IconLink,
+  IconPencil,
 } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { PostModal } from "./PostModal";
 import type { Post as PostType } from "../types/Post";
 import { users, communities, comments } from "../lib/mock";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { EditPostModal } from "./EditPostModal";
+
 
 export function Post({
   id,
@@ -30,15 +33,47 @@ export function Post({
   likes,
 }: PostType) {
   const [open, setOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [, forceUpdate] = useState(0);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleCloseAll() {
       setOpen(false);
     }
-
     window.addEventListener("closePostModals", handleCloseAll);
     return () => window.removeEventListener("closePostModals", handleCloseAll);
   }, []);
+
+  useEffect(() => {
+    function handleUserUpdated(e: CustomEvent<{ userId: string }>) {
+      if (!communityId && e.detail?.userId === userId) {
+        forceUpdate((n) => n + 1);
+      }
+    }
+    window.addEventListener("user-updated", handleUserUpdated as EventListener);
+    return () => window.removeEventListener("user-updated", handleUserUpdated as EventListener);
+  }, [userId, communityId]);
+
+  // Fecha o menu ao clicar fora
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
+
+  function handleCopyLink(e: React.MouseEvent) {
+    e.stopPropagation();
+    navigator.clipboard.writeText(`${window.location.origin}/post/${id}`);
+    setMenuOpen(false);
+  }
 
   const commentCount = comments.filter(c => c.postId === id).length
 
@@ -50,6 +85,9 @@ export function Post({
 
   const avatar = author?.avatar ?? "";
   const displayName = author?.name ?? "unknown";
+
+  const currentUserId = localStorage.getItem("userId") ?? "u1";
+  const isOwnPost = userId === currentUserId;
 
   const modalOpen = open && !document.body.classList.contains("profile-editor-open");
 
@@ -84,19 +122,46 @@ export function Post({
           <span className="text-gray-500 text-xs">• {createdAt}</span>
 
           <div className="ml-auto flex items-center gap-2">
-            <Button
-              onClick={(e) => e.stopPropagation()}
-              className="rounded-full px-4 h-8 text-xs text-white bg-[#b7bb86] hover:bg-[#e1903e]"
-            >
-              seguir
-            </Button>
+            {!isOwnPost && (
+              <Button
+                onClick={(e) => e.stopPropagation()}
+                className="rounded-full px-4 h-8 text-xs text-white bg-[#b7bb86] hover:bg-[#e1903e]"
+              >
+                seguir
+              </Button>
+            )}
 
-            <Button
-              onClick={(e) => e.stopPropagation()}
-              className="w-8 h-8 p-0 flex items-center justify-center rounded-full bg-transparent hover:bg-slate-300 text-slate-900"
-            >
-              <IconDots size={18} />
-            </Button>
+            {/* Menu ⋯ */}
+            <div ref={menuRef} className="relative" onClick={(e) => e.stopPropagation()}>
+              <Button
+                onClick={() => setMenuOpen((v) => !v)}
+                className="w-8 h-8 p-0 flex items-center justify-center rounded-full bg-transparent hover:bg-slate-300 text-slate-900"
+              >
+                <IconDots size={18} />
+              </Button>
+
+              {menuOpen && (
+                <div className="absolute right-0 top-9 z-50 min-w-[160px] rounded-xl border border-gray-100 bg-white shadow-lg py-1 overflow-hidden">
+                  <button
+                    onClick={handleCopyLink}
+                    className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <IconLink size={15} className="text-gray-400" />
+                    Copiar link
+                  </button>
+
+                  {isOwnPost && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setMenuOpen(false); setEditModalOpen(true); }}
+                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                    >
+                      <IconPencil size={15} className="text-gray-400" />
+                      Editar post
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </header>
 
@@ -110,7 +175,7 @@ export function Post({
             <div className="flex flex-col gap-1 text-slate-700 text-sm">
               <p>{text}</p>
               <button
-                onClick={(e) => e.stopPropagation()}
+                onClick={(e) => {e.stopPropagation(); setOpen(true);}}
                 className="text-xs hover:text-slate-950 text-slate-600 w-fit"
               >
                 ver mais
@@ -147,24 +212,17 @@ export function Post({
             </button>
 
             <button
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => { e.stopPropagation(); setOpen(true); }}
               className="flex gap-1 items-center text-black"
             >
               <IconMessageCircle size={30} />
               {commentCount}
             </button>
 
-            <button onClick={(e) => e.stopPropagation()} className="text-black">
+            <button onClick={(e) => { e.stopPropagation(); navigate("/mensagens"); }} className="text-black hover:text-[#e1903e] transition-colors">
               <IconSend size={30} />
             </button>
           </div>
-
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="text-black hover:text-[#aadeff] transition-colors"
-          >
-            <IconBookmark size={30} />
-          </button>
         </footer>
       </div>
 
@@ -183,6 +241,11 @@ export function Post({
           communityId,
           likes,
         }}
+      />
+      <EditPostModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        post={{ id, createdAt, image, title, text, type, userId, communityId, likes }}
       />
     </>
   );

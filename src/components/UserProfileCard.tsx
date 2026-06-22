@@ -1,14 +1,10 @@
-import { IconPencil } from "@tabler/icons-react";
-import { Button } from "./ui/button";
 import type { User } from "../types/User";
 
 type UserProfileCardProps = {
   user: User;
-  onEdit?: () => void;
-  isEditing?: boolean;
 };
 
-export function UserProfileCard({ user, onEdit, isEditing }: UserProfileCardProps) {
+export function UserProfileCard({ user }: UserProfileCardProps) {
   return (
     <div className="max-h-2xl w-72 shrink-0 p-4 rounded-xl bg-gray-50">
       <div className="flex flex-col items-center text-center">
@@ -23,17 +19,6 @@ export function UserProfileCard({ user, onEdit, isEditing }: UserProfileCardProp
             <span>{user.username}</span>
             <span className="text-gray-400">{user.pronoun}</span>
           </p>
-          {onEdit ? (
-           <Button
-            type="button"
-            variant="ghost"
-            className="h-auto w-auto p-0 text-gray-500 hover:bg-transparent hover:text-gray-700"
-            onClick={onEdit}
-            aria-label={isEditing ? "Fechar editor" : "Editar perfil"}
-          >
-            <IconPencil size={16} />
-          </Button>
-          ) : null}
         </div>
 
         <div className="flex justify-center gap-6 mt-3 text-sm">
@@ -41,19 +26,19 @@ export function UserProfileCard({ user, onEdit, isEditing }: UserProfileCardProp
             <span className="flex flex-col font-semibold text-gray-900 cursor-pointer">
               {user.followers}
             </span>{" "}
-            <span className="text-gray-500">followers</span>
+            <span className="text-gray-500">seguidores</span>
           </p>
           <p>
             <span className="flex flex-col font-semibold text-gray-900 cursor-pointer">
               {user.following}
             </span>{" "}
-            <span className="text-gray-500">following</span>
+            <span className="text-gray-500">seguindo</span>
           </p>
           <p>
             <span className="flex flex-col font-semibold text-gray-900 cursor-pointer">
               {user.studyTime}h
             </span>{" "}
-            <span className="flex flex-col text-gray-500">study time</span>
+            <span className="flex flex-col text-gray-500">tempo estudado</span>
           </p>
         </div>
 

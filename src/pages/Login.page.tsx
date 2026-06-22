@@ -9,12 +9,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { users } from "../lib/mock";
 import { IconEye, IconEyeOff } from "@tabler/icons-react";
+import { ForgotPasswordModal } from "../components/ForgotPasswordModal";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
   const navigate = useNavigate();
 
   function handleLogin() {
@@ -96,6 +98,7 @@ export default function Login() {
           {/* esqueci senha */}
           <button
             type="button"
+            onClick={() => setForgotOpen(true)}
             className="text-xs text-gray-500 hover:underline hover:decoration-gray-500"
           >
             Esqueci minha senha
@@ -130,6 +133,8 @@ export default function Login() {
           {error || "placeholder"}
         </p>
       </form>
+
+      <ForgotPasswordModal open={forgotOpen} onClose={() => setForgotOpen(false)} />
     </div>
   );
 }

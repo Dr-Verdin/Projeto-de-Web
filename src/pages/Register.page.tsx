@@ -68,7 +68,7 @@ export default function Register() {
   return (
     <div className="flex h-screen w-screen bg-gray-50">
       {/* imagem lateral */}
-      <div className="flex flex-1 bg-[url('/capivaras.jpg')] bg-cover bg-center" />
+      <div className="flex flex-1 bg-[url('/fundo_registro.png')] bg-cover bg-center" />
 
       {/* formulário */}
       <form
@@ -133,7 +133,7 @@ export default function Register() {
           </Button>
 
           {/* toggle */}
-          <Button type="button" onClick={() => navigate('/login')} className="w-52 py-5 font-semibold bg-[#b7bb86]/85 text-white hover:bg-[#b7bb86] rounded-3xl">
+          <Button type="button" onClick={() => navigate('/login')} className="w-52 py-5 font-semibold bg-[#8ed1e4]/85 text-white hover:bg-[#8ed1e4] rounded-3xl">
             Já tem uma conta? Faça login
           </Button>
         </div>

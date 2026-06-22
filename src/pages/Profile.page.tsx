@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { UserProfileCard } from "../components/UserProfileCard";
-import { ProfileEditorModal } from "../components/ProfileEditorModal";
 import { Post } from "../components/Post";
 import { TaskChecklist } from "@/components/TaskChecklist";
 import {
@@ -17,38 +16,34 @@ export default function Profile() {
   const { id } = useParams();
   const user = users[id!];
   const [profileUser, setProfileUser] = useState(user);
-  const [isOwnProfile, setIsOwnProfile] = useState(false);
-  const [editorOpen, setEditorOpen] = useState(false);
 
   useEffect(() => {
-    setProfileUser(user);
-  }, [user]);
+    setProfileUser(users[id!]);
+  }, [id]);
 
   useEffect(() => {
-    if (id) {
-      setIsOwnProfile(localStorage.getItem("userId") === id);
+    function handleUserUpdated(e: CustomEvent<{ userId: string }>) {
+      if (e.detail?.userId === id) {
+        setProfileUser({ ...users[id!] });
+      }
     }
+    window.addEventListener("user-updated", handleUserUpdated as EventListener);
+    return () => window.removeEventListener("user-updated", handleUserUpdated as EventListener);
   }, [id]);
 
   if (!user) return <div>Usuário não encontrado</div>;
 
-  const userPosts = posts
-    .filter((post) => post.userId === id)
-    .sort(
-      (a, b) =>
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-    );
+  const [postList, setPostList] = useState(() =>
+    posts.filter((p) => p.userId === id).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  );
 
-  function handleSave(updatedUser: typeof user) {
-    users[id!] = updatedUser;
-    localStorage.setItem("user", JSON.stringify(updatedUser));
-    setProfileUser(updatedUser);
-    try {
-      window.dispatchEvent(new CustomEvent("user-updated", { detail: { userId: id } }));
-    } catch (e) {
-      // ignore in non-browser env
+  useEffect(() => {
+    function refresh() {
+      setPostList(posts.filter((p) => p.userId === id).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
     }
-  }
+    window.addEventListener("posts-updated", refresh);
+    return () => window.removeEventListener("posts-updated", refresh);
+  }, [id]);
 
   return (
     <main className="w-full min-h-screen p-8">
@@ -60,20 +55,8 @@ export default function Profile() {
             <aside className="shrink-0 absolute top-10 left-0 h-full">
               <div className="sticky top-4 space-y-6">
                 <div className="flex flex-col gap-4">
-                  <UserProfileCard
-                    user={profileUser}
-                    onEdit={isOwnProfile ? () => setEditorOpen((open) => !open) : undefined}
-                    isEditing={editorOpen}
-                  />
+                  <UserProfileCard user={profileUser} />
                 </div>
-                {isOwnProfile ? (
-                  <ProfileEditorModal
-                    open={editorOpen}
-                    user={profileUser}
-                    onSave={handleSave}
-                    onClose={() => setEditorOpen(false)}
-                  />
-                ) : null}
               </div>
             </aside>
 
@@ -97,7 +80,7 @@ export default function Profile() {
 
             {/* LISTA */}
             <div className="flex flex-col gap-6">
-              {userPosts.map((post) => (
+              {postList.map((post) => (
                 <Post key={post.id} {...post} />
               ))}
             </div>

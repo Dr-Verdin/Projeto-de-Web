@@ -6,13 +6,22 @@ import {
   NavigationMenuItem,
   NavigationMenuTrigger,
 } from "../components/ui/navigation-menu";
-
+import { useEffect, useState } from "react";
 import { posts } from "../lib/mock";
 
 export default function Feed() {
-  const feedPosts = [...posts].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  const [postList, setPostList] = useState(() =>
+    [...posts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   );
+
+  useEffect(() => {
+    function refresh() {
+      setPostList([...posts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+    }
+    window.addEventListener("posts-updated", refresh);
+    return () => window.removeEventListener("posts-updated", refresh);
+  }, []);
+
 
   return (
     <main className="w-full min-h-screen p-8 relative">
@@ -36,7 +45,7 @@ export default function Feed() {
 
           {/* POSTS */}
           <div className="flex flex-col gap-6">
-            {feedPosts.map((post) => (
+            {postList.map((post) => (
               <Post key={post.id} {...post} />
             ))}
           </div>

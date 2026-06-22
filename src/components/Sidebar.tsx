@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 import {
@@ -13,6 +13,8 @@ import {
 } from "@tabler/icons-react";
 
 import { users } from "../lib/mock";
+import { SettingsModal } from "./SettingsModal";
+import type { User } from "../types/User";
 
 type SidebarProps = {
   open: boolean;
@@ -26,6 +28,8 @@ type SidebarProps = {
 
 export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelType, setActivePanelType, openCreateModal }: SidebarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const storedUserId = localStorage.getItem("userId");
 
@@ -60,6 +64,23 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelTyp
   }, [currentUserId]);
 
   const isProfileActive = location.pathname === `/perfil/${currentUserId}`;
+
+  function handleSaveProfile(updatedUser: User) {
+    users[currentUserId] = updatedUser;
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+    setUser(updatedUser);
+    try {
+      window.dispatchEvent(new CustomEvent("user-updated", { detail: { userId: currentUserId } }));
+    } catch (e) {
+      // ignore in non-browser env
+    }
+  }
+
+  function handleDeleteProfile() {
+    localStorage.removeItem("userId");
+    localStorage.removeItem("user");
+    navigate("/login");
+  }
 
   return (
     <aside
@@ -166,6 +187,7 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelTyp
       </nav>
 
       <div
+        onClick={() => { setSettingsOpen(true); setOpen(false); }}
         className={`flex items-center px-3 py-3 mx-2 mb-4 rounded-2xl hover:bg-gray-300 transition-all duration-300 hover:scale-[1.02] cursor-pointer active:scale-95 relative ${
           open && !panelOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
@@ -184,6 +206,14 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelTyp
         <IconDoorExit className="w-6 h-6" color="#e63946" />
         <span className="ml-3 text-red-500 font-medium">Sair</span>
       </Link>
+
+      <SettingsModal
+        user={user}
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        onSave={handleSaveProfile}
+        onDeleteProfile={handleDeleteProfile}
+      />
     </aside>
   );
 }
