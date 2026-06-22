@@ -23,7 +23,7 @@ export const userService = {
     return res.data;
   },
 
-  async getById(id: number): Promise<User> {
+  async getById(id: string): Promise<User> {
     const res = await api.get(`/users/${id}`);
     return res.data;
   },

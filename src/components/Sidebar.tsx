@@ -1,4 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 import {
   IconHome,
@@ -11,8 +12,6 @@ import {
   IconSettings,
 } from "@tabler/icons-react";
 
-import { users } from "../lib/mock";
-
 type SidebarProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -24,17 +23,13 @@ type SidebarProps = {
 };
 
 export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelType, setActivePanelType, openCreateModal }: SidebarProps) {
+  const { user } = useAuth();
+  const currentUserId = user?.sub;
+  
+  console.log("AUTH USER:", user);
+  console.log("CURRENT USER ID:", currentUserId);
+
   const location = useLocation();
-
-  const storedUserId = localStorage.getItem("userId");
-
-  const currentUserId =
-    storedUserId && users[storedUserId]
-      ? storedUserId
-      : "u1";
-
-  const user = users[currentUserId];
-
   const isProfileActive = location.pathname === `/perfil/${currentUserId}`;
 
   return (
@@ -122,7 +117,7 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelTyp
           className="flex items-center px-1 py-3 mx-2 rounded-2xl hover:bg-[#efce7b]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95 relative"
         >
           <img
-            src={user.avatar}
+            src={user?.avatar}
             alt="Perfil"
             className={`w-9 h-9 rounded-full object-cover shrink-0 ${
               isProfileActive ? "ring-2 ring-[#e1903e]" : ""
@@ -152,7 +147,11 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelTyp
 
       <Link
         to="/login"
-        onClick={() => localStorage.removeItem("userId")}
+        onClick={() => {
+          localStorage.removeItem("userId");
+          localStorage.removeItem("user");
+          localStorage.removeItem("token");
+        }}
         className={`flex items-center px-3 py-3 mx-2 mb-4 rounded-2xl hover:bg-red-100 transition-all duration-300 hover:scale-[1.02] cursor-pointer active:scale-95 relative ${
           open && !panelOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}

@@ -9,38 +9,27 @@ import {
   IconHeart,
   IconMessageCircle,
   IconSend,
-  IconBookmark,
   IconDots,
 } from "@tabler/icons-react";
-import { Link } from "react-router-dom";
 import { PostModal } from "./PostModal";
 import type { Post as PostType } from "../types/Post";
-import { users, communities, comments } from "../lib/mock";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
-export function Post({
-  id,
-  createdAt = "agora",
-  image,
-  title,
-  text,
-  type,
-  userId,
-  communityId,
-  likes,
-}: PostType) {
+export function Post({ post }: { post: PostType }) {
   const [open, setOpen] = useState(false);
 
-  const commentCount = comments.filter(c => c.postId === id).length
+  const {
+    id,
+    title,
+    content,
+    image,
+    createdAt,
+    author,
+  } = post;
 
-  const isCommunityPost = !!communityId;
-
-  const author = isCommunityPost
-    ? communities[communityId!]
-    : users[userId];
-
+  const displayName = author?.name ?? author?.username ?? "unknown";
   const avatar = author?.avatar ?? "";
-  const displayName = author?.name ?? "unknown";
 
   return (
     <>
@@ -58,16 +47,15 @@ export function Post({
 
           <Link
             to={
-              type === "user"
-                ? `/perfil/${userId}`
-                : `/comunidade/${communityId}`
+              post.communityId
+                ? `/comunidade/${post.communityId}`
+                : `/perfil/${post.authorId}`
             }
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center"
+            className="text-slate-800 text-xs font-medium hover:underline"
           >
-            <span className="text-slate-800 text-xs font-medium">
-              {type === "user" ? "u/" + displayName : "c/" + displayName}
-            </span>
+            {post.communityId ? "c/" : "u/"}
+            {displayName}
           </Link>
 
           <span className="text-gray-500 text-xs">• {createdAt}</span>
@@ -95,9 +83,9 @@ export function Post({
             <h2 className="text-slate-900 font-bold text-lg">{title}</h2>
           )}
 
-          {text && (
+          {content && (
             <div className="flex flex-col gap-1 text-slate-700 text-sm">
-              <p>{text}</p>
+              <p>{content}</p>
               <button
                 onClick={(e) => e.stopPropagation()}
                 className="text-xs hover:text-slate-950 text-slate-600 w-fit"
@@ -132,7 +120,6 @@ export function Post({
               className="flex items-center gap-1 hover:text-[#e63946] transition-colors text-black"
             >
               <IconHeart size={30} />
-              {likes}
             </button>
 
             <button
@@ -140,20 +127,12 @@ export function Post({
               className="flex gap-1 items-center text-black"
             >
               <IconMessageCircle size={30} />
-              {commentCount}
             </button>
 
             <button onClick={(e) => e.stopPropagation()} className="text-black">
               <IconSend size={30} />
             </button>
           </div>
-
-          <button
-            onClick={(e) => e.stopPropagation()}
-            className="text-black hover:text-[#aadeff] transition-colors"
-          >
-            <IconBookmark size={30} />
-          </button>
         </footer>
       </div>
 
@@ -161,17 +140,7 @@ export function Post({
       <PostModal
         open={open}
         onOpenChange={setOpen}
-        post={{
-          id,
-          createdAt,
-          image,
-          title,
-          text,
-          type,
-          userId,
-          communityId,
-          likes,
-        }}
+        post={post}
       />
     </>
   );

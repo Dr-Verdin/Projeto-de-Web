@@ -6,6 +6,7 @@ export interface LoginDTO {
 }
 
 export interface RegisterDTO {
+  name: string;
   username: string;
   email: string;
   password: string;
@@ -15,11 +16,17 @@ export const authService = {
   async login(data: LoginDTO) {
     const response = await api.post("/auth/login", data);
 
-    const { token, user } = response.data;
+    localStorage.setItem(
+        "token",
+        response.data.access_token
+    );
 
-    localStorage.setItem("token", token);
+    localStorage.setItem(
+        "refreshToken",
+        response.data.refresh_token
+    );
 
-    return user;
+    return response.data;
   },
 
   async register(data: RegisterDTO) {
@@ -29,5 +36,10 @@ export const authService = {
 
   logout() {
     localStorage.removeItem("token");
+  },
+
+  async getProfile() {
+    const response = await api.get("/auth/profile");
+    return response.data;
   },
 };

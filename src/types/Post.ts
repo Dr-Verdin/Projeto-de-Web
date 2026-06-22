@@ -1,13 +1,15 @@
 export type Post = {
   id: string
-  type: "user" | "community"
   title: string
-  text?: string
+  content?: string
   image?: string
-  avatar?: string
-  tags?: string[]
   createdAt: string
-  likes: number
-  userId: string
-  communityId?: string
+  updatedAt?: string
+  authorId: string
+  author?: {
+    id: string
+    username: string
+    name: string
+    avatar?: string
+  }
 }

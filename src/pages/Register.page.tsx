@@ -29,6 +29,7 @@ export default function Register() {
 
     try {
       await authService.register({
+        name,
         username,
         email,
         password: senha,
