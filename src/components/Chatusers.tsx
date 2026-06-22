@@ -27,9 +27,6 @@ export default function ChatUsers({ userId, onBack }: ChatHeaderProps) {
             {/* CABEÇALHO */}
             <div className="flex items-center justify-between p-3 lg:p-4 border-b border-gray-200 bg-white shrink-0 shadow-sm z-10">
                 <div className="flex items-center gap-2 lg:gap-3">
-                    
-                    {/* AQUI ESTÁ A SETINHA DE VOLTAR! */}
-                    {/* Alterado de md:hidden para lg:hidden para ela não sumir em telas médias */}
                     <button 
                         onClick={onBack}
                         className="lg:hidden flex items-center justify-center p-2 -ml-2 text-gray-600 hover:text-[#e1903e] hover:bg-gray-100 transition-colors rounded-full"
@@ -45,7 +42,6 @@ export default function ChatUsers({ userId, onBack }: ChatHeaderProps) {
                     />
                     <div className="flex flex-col">
                         <span className="font-semibold text-gray-900 text-sm lg:text-base">{user.name}</span>
-                        {/* Corrigido para não mostrar @@ */}
                         <span className="text-xs lg:text-sm text-gray-500">{displayUsername}</span>
                     </div>
                 </div>
