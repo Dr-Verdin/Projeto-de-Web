@@ -10,7 +10,7 @@ import {
 import { useState, useRef, useEffect } from "react";
 import { notifications } from "../lib/mock";
 import type { Notification } from "../types/Notification";
-import { useNavigate } from "react-router-dom";
+
 
 type NotificationPanelProps = {
   open: boolean;
@@ -23,8 +23,6 @@ export function NotificationPanel({ open, onClose }: NotificationPanelProps) {
   const painelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const navigate = useNavigate();
-
     if (!open) return;
 
     function handleClickOutside(e: MouseEvent) {

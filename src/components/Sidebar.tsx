@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useAuth } from "../contexts/AuthContext";
+import { useState } from "react";
 
 import {
   IconHome,
@@ -12,7 +13,6 @@ import {
   IconSettings,
 } from "@tabler/icons-react";
 
-import { users } from "../lib/mock";
 import { SettingsModal } from "./SettingsModal";
 import type { User } from "../types/User";
 
@@ -27,58 +27,25 @@ type SidebarProps = {
 };
 
 export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelType, setActivePanelType, openCreateModal }: SidebarProps) {
+  const { user, logout } = useAuth();
+  const currentUserId = user?.id ?? user?.sub;
   const location = useLocation();
   const navigate = useNavigate();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
-  const storedUserId = localStorage.getItem("userId");
-
-  const currentUserId =
-    storedUserId && users[storedUserId]
-      ? storedUserId
-      : "u1";
-  const [user, setUser] = useState(() => users[currentUserId]);
-
-  // Update local user state when user-updated event is dispatched or when localStorage userId changes
-  useEffect(() => {
-    function onUserUpdated(e: any) {
-      const id = e?.detail?.userId || localStorage.getItem("userId");
-      if (id && users[id]) setUser(users[id]);
-    }
-
-    window.addEventListener("user-updated", onUserUpdated as EventListener);
-
-    // also update if localStorage userId changed in this tab
-    const onStorage = (ev: StorageEvent) => {
-      if (ev.key === "userId") {
-        const id = localStorage.getItem("userId");
-        if (id && users[id]) setUser(users[id]);
-      }
-    };
-    window.addEventListener("storage", onStorage);
-
-    return () => {
-      window.removeEventListener("user-updated", onUserUpdated as EventListener);
-      window.removeEventListener("storage", onStorage);
-    };
-  }, [currentUserId]);
-
   const isProfileActive = location.pathname === `/perfil/${currentUserId}`;
 
   function handleSaveProfile(updatedUser: User) {
-    users[currentUserId] = updatedUser;
     localStorage.setItem("user", JSON.stringify(updatedUser));
-    setUser(updatedUser);
     try {
       window.dispatchEvent(new CustomEvent("user-updated", { detail: { userId: currentUserId } }));
     } catch (e) {
-      // ignore in non-browser env
+      // ignore
     }
   }
 
   function handleDeleteProfile() {
-    localStorage.removeItem("userId");
-    localStorage.removeItem("user");
+    logout();
     navigate("/login");
   }
 
@@ -122,12 +89,11 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelTyp
             }
           }}
         />
-        {/* 2. O item "Criar" agora chama a função openCreateModal através do onClick */}
-        <SidebarItem 
-          icon={IconPlus} 
+        <SidebarItem
+          icon={IconPlus}
           label="Criar"
           onClick={openCreateModal}
-          open={open} 
+          open={open}
           panelOpen={panelOpen}
         />
 
@@ -167,14 +133,14 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelTyp
           className="flex items-center px-1 py-3 mx-2 rounded-2xl hover:bg-[#efce7b]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95 relative"
         >
           <img
-            src={user.avatar}
+            src={user?.avatar}
             alt="Perfil"
             className={`w-9 h-9 rounded-full object-cover shrink-0 ${
               isProfileActive ? "ring-2 ring-[#e1903e]" : ""
             }`}
           />
 
-          {open && !panelOpen &&(
+          {open && !panelOpen && (
             <span
               className={`ml-3 transition-all duration-200 whitespace-nowrap ${
                 isProfileActive ? "text-[#e1903e] font-bold" : "text-black"
@@ -198,7 +164,7 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelTyp
 
       <Link
         to="/login"
-        onClick={() => localStorage.removeItem("userId")}
+        onClick={() => logout()}
         className={`flex items-center px-3 py-3 mx-2 mb-4 rounded-2xl hover:bg-red-100 transition-all duration-300 hover:scale-[1.02] cursor-pointer active:scale-95 relative ${
           open && !panelOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
@@ -240,7 +206,7 @@ function SidebarItem({
   const location = useLocation();
   const isActive = to ? location.pathname === to : active;
 
-  const className ="flex items-center px-3 py-3 mx-2 rounded-2xl hover:bg-[#efce7b]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95";
+  const className = "flex items-center px-3 py-3 mx-2 rounded-2xl hover:bg-[#efce7b]/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer active:scale-95";
 
   const content = (
     <>

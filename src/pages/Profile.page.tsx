@@ -9,41 +9,60 @@ import {
   NavigationMenuItem,
   NavigationMenuTrigger,
 } from "../components/ui/navigation-menu";
-
-import { posts, users } from "../lib/mock";
+import { userService } from "@/services/userService";
+import { postService } from "@/services/postService";
 
 export default function Profile() {
   const { id } = useParams();
-  const user = users[id!];
-  const [profileUser, setProfileUser] = useState(user);
+  const [user, setUser] = useState<any>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [userPosts, setUserPosts] = useState<any[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
 
   useEffect(() => {
-    setProfileUser(users[id!]);
-  }, [id]);
-
-  useEffect(() => {
-    function handleUserUpdated(e: CustomEvent<{ userId: string }>) {
-      if (e.detail?.userId === id) {
-        setProfileUser({ ...users[id!] });
+    async function loadUser() {
+      if (!id) return;
+      setLoadingUser(true);
+      try {
+        const data = await userService.getById(id);
+        setUser(data);
+      } catch (err) {
+        console.error(err);
+        setUser(null);
+      } finally {
+        setLoadingUser(false);
       }
     }
-    window.addEventListener("user-updated", handleUserUpdated as EventListener);
-    return () => window.removeEventListener("user-updated", handleUserUpdated as EventListener);
+    loadUser();
   }, [id]);
-
-  if (!user) return <div>Usuário não encontrado</div>;
-
-  const [postList, setPostList] = useState(() =>
-    posts.filter((p) => p.userId === id).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  );
 
   useEffect(() => {
-    function refresh() {
-      setPostList(posts.filter((p) => p.userId === id).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+    async function loadPosts() {
+      if (!id) return;
+      setLoadingPosts(true);
+      try {
+        const data = await postService.getByUser(id);
+        setUserPosts(data);
+      } catch (err) {
+        console.error(err);
+        setUserPosts([]);
+      } finally {
+        setLoadingPosts(false);
+      }
     }
-    window.addEventListener("posts-updated", refresh);
-    return () => window.removeEventListener("posts-updated", refresh);
+    loadPosts();
+
+    window.addEventListener("posts-updated", loadPosts);
+    return () => window.removeEventListener("posts-updated", loadPosts);
   }, [id]);
+
+  if (loadingUser || loadingPosts) {
+    return <div>Carregando...</div>;
+  }
+
+  if (!user) {
+    return <div>Usuário não encontrado</div>;
+  }
 
   return (
     <main className="w-full min-h-screen p-8">
@@ -53,10 +72,8 @@ export default function Profile() {
           <section className="min-w-0 max-w-2xl mx-auto">
             {/* PERFIL */}
             <aside className="shrink-0 absolute top-10 left-0 h-full">
-              <div className="sticky top-4 space-y-6">
-                <div className="flex flex-col gap-4">
-                  <UserProfileCard user={profileUser} />
-                </div>
+              <div className="sticky top-4">
+                <UserProfileCard user={user} />
               </div>
             </aside>
 
@@ -66,6 +83,7 @@ export default function Profile() {
                 <TaskChecklist />
               </div>
             </aside>
+
             {/* FILTROS */}
             <div className="h-11 flex items-center gap-4 px-4">
               <NavigationMenu>
@@ -80,13 +98,34 @@ export default function Profile() {
 
             {/* LISTA */}
             <div className="flex flex-col gap-6">
-              {postList.map((post) => (
-                <Post key={post.id} {...post} />
-              ))}
+              {userPosts.length === 0 ? (
+                <EmptyPostsState />
+              ) : (
+                userPosts.map((post) => (
+                  <Post key={post.id} post={post} />
+                ))
+              )}
             </div>
           </section>
         </div>
       </div>
     </main>
+  );
+}
+
+function EmptyPostsState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center text-gray-500">
+      <div className="text-5xl mb-3">📝</div>
+      <h2 className="text-lg font-semibold text-gray-700">
+        Nenhuma publicação ainda
+      </h2>
+      <p className="mt-2 max-w-sm">
+        Este usuário ainda não publicou nada. Quando houver posts, eles aparecerão aqui.
+      </p>
+      <div className="mt-4 text-sm text-gray-400">
+        Seja o primeiro a interagir com este perfil
+      </div>
+    </div>
   );
 }

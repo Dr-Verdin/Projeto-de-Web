@@ -16,28 +16,42 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { PostModal } from "./PostModal";
 import type { Post as PostType } from "../types/Post";
-import { users, communities, comments } from "../lib/mock";
 import { useState, useEffect, useRef } from "react";
 import { EditPostModal } from "./EditPostModal";
 
-
-export function Post({
-  id,
-  createdAt = "agora",
-  image,
-  title,
-  text,
-  type,
-  userId,
-  communityId,
-  likes,
-}: PostType) {
+export function Post({ post }: { post: PostType }) {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [, forceUpdate] = useState(0);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
+
+  const {
+    id,
+    title,
+    content,
+    image,
+    author,
+  } = post;
+
+  const createdAt = post.createdAt
+    ? new Date(post.createdAt).toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      })
+    : "";
+
+  const userId = post.authorId;
+  const communityId = post.communityId;
+
+  const displayName = author?.name ?? author?.username ?? "unknown";
+  const avatar = author?.avatar ?? "";
+
+  const storedUser = localStorage.getItem("user");
+  const currentUserId = storedUser ? (JSON.parse(storedUser)?.id ?? JSON.parse(storedUser)?.sub) : null;
+  const isOwnPost = userId === currentUserId;
 
   useEffect(() => {
     function handleCloseAll() {
@@ -57,7 +71,6 @@ export function Post({
     return () => window.removeEventListener("user-updated", handleUserUpdated as EventListener);
   }, [userId, communityId]);
 
-  // Fecha o menu ao clicar fora
   useEffect(() => {
     if (!menuOpen) return;
     function handleClickOutside(e: MouseEvent) {
@@ -74,20 +87,6 @@ export function Post({
     navigator.clipboard.writeText(`${window.location.origin}/post/${id}`);
     setMenuOpen(false);
   }
-
-  const commentCount = comments.filter(c => c.postId === id).length
-
-  const isCommunityPost = !!communityId;
-
-  const author = isCommunityPost
-    ? communities[communityId!]
-    : users[userId];
-
-  const avatar = author?.avatar ?? "";
-  const displayName = author?.name ?? "unknown";
-
-  const currentUserId = localStorage.getItem("userId") ?? "u1";
-  const isOwnPost = userId === currentUserId;
 
   const modalOpen = open && !document.body.classList.contains("profile-editor-open");
 
@@ -107,16 +106,15 @@ export function Post({
 
           <Link
             to={
-              type === "user"
-                ? `/perfil/${userId}`
-                : `/comunidade/${communityId}`
+              post.communityId
+                ? `/comunidade/${post.communityId}`
+                : `/perfil/${post.authorId}`
             }
             onClick={(e) => e.stopPropagation()}
-            className="flex items-center"
+            className="text-slate-800 text-xs font-medium hover:underline"
           >
-            <span className="text-slate-800 text-xs font-medium">
-              {type === "user" ? "u/" + displayName : "c/" + displayName}
-            </span>
+            {post.communityId ? "c/" : "u/"}
+            {displayName}
           </Link>
 
           <span className="text-gray-500 text-xs">• {createdAt}</span>
@@ -131,7 +129,6 @@ export function Post({
               </Button>
             )}
 
-            {/* Menu ⋯ */}
             <div ref={menuRef} className="relative" onClick={(e) => e.stopPropagation()}>
               <Button
                 onClick={() => setMenuOpen((v) => !v)}
@@ -171,8 +168,8 @@ export function Post({
             <h2 className="text-slate-900 font-bold text-lg">{title}</h2>
           )}
 
-          {text && (
-            <TextWithReadMore text={text} onOpenModal={() => setOpen(true)} />
+          {content && (
+            <TextWithReadMore text={content} onOpenModal={() => setOpen(true)} />
           )}
 
           {image && (
@@ -200,7 +197,6 @@ export function Post({
               className="flex items-center gap-1 hover:text-[#e63946] transition-colors text-black"
             >
               <IconHeart size={30} />
-              {likes}
             </button>
 
             <button
@@ -208,7 +204,6 @@ export function Post({
               className="flex gap-1 items-center text-black"
             >
               <IconMessageCircle size={30} />
-              {commentCount}
             </button>
 
             <button onClick={(e) => { e.stopPropagation(); navigate("/mensagens"); }} className="text-black hover:text-[#e1903e] transition-colors">
@@ -218,26 +213,15 @@ export function Post({
         </footer>
       </div>
 
-      {/* MODAL */}
       <PostModal
         open={modalOpen}
         onOpenChange={setOpen}
-        post={{
-          id,
-          createdAt,
-          image,
-          title,
-          text,
-          type,
-          userId,
-          communityId,
-          likes,
-        }}
+        post={post}
       />
       <EditPostModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
-        post={{ id, createdAt, image, title, text, type, userId, communityId, likes }}
+        post={post}
       />
     </>
   );

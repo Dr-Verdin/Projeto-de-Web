@@ -4,7 +4,7 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { DeleteConfirmView } from "./DeleteConfirmView";
-import { posts } from "../lib/mock";
+import { postService } from "../services/postService";
 import type { Post } from "../types/Post";
 
 type EditPostModalProps = {
@@ -16,30 +16,39 @@ type EditPostModalProps = {
 export function EditPostModal({post, open, onClose}: EditPostModalProps){
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [title, setTitle] = useState(post.title ?? "");
-    const [text, setText] = useState(post.text ?? "");
+    const [text, setText] = useState(post.content ?? "");
+    const [loading, setLoading] = useState(false);
 
     function handleClose() {
         onClose();
         setTimeout(() => setShowDeleteConfirm(false), 200);
     }
 
-    function handleSave(e: React.FormEvent){
+    async function handleSave(e: React.FormEvent){
         e.preventDefault();
-        const idx = posts.findIndex((p) => p.id == post.id);
-        if (idx !== -1){
-            posts[idx] = {...posts[idx], title, text};
+        setLoading(true);
+        try {
+            await postService.update(post.id, { title, content: text });
+            window.dispatchEvent(new CustomEvent("posts-updated"));
+            handleClose();
+        } catch (err) {
+            console.error("Erro ao salvar post:", err);
+        } finally {
+            setLoading(false);
         }
-        window.dispatchEvent(new CustomEvent("posts-updated"));
-        handleClose();
     }
 
-    function handleDelete(){
-        const idx = posts.findIndex((p) => p.id == post.id);
-        if(idx !== -1){
-            posts.splice(idx, 1);
+    async function handleDelete(){
+        setLoading(true);
+        try {
+            await postService.remove(post.id);
+            window.dispatchEvent(new CustomEvent("posts-updated"));
+            handleClose();
+        } catch (err) {
+            console.error("Erro ao deletar post:", err);
+        } finally {
+            setLoading(false);
         }
-        window.dispatchEvent(new CustomEvent("posts-updated"));
-        handleClose();        
     }
 
     return (
@@ -101,9 +110,10 @@ export function EditPostModal({post, open, onClose}: EditPostModalProps){
                     <Button
                         type="submit"
                         form="edit-post-form"
-                        className="rounded-full px-6 h-10 text-sm text-white bg-[#e1903e]/85 hover:bg-[#e1903e] transition shadow-sm"
+                        disabled={loading}
+                        className="rounded-full px-6 h-10 text-sm text-white bg-[#e1903e]/85 hover:bg-[#e1903e] transition shadow-sm disabled:opacity-50"
                     >
-                        Salvar alterações
+                        {loading ? "Salvando..." : "Salvar alterações"}
                     </Button>
                     </div>
                 </div>

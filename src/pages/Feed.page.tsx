@@ -1,5 +1,6 @@
 import { CommunitiesCard } from "../components/CommunitiesCard";
-import { Post } from "../components/Post";
+import type { Post } from "../types/Post";
+import { Post as PostComponent } from "../components/Post";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -7,21 +8,28 @@ import {
   NavigationMenuTrigger,
 } from "../components/ui/navigation-menu";
 import { useEffect, useState } from "react";
-import { posts } from "../lib/mock";
+import { postService } from "../services/postService";
 
 export default function Feed() {
-  const [postList, setPostList] = useState(() =>
-    [...posts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  );
+  const [posts, setPosts] = useState<Post[]>([]);
+
+  async function loadPosts() {
+    try {
+      const data = await postService.getAll();
+      setPosts(data);
+    } catch (err) {
+      console.error(err);
+    }
+  }
 
   useEffect(() => {
-    function refresh() {
-      setPostList([...posts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
-    }
-    window.addEventListener("posts-updated", refresh);
-    return () => window.removeEventListener("posts-updated", refresh);
+    loadPosts();
   }, []);
 
+  useEffect(() => {
+    window.addEventListener("posts-updated", loadPosts);
+    return () => window.removeEventListener("posts-updated", loadPosts);
+  }, []);
 
   return (
     <main className="w-full min-h-screen p-8 relative">
@@ -45,8 +53,8 @@ export default function Feed() {
 
           {/* POSTS */}
           <div className="flex flex-col gap-6">
-            {postList.map((post) => (
-              <Post key={post.id} {...post} />
+            {posts.map((post) => (
+              <PostComponent key={post.id} post={post} />
             ))}
           </div>
         </section>
