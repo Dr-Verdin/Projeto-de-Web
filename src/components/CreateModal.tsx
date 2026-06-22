@@ -14,9 +14,6 @@ export default function Create({ onClose }: { onClose: () => void }) {
   async function handlePublish() {
     if (!user?.sub) return;
 
-    console.log("USER:", user);
-    console.log("AUTHOR ID:", user?.sub);
-
     const token = localStorage.getItem("token");
 
     await fetch("http://localhost:3000/posts", {
@@ -34,6 +31,8 @@ export default function Create({ onClose }: { onClose: () => void }) {
     });
 
     onClose();
+    
+    window.location.reload();
   }
 
   console.log(image.length);
