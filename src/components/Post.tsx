@@ -13,23 +13,57 @@ import {
 } from "@tabler/icons-react";
 import { PostModal } from "./PostModal";
 import type { Post as PostType } from "../types/Post";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import api from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 
 export function Post({ post }: { post: PostType }) {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
 
-  const {
-    id,
-    title,
-    content,
-    image,
-    createdAt,
-    author,
-  } = post;
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(post.likes ?? 0);
+
+  const { title, content, image, createdAt, author } = post;
 
   const displayName = author?.name ?? author?.username ?? "unknown";
   const avatar = author?.avatar ?? "";
+
+  useEffect(() => {
+    async function fetchLikeState() {
+      if (!user?.sub) return;
+
+      const res = await api.get(`/posts/${post.id}`, {
+        params: {
+          userId: user.sub,
+        },
+      });
+
+      setLiked(res.data.likedByMe);
+      setLikes(res.data.likes);
+    }
+
+    fetchLikeState();
+  }, [post.id, user?.id]);
+
+  async function handleLike(e: any) {
+    e.stopPropagation();
+
+    setLiked((prev) => !prev);
+    setLikes((prev) => (liked ? prev - 1 : prev + 1));
+
+    try {
+      const res = await api.patch(`/posts/${post.id}/like`, {
+        userId: user?.sub,
+      });
+
+      setLiked(res.data.liked);
+    } catch (err) {
+      setLiked((prev) => !prev);
+      setLikes((prev) => (liked ? prev + 1 : prev - 1));
+    }
+  }
 
   return (
     <>
@@ -116,17 +150,34 @@ export function Post({ post }: { post: PostType }) {
         <footer className="w-full flex items-center justify-between px-4 py-2">
           <div className="flex items-center gap-5">
             <button
-              onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 hover:text-[#e63946] transition-colors text-black"
+              onClick={handleLike}
+              className="group flex items-center gap-1 transition-colors"
             >
-              <IconHeart size={30} />
+              <IconHeart
+                size={30}
+                className={
+                  liked
+                    ? "text-red-500 fill-red-500"
+                    : "text-black group-hover:text-[#e63946]"
+                }
+              />
+              <span
+                className={
+                  liked
+                    ? "text-red-500"
+                    : "text-black group-hover:text-[#e63946]"
+                }
+              >
+                {likes}
+              </span>
             </button>
 
             <button
               onClick={(e) => e.stopPropagation()}
-              className="flex gap-1 items-center text-black"
+              className="flex gap-1 items-center text-black hover:text-[#e1903e] transition-colors"
             >
               <IconMessageCircle size={30} />
+              <span className="text-sm">{post._count?.comments ?? 0}</span>
             </button>
 
             <button onClick={(e) => e.stopPropagation()} className="text-black">
@@ -136,12 +187,7 @@ export function Post({ post }: { post: PostType }) {
         </footer>
       </div>
 
-      {/* MODAL */}
-      <PostModal
-        open={open}
-        onOpenChange={setOpen}
-        post={post}
-      />
+      <PostModal open={open} onOpenChange={setOpen} post={post} />
     </>
   );
 }

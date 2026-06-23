@@ -1,73 +1,142 @@
-import type { Comment as CommentType } from "../types/Comment";
-import { 
+import {
   Avatar,
   AvatarImage,
-  AvatarFallback
+  AvatarFallback,
 } from "./ui/avatar";
 
 import { Link } from "react-router-dom";
-
-import { users } from "../lib/mock";
-
 import { IconHeart, IconMessageCircle } from "@tabler/icons-react";
+import { useAuth } from "../contexts/AuthContext";
+import { useState } from "react";
+import { commentService } from "../services/commentService";
+
+type CommentProps = {
+  id: string;
+  content: string;
+  createdAt: string;
+  likes?: number;
+  comments?: number;
+
+  commentLikes?: {
+    userId: string;
+  }[];
+
+  author?: {
+    id: string;
+    name?: string;
+    username?: string;
+    avatar?: string | null;
+  };
+
+  replies?: CommentProps[];
+};
 
 export function CommentItem({
-    userId,
-    text,
-    image,
-    createdAt,
-    likes,
-    comments
-}: CommentType) {
-  const user = users[userId];
+  id,
+  author,
+  content,
+  createdAt,
+  likes: initialLikes = 0,
+  comments,
+  commentLikes,
+}: CommentProps) {
+  const { user } = useAuth();
+
+  const [likes, setLikes] = useState(initialLikes);
+
+  const [liked, setLiked] = useState(
+    commentLikes?.some(
+      (like) => like.userId === user?.sub
+    ) ?? false
+  );
+
+  const displayName = author?.name ?? author?.username ?? "user";
+  const avatar = author?.avatar ?? "";
+
+  async function handleLike() {
+    if (!user?.sub) return;
+
+    const wasLiked = liked;
+
+    setLiked(!wasLiked);
+    setLikes((prev) => (wasLiked ? prev - 1 : prev + 1));
+
+    try {
+      const res = await commentService.toggleLike(
+        id,
+        user.sub
+      );
+
+      setLiked(res.liked);
+      setLikes(res.likes);
+    } catch (err) {
+      console.error(err);
+
+      setLiked(wasLiked);
+      setLikes((prev) => (wasLiked ? prev + 1 : prev - 1));
+    }
+  }
 
   return (
     <div className="flex gap-3 px-4 py-3">
       {/* AVATAR */}
-      <Link to={`/perfil/${userId}`} onClick={(e) => e.stopPropagation()}>
+      <Link
+        to={`/perfil/${author?.id}`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <Avatar className="w-9 h-9">
-          <AvatarImage src={user.avatar} alt={user.name} />
+          <AvatarImage src={avatar} alt={displayName} />
           <AvatarFallback>
-            {user.name.slice(0, 2).toUpperCase()}
+            {displayName.slice(0, 2).toUpperCase()}
           </AvatarFallback>
         </Avatar>
       </Link>
 
-      {/* CONTEÚDO DO COMENTÁRIO */}
+      {/* CONTEÚDO */}
       <div className="flex-1 flex flex-col gap-2">
         {/* HEADER */}
         <div className="flex items-center gap-2">
           <Link
-            to={`/perfil/${userId}`}
+            to={`/perfil/${author?.id}`}
             className="text-sm font-medium text-slate-800 hover:underline"
           >
-            u/{user.name}
+            u/{displayName}
           </Link>
 
           <span className="text-xs text-zinc-500">
-            • {createdAt}
+            • {new Date(createdAt).toLocaleString()}
           </span>
         </div>
 
         {/* TEXTO */}
         <p className="text-sm text-slate-700 whitespace-pre-line">
-          {text}
+          {content}
         </p>
-
-        {/* IMAGEM */}
-        {image && (
-          <img
-            src={image}
-            alt="comentário"
-            className="rounded-xl max-h-80 object-cover border"
-          />
-        )}
 
         {/* FOOTER */}
         <div className="flex items-center gap-4 pt-1">
-          <button className="flex items-center gap-1 text-zinc-600 hover:text-red-500 transition-colors">
-            <IconHeart size={18} />
-            <span className="text-xs">{likes}</span>
+          <button
+            onClick={handleLike}
+            className="group flex items-center gap-1 transition-colors"
+          >
+            <IconHeart
+              size={18}
+              className={
+                liked
+                  ? "text-red-500 fill-red-500"
+                  : "text-zinc-600 group-hover:text-red-500"
+              }
+            />
+
+            <span
+              className={
+                liked
+                  ? "text-red-500 text-xs"
+                  : "text-zinc-600 text-xs group-hover:text-red-500"
+              }
+            >
+              {likes}
+            </span>
           </button>
 
           <button className="flex items-center gap-1 text-zinc-600 hover:text-sky-500 transition-colors">

@@ -46,7 +46,9 @@ export function SearchPanel({ open, onClose }: SearchPanelProps) {
         const res = await fetch(
           `http://localhost:3000/users/search?q=${query}`
         );
+        console.log("STATUS:", res.status);
         const data = await res.json();
+        console.log("DATA:", data);
         setUsers(data);
       } catch (err) {
         console.error("Erro na busca:", err);

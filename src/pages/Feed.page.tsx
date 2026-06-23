@@ -27,8 +27,6 @@ export default function Feed() {
     loadPosts();
   }, []);
 
-  console.log(posts);
-
   return (
     <main className="w-full min-h-screen p-8 relative">
       {/* CONTAINER PRINCIPAL */}
