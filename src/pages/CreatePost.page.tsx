@@ -54,7 +54,7 @@ export default function CreatePostPage() {
     `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=e1903e&color=fff&size=80`;
 
   return (
-    <div className="flex flex-col h-full w-full bg-white overflow-hidden">
+    <div className="flex flex-col h-full w-full bg-white overflow-hidden max-w-full">
 
       {/* ── HEADER ── */}
       <header className="shrink-0 flex items-center justify-between px-4 h-14 border-b border-gray-100">
@@ -79,10 +79,10 @@ export default function CreatePostPage() {
       </header>
 
       {/* ── CORPO SCROLLÁVEL ── */}
-      <div className="flex-1 overflow-y-auto flex flex-col">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden flex flex-col">
 
         {/* autor */}
-        <div className="flex items-center gap-3 px-4 pt-4 pb-3 shrink-0">
+        <div className="flex items-center gap-3 px-4 pt-4 pb-2 shrink-0">
           <img
             src={avatarSrc}
             alt={displayName}
@@ -99,7 +99,7 @@ export default function CreatePostPage() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Sobre o que você quer falar?"
-          rows={3}
+          rows={2}
           className="w-full px-4 py-2 bg-transparent text-gray-900 text-[1.35rem]
                      font-bold focus:outline-none resize-none
                      placeholder:text-gray-300 placeholder:font-bold leading-snug"
@@ -112,20 +112,20 @@ export default function CreatePostPage() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder="Adicione mais detalhes (opcional)..."
-          rows={4}
-          className="w-full px-4 py-3 bg-transparent text-gray-700 text-base
+          rows={3}
+          className="w-full px-4 py-2 bg-transparent text-gray-700 text-base
                      focus:outline-none resize-none
                      placeholder:text-gray-300 leading-relaxed"
         />
 
-        {/* imagem — ocupa toda a largura */}
+        {/* imagem — altura limitada para não esconder os campos */}
         {previewUrl && (
-          <div className="relative mt-2 w-full">
+          <div className="relative w-full mt-1 shrink-0">
             <img
               src={previewUrl}
               alt="Preview"
               className="w-full object-cover"
-              style={{ maxHeight: "60vh" }}
+              style={{ maxHeight: "45vh" }}
             />
             <button
               onClick={() => setPreviewUrl(null)}
@@ -138,8 +138,7 @@ export default function CreatePostPage() {
           </div>
         )}
 
-        {/* espaço no fim para não ficar atrás da barra */}
-        <div className="h-20 shrink-0" />
+        <div className="h-4 shrink-0" />
       </div>
 
       {/* ── BARRA INFERIOR ── */}
