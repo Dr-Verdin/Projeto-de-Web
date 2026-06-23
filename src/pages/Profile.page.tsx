@@ -5,9 +5,11 @@ import { Post } from "../components/Post";
 import { TaskChecklist } from "@/components/TaskChecklist";
 import { userService } from "@/services/userService";
 import { postService } from "@/services/postService";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Profile() {
   const { id } = useParams();
+  const { user: loggedUser } = useAuth();
   const [user, setUser] = useState<any>(null);
   const [loadingUser, setLoadingUser] = useState(true);
   const [userPosts, setUserPosts] = useState<any[]>([]);
@@ -66,13 +68,16 @@ export default function Profile() {
     );
   }
 
+  const loggedUserId = loggedUser?.id ?? loggedUser?.sub;
+  const isOwnProfile = loggedUserId === id;
+
   return (
     <main className="w-full min-h-screen px-3 py-4 md:p-8">
       <div className="max-w-7xl mx-auto flex gap-6 lg:gap-8 items-start">
 
         {/* COLUNA ESQUERDA — card de perfil, some no mobile */}
         <aside className="hidden lg:block w-72 shrink-0 sticky top-8">
-          <UserProfileCard user={user} />
+          <UserProfileCard user={user} isOwnProfile={isOwnProfile} />
         </aside>
 
         {/* COLUNA CENTRAL — feed */}
@@ -80,7 +85,7 @@ export default function Profile() {
 
           {/* CARD DE PERFIL MOBILE — aparece só no mobile, horizontal */}
           <div className="lg:hidden mb-4">
-            <UserProfileCard user={user} mobile />
+            <UserProfileCard user={user} mobile isOwnProfile={isOwnProfile} />
           </div>
 
           {/* FILTROS */}

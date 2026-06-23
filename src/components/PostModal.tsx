@@ -212,12 +212,22 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
                 {comments.length > 0 ? (
                   comments.map((c) => (
                     <div key={c.id} className="flex flex-col gap-2">
-                      <CommentItem {...c} />
-                      {c.replies?.map((reply) => (
-                        <div key={reply.id} className="ml-8">
-                          <CommentItem {...reply} />
-                        </div>
-                      ))}
+                      <CommentItem
+                        {...c}
+                        postId={post.id}
+                        onDeleted={(deletedId) =>
+                          setComments((prev) => prev.filter((x) => x.id !== deletedId))
+                        }
+                        onReplyCreated={(reply, parentId) =>
+                          setComments((prev) =>
+                            prev.map((x) =>
+                              x.id === parentId
+                                ? { ...x, replies: [...(x.replies ?? []), reply] }
+                                : x,
+                            ),
+                          )
+                        }
+                      />
                     </div>
                   ))
                 ) : (

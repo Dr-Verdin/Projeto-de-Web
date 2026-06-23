@@ -10,16 +10,19 @@ export const commentService = {
     content: string;
     authorId: string;
     postId: string;
+    parentId?: string;
   }) {
     const res = await api.post("/comments", data);
     return res.data;
   },
 
-  async toggleLike(commentId: string, userId: string) {
-    const res = await api.patch(`/comments/${commentId}/like`, {
-      userId,
-    });
+  async remove(commentId: string) {
+    const res = await api.delete(`/comments/${commentId}`);
+    return res.data;
+  },
 
+  async toggleLike(commentId: string, userId: string) {
+    const res = await api.patch(`/comments/${commentId}/like`, { userId });
     return res.data;
   },
 };
