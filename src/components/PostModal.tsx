@@ -3,45 +3,108 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarImage, AvatarFallback, AvatarBadge } from "./ui/avatar";
 import { Input } from "./ui/input";
 import { IconDots, IconHeart, IconSend } from "@tabler/icons-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import type { Post as PostType } from "../types/Post";
-import type { Comment } from "../types/Comment";
-import { CommentItem } from "./Comment";
+import type { Comment as CommentType } from "../types/Comment";
 
-// comentário forçado para testar o visual — remover quando a API de comentários estiver pronta
-const MOCK_COMMENTS: Comment[] = [
-  {
-    id: "test-1",
-    postId: "__any__",
-    userId: "test-user",
-    content: "Que post incrível! 🔥",
-    createdAt: new Date().toISOString(),
-    likes: 4,
-  },
-  {
-    id: "test-2",
-    postId: "__any__",
-    userId: "test-user-2",
-    content: "Concordo demais com isso aqui 😄",
-    createdAt: new Date().toISOString(),
-    likes: 1,
-  },
-];
+import { useEffect, useState } from "react";
+import { commentService } from "../services/commentService";
+import { CommentItem } from "./Comment";
+import { useAuth } from "../contexts/AuthContext";
+import api from "../services/api";
 
 type PostModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   post: PostType;
+  onCommentAdded?: () => void;
 };
 
-export function PostModal({ open, onOpenChange, post }: PostModalProps) {
-  const navigate = useNavigate();
+export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModalProps) {
+  const { user } = useAuth();
+
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(post.likes ?? 0);
+
   const isCommunityPost = !!post.communityId;
+
+  const [comments, setComments] = useState<CommentType[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const author = post.author ?? null;
   const displayName = author?.name ?? author?.username ?? "user";
   const avatar = author?.avatar ?? "";
+
+  useEffect(() => {
+    setLikes(post.likes ?? 0);
+  }, [post.id, post.likes]);
+
+  useEffect(() => {
+    async function loadComments() {
+      try {
+        const data = await commentService.getByPost(post.id);
+        setComments(data);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    loadComments();
+  }, [post.id]);
+
+  useEffect(() => {
+    async function fetchLikeState() {
+      if (!user?.sub) return;
+      try {
+        const res = await api.get(`/posts/${post.id}`, {
+          params: { userId: user.sub },
+        });
+        setLiked(res.data.likedByMe);
+        setLikes(res.data.likes);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchLikeState();
+  }, [post.id, user?.sub]);
+
+  async function handleSendComment() {
+    if (!newComment.trim() || !user?.sub) return;
+    setLoading(true);
+    try {
+      const created = await commentService.create({
+        content: newComment,
+        authorId: user.sub,
+        postId: post.id,
+      });
+      setNewComment("");
+      setComments((prev) => [created, ...prev]);
+      onCommentAdded?.();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleLike(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
+    if (!user?.sub) return;
+
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikes((prev) => (wasLiked ? prev - 1 : prev + 1));
+
+    try {
+      const res = await api.patch(`/posts/${post.id}/like`, { userId: user.sub });
+      setLiked(res.data.liked);
+    } catch (err) {
+      console.error(err);
+      setLiked(wasLiked);
+      setLikes((prev) => (wasLiked ? prev + 1 : prev - 1));
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -144,20 +207,44 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
                   {post.content}
                 </p>
               )}
-              {MOCK_COMMENTS.map((comment) => (
-                <CommentItem key={comment.id} {...comment} />
-              ))}
+
+              <div className="flex flex-col gap-4 mt-2">
+                {comments.length > 0 ? (
+                  comments.map((c) => (
+                    <div key={c.id} className="flex flex-col gap-2">
+                      <CommentItem {...c} />
+                      {c.replies?.map((reply) => (
+                        <div key={reply.id} className="ml-8">
+                          <CommentItem {...reply} />
+                        </div>
+                      ))}
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-xs text-zinc-500">Nenhum comentário ainda</p>
+                )}
+              </div>
             </div>
 
             {/* FOOTER */}
             <footer className="shrink-0 flex items-center gap-4 px-4 pt-3 pb-2 border-t border-zinc-200 bg-white">
-              <button onClick={(e) => e.stopPropagation()}
-                className="flex items-center gap-1 text-zinc-800 hover:text-red-500 transition-colors">
-                <IconHeart size={24} />
-                <span className="text-sm">{(post as any).likes ?? 0}</span>
+              <button
+                onClick={handleLike}
+                className="group flex items-center gap-1 transition-colors"
+              >
+                <IconHeart
+                  size={24}
+                  className={
+                    liked
+                      ? "text-red-500 fill-red-500"
+                      : "text-zinc-800 group-hover:text-red-500"
+                  }
+                />
+                <span className={liked ? "text-red-500 text-sm" : "text-zinc-800 text-sm"}>
+                  {likes}
+                </span>
               </button>
-              <button onClick={(e) => { e.stopPropagation(); navigate("/mensagens"); }}
-                className="text-zinc-800 transition-colors">
+              <button onClick={(e) => e.stopPropagation()} className="text-zinc-800 transition-colors">
                 <IconSend size={24} />
               </button>
             </footer>
@@ -166,10 +253,17 @@ export function PostModal({ open, onOpenChange, post }: PostModalProps) {
             <div className="shrink-0 px-4 pb-3 bg-white">
               <div className="flex items-center gap-2">
                 <Input
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter") handleSendComment(); }}
                   placeholder="Adicione um comentário..."
                   className="h-10 rounded-full border-zinc-200 bg-zinc-100 focus-visible:ring-1 focus-visible:ring-zinc-300"
                 />
-                <Button className="rounded-full px-4 h-10 bg-[#b7bb86] hover:bg-[#e1903e] text-white shrink-0">
+                <Button
+                  onClick={handleSendComment}
+                  disabled={loading || !newComment.trim()}
+                  className="rounded-full px-4 h-10 bg-[#b7bb86] hover:bg-[#e1903e] text-white shrink-0"
+                >
                   Enviar
                 </Button>
               </div>

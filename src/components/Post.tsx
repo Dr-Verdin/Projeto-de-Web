@@ -18,22 +18,22 @@ import { PostModal } from "./PostModal";
 import type { Post as PostType } from "../types/Post";
 import { useState, useEffect, useRef } from "react";
 import { EditPostModal } from "./EditPostModal";
+import api from "../services/api";
+import { useAuth } from "../contexts/AuthContext";
 
 export function Post({ post }: { post: PostType }) {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [, forceUpdate] = useState(0);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
 
-  const {
-    id,
-    title,
-    content,
-    image,
-    author,
-  } = post;
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(post.likes ?? 0);
+  const [commentCount, setCommentCount] = useState(post._count?.comments ?? 0);
+
+  const { id, title, content, image, author } = post;
 
   const createdAt = post.createdAt
     ? new Date(post.createdAt).toLocaleDateString("pt-BR", {
@@ -50,26 +50,32 @@ export function Post({ post }: { post: PostType }) {
   const avatar = author?.avatar ?? "";
 
   const storedUser = localStorage.getItem("user");
-  const currentUserId = storedUser ? (JSON.parse(storedUser)?.id ?? JSON.parse(storedUser)?.sub) : null;
+  const currentUserId = storedUser
+    ? (JSON.parse(storedUser)?.id ?? JSON.parse(storedUser)?.sub)
+    : null;
   const isOwnPost = userId === currentUserId;
 
   useEffect(() => {
-    function handleCloseAll() {
-      setOpen(false);
+    async function fetchLikeState() {
+      if (!user?.sub) return;
+      try {
+        const res = await api.get(`/posts/${post.id}`, {
+          params: { userId: user.sub },
+        });
+        setLiked(res.data.likedByMe);
+        setLikes(res.data.likes);
+      } catch {
+        // silently fail
+      }
     }
+    fetchLikeState();
+  }, [post.id, user?.sub]);
+
+  useEffect(() => {
+    function handleCloseAll() { setOpen(false); }
     window.addEventListener("closePostModals", handleCloseAll);
     return () => window.removeEventListener("closePostModals", handleCloseAll);
   }, []);
-
-  useEffect(() => {
-    function handleUserUpdated(e: CustomEvent<{ userId: string }>) {
-      if (!communityId && e.detail?.userId === userId) {
-        forceUpdate((n) => n + 1);
-      }
-    }
-    window.addEventListener("user-updated", handleUserUpdated as EventListener);
-    return () => window.removeEventListener("user-updated", handleUserUpdated as EventListener);
-  }, [userId, communityId]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -81,6 +87,23 @@ export function Post({ post }: { post: PostType }) {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [menuOpen]);
+
+  async function handleLike(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!user?.sub) return;
+
+    const wasLiked = liked;
+    setLiked(!wasLiked);
+    setLikes((prev) => (wasLiked ? prev - 1 : prev + 1));
+
+    try {
+      const res = await api.patch(`/posts/${post.id}/like`, { userId: user.sub });
+      setLiked(res.data.liked);
+    } catch {
+      setLiked(wasLiked);
+      setLikes((prev) => (wasLiked ? prev + 1 : prev - 1));
+    }
+  }
 
   function handleCopyLink(e: React.MouseEvent) {
     e.stopPropagation();
@@ -192,31 +215,47 @@ export function Post({ post }: { post: PostType }) {
         <footer className="w-full flex items-center justify-between px-2 md:px-4 py-2">
           <div className="flex items-center gap-4 md:gap-5">
             <button
-              onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1 hover:text-[#e63946] transition-colors text-black"
+              onClick={handleLike}
+              className="group flex items-center gap-1 transition-colors"
             >
-              <IconHeart size={26} />
+              <IconHeart
+                size={26}
+                className={
+                  liked
+                    ? "text-red-500 fill-red-500"
+                    : "text-black group-hover:text-[#e63946]"
+                }
+              />
+              <span
+                className={
+                  liked
+                    ? "text-red-500 text-sm"
+                    : "text-black text-sm group-hover:text-[#e63946]"
+                }
+              >
+                {likes}
+              </span>
             </button>
 
             <button
               onClick={(e) => { e.stopPropagation(); setOpen(true); }}
-              className="flex gap-1 items-center text-black"
+              className="flex gap-1 items-center text-black hover:text-[#e1903e] transition-colors"
             >
               <IconMessageCircle size={26} />
+              <span className="text-sm">{commentCount}</span>
             </button>
 
-            <button onClick={(e) => { e.stopPropagation(); navigate("/mensagens"); }} className="text-black hover:text-[#e1903e] transition-colors">
+            <button
+              onClick={(e) => { e.stopPropagation(); navigate("/mensagens"); }}
+              className="text-black hover:text-[#e1903e] transition-colors"
+            >
               <IconSend size={26} />
             </button>
           </div>
         </footer>
       </div>
 
-      <PostModal
-        open={modalOpen}
-        onOpenChange={setOpen}
-        post={post}
-      />
+      <PostModal open={modalOpen} onOpenChange={setOpen} post={post} onCommentAdded={() => setCommentCount((n) => n + 1)} />
       <EditPostModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}

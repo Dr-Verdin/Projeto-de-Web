@@ -51,11 +51,11 @@ export default function Feed() {
         </section>
 
         {/* COMUNIDADES — só no desktop, sticky */}
-      <aside className="hidden md:block w-[clamp(12rem,16vw,16rem)] shrink-0">
-        <div className="sticky top-8">
-          <CommunitiesCard />
-        </div>
-      </aside>
+        <aside className="hidden md:block w-[clamp(12rem,16vw,16rem)] shrink-0">
+          <div className="sticky top-8">
+            <CommunitiesCard />
+          </div>
+        </aside>
       </div>
     </main>
   );
