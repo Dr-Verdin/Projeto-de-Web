@@ -92,16 +92,7 @@ export default function Typing() {
                     rows={1} 
                     onChange={handleTitleChange}
                     placeholder="Envie uma mensagem..."
-                    className="
-                        flex-1 
-                        bg-transparent 
-                        text-zinc-800 text-md
-                        placeholder:text-slate-400 
-                        focus:outline-none 
-                        resize-none 
-                        max-h-[10rem] overflow-y-auto /* Limite de altura: depois de 150px ele ganha barra de rolagem */
-                        scrollbar-thin scrollbar-thumb-gray-300 /* Deixa a barra de rolagem mais bonita se o Tailwind Scrollbar estiver instalado */
-                    "
+                    className="flex-1 bg-transparent text-zinc-800 text-md placeholder:text-slate-400 focus:outline-none resize-none max-h-40 overflow-y-auto scrollbar-none"
                 />
 
                 {/* BOTÃO DE IMAGEM */}

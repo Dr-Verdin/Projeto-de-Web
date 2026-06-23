@@ -11,20 +11,19 @@ import {
   IconSend,
   IconDots,
   IconLink,
-  IconPencil,
+  IconTrash,
 } from "@tabler/icons-react";
 import { Link, useNavigate } from "react-router-dom";
 import { PostModal } from "./PostModal";
 import type { Post as PostType } from "../types/Post";
 import { useState, useEffect, useRef } from "react";
-import { EditPostModal } from "./EditPostModal";
 import api from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
+import { postService } from "../services/postService";
 
 export function Post({ post }: { post: PostType }) {
   const [open, setOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
   const navigate = useNavigate();
   const menuRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
@@ -44,7 +43,6 @@ export function Post({ post }: { post: PostType }) {
     : "";
 
   const userId = post.authorId;
-  const communityId = post.communityId;
 
   const displayName = author?.name ?? author?.username ?? "unknown";
   const avatar = author?.avatar ?? "";
@@ -111,6 +109,17 @@ export function Post({ post }: { post: PostType }) {
     setMenuOpen(false);
   }
 
+  async function handleDelete(e: React.MouseEvent) {
+    e.stopPropagation();
+    setMenuOpen(false);
+    try {
+      await postService.remove(id);
+      window.dispatchEvent(new CustomEvent("posts-updated"));
+    } catch (err) {
+      console.error("Erro ao deletar post:", err);
+    }
+  }
+
   const modalOpen = open && !document.body.classList.contains("profile-editor-open");
 
   return (
@@ -171,13 +180,13 @@ export function Post({ post }: { post: PostType }) {
                   </button>
 
                   {isOwnPost && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setMenuOpen(false); setEditModalOpen(true); }}
-                      className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    >
-                      <IconPencil size={15} className="text-gray-400" />
-                      Editar post
-                    </button>
+                        <button
+                          onClick={handleDelete}
+                          className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                        >
+                          <IconTrash size={15} className="text-red-400" />
+                          Deletar
+                        </button>
                   )}
                 </div>
               )}
@@ -256,11 +265,6 @@ export function Post({ post }: { post: PostType }) {
       </div>
 
       <PostModal open={modalOpen} onOpenChange={setOpen} post={post} onCommentAdded={() => setCommentCount((n) => n + 1)} />
-      <EditPostModal
-        open={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        post={post}
-      />
     </>
   );
 }

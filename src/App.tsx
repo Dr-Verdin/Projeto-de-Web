@@ -11,6 +11,8 @@ import Feed from "./pages/Feed.page";
 import Profile from "./pages/Profile.page";
 import CreatePostPage from "./pages/CreatePost.page";
 import SettingsPage from "./pages/Settings.page";
+import NotificationsPage from "./pages/Notifications.page";
+import CommunitiesPage from "./pages/Communities.page";
 
 import { Sidebar } from "./components/Sidebar";
 import { MobileNav } from "./components/MobileNav";
@@ -24,7 +26,7 @@ import type { User } from "./types/User";
 import Mensagechat from "./pages/Chat.page";
 
 const NO_NAV_ROUTES = ["/login", "/register"];
-const MOBILE_FULLPAGE_ROUTES = ["/criar-post", "/configuracoes"];
+const MOBILE_FULLPAGE_ROUTES = ["/criar-post", "/configuracoes", "/mensagens", "/notificacoes", "/comunidades"];
 
 function App() {
   const location = useLocation();
@@ -32,7 +34,7 @@ function App() {
   const { user, logout } = useAuth();
 
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -49,12 +51,12 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const handler = () => setIsMobile(window.innerWidth < 1024);
+    const handler = () => setIsMobile(window.innerWidth < 768);
     window.addEventListener("resize", handler);
     return () => window.removeEventListener("resize", handler);
   }, []);
 
-  // desktop → mobile: modal aberto vira página
+  // desktop → mobile: modal aberto ou painel aberto vira página
   useEffect(() => {
     if (isMobile) {
       if (isCreateModalOpen) {
@@ -65,10 +67,15 @@ function App() {
         setIsSettingsModalOpen(false);
         navigate("/configuracoes");
       }
+      if (panelOpen && activePanelType === "notifications") {
+        setPanelOpen(false);
+        setActivePanelType(null);
+        navigate("/notificacoes");
+      }
     }
   }, [isMobile]);
 
-  // mobile → desktop: página exclusiva vira modal
+  // mobile → desktop: página exclusiva vira modal ou redireciona
   useEffect(() => {
     if (!isMobile && MOBILE_FULLPAGE_ROUTES.includes(location.pathname)) {
       if (location.pathname === "/criar-post") {
@@ -77,7 +84,14 @@ function App() {
       } else if (location.pathname === "/configuracoes") {
         navigate("/");
         setIsSettingsModalOpen(true);
+      } else if (location.pathname === "/notificacoes") {
+        // no desktop as notificações ficam no painel lateral — abre ele
+        navigate("/");
+      } else if (location.pathname === "/comunidades") {
+        // no desktop as comunidades ficam no card do feed
+        navigate("/");
       }
+      // /mensagens permanece como página em desktop também
     }
   }, [isMobile, location.pathname]);
 
@@ -96,6 +110,8 @@ function App() {
   const showNav = !NO_NAV_ROUTES.includes(location.pathname) && !isFullscreen;
   const isMobileFullPage = MOBILE_FULLPAGE_ROUTES.includes(location.pathname);
   const showMobileNav = showNav && isMobile && !isMobileFullPage;
+  // Pomodoro não deve ter padding bottom — ele usa h-full e a barra mobile fica por cima (é fullscreen)
+  const isPomodoro = location.pathname === "/pomodoro";
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -131,7 +147,8 @@ function App() {
       <div
         className={`flex-1 min-h-0 transition-all duration-300 w-full bg-gray-50
           ${showNav && !isMobile ? "pl-16" : ""}
-          ${showMobileNav ? "pt-14 pb-24" : ""}
+          ${showMobileNav && !isPomodoro ? "pt-14 pb-20" : ""}
+          ${showMobileNav && isPomodoro ? "pt-14" : ""}
           ${isMobileFullPage ? "overflow-hidden flex flex-col" : "overflow-y-auto flex justify-center"}`}
       >
         <Routes>
@@ -144,6 +161,8 @@ function App() {
           <Route path="/criar-post" element={<CreatePostPage />} />
           <Route path="/configuracoes" element={<SettingsPage />} />
           <Route path="/mensagens" element={<Mensagechat />} />
+          <Route path="/notificacoes" element={<NotificationsPage />} />
+          <Route path="/comunidades" element={<CommunitiesPage />} />
         </Routes>
       </div>
 

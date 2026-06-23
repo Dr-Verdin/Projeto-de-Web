@@ -2,17 +2,18 @@ import { Dialog, DialogContent } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Avatar, AvatarImage, AvatarFallback, AvatarBadge } from "./ui/avatar";
 import { Input } from "./ui/input";
-import { IconDots, IconHeart, IconSend } from "@tabler/icons-react";
+import { IconDots, IconHeart, IconSend, IconLink, IconTrash } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
 import type { Post as PostType } from "../types/Post";
 import type { Comment as CommentType } from "../types/Comment";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { commentService } from "../services/commentService";
 import { CommentItem } from "./Comment";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../services/api";
+import { postService } from "../services/postService";
 
 type PostModalProps = {
   open: boolean;
@@ -26,8 +27,43 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
 
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(post.likes ?? 0);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const isCommunityPost = !!post.communityId;
+  const storedUser = localStorage.getItem("user");
+  const currentUserId = storedUser ? (JSON.parse(storedUser)?.id ?? JSON.parse(storedUser)?.sub) : null;
+  const isOwnPost = post.authorId === currentUserId;
+
+  // fecha menu ao clicar fora
+  useEffect(() => {
+    if (!menuOpen) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [menuOpen]);
+
+  function handleCopyLink(e: React.MouseEvent) {
+    e.stopPropagation();
+    navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
+    setMenuOpen(false);
+  }
+
+  async function handleDelete(e: React.MouseEvent) {
+    e.stopPropagation();
+    setMenuOpen(false);
+    try {
+      await postService.remove(post.id);
+      window.dispatchEvent(new CustomEvent("posts-updated"));
+      onOpenChange(false);
+    } catch (err) {
+      console.error("Erro ao deletar post:", err);
+    }
+  }
 
   const [comments, setComments] = useState<CommentType[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -190,15 +226,38 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
                   className="rounded-full px-3 h-7 text-xs text-white bg-[#b7bb86] hover:bg-[#e1903e]">
                   seguir
                 </Button>
-                <Button onClick={(e) => e.stopPropagation()}
-                  className="w-7 h-7 p-0 flex items-center justify-center rounded-full bg-transparent hover:bg-slate-300 text-slate-900">
-                  <IconDots size={16} />
-                </Button>
+                <div ref={menuRef} className="relative" onClick={(e) => e.stopPropagation()}>
+                  <Button
+                    onClick={() => setMenuOpen((v) => !v)}
+                    className="w-7 h-7 p-0 flex items-center justify-center rounded-full bg-transparent hover:bg-slate-300 text-slate-900">
+                    <IconDots size={16} />
+                  </Button>
+                  {menuOpen && (
+                    <div className="absolute right-0 top-9 z-50 min-w-[160px] rounded-xl border border-gray-100 bg-white shadow-lg py-1 overflow-hidden">
+                      <button
+                        onClick={handleCopyLink}
+                        className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                      >
+                        <IconLink size={15} className="text-gray-400" />
+                        Copiar link
+                      </button>
+                      {isOwnPost && (
+                        <button
+                          onClick={handleDelete}
+                          className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors"
+                        >
+                          <IconTrash size={15} className="text-red-400" />
+                          Deletar
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </header>
 
             {/* CONTEÚDO + COMENTÁRIOS */}
-            <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3">
+            <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none px-4 py-3">
               {post.title && (
                 <h2 className="text-lg font-bold text-zinc-900 mb-3">{post.title}</h2>
               )}
@@ -208,7 +267,7 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
                 </p>
               )}
 
-              <div className="flex flex-col gap-4 mt-2">
+              <div className="flex flex-col gap-4 mt-2 overflow-hidden">
                 {comments.length > 0 ? (
                   comments.map((c) => (
                     <div key={c.id} className="flex flex-col gap-2">

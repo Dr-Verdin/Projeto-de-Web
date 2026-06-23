@@ -3,18 +3,27 @@
 import { users } from "../lib/mock";
 import Typing from "./Typing";
 import SendBaloon from "./sendbaloon";
-import { IconArrowLeft } from "@tabler/icons-react"; // Garanta que essa importação está aqui!
+import { IconArrowLeft } from "@tabler/icons-react";
 
 type ChatHeaderProps = {
     userId: string;
-    onBack: () => void; 
+    onBack: () => void;
 };
 
-const storedUserId = localStorage.getItem("userId");
-const currentUserId = storedUserId ? storedUserId : "u1";
+function getCurrentUserId(): string {
+  try {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      return parsed?.id ?? parsed?.sub ?? "u1";
+    }
+  } catch {/* ignore */}
+  return "u1";
+}
 
 export default function ChatUsers({ userId, onBack }: ChatHeaderProps) {
     const user = users[userId];
+    const currentUserId = getCurrentUserId();
 
     if (!user) return null;
 
@@ -29,7 +38,7 @@ export default function ChatUsers({ userId, onBack }: ChatHeaderProps) {
                 <div className="flex items-center gap-2 lg:gap-3">
                     <button 
                         onClick={onBack}
-                        className="lg:hidden flex items-center justify-center p-2 -ml-2 text-gray-600 hover:text-[#e1903e] hover:bg-gray-100 transition-colors rounded-full"
+                        className="md:hidden flex items-center justify-center p-2 -ml-2 text-gray-600 hover:text-[#e1903e] hover:bg-gray-100 transition-colors rounded-full"
                         aria-label="Voltar"
                     >
                         <IconArrowLeft size={24} stroke={2} />
@@ -38,11 +47,11 @@ export default function ChatUsers({ userId, onBack }: ChatHeaderProps) {
                     <img 
                         src={user.avatar} 
                         alt={user.name} 
-                        className="w-10 h-10 lg:w-12 lg:h-12 rounded-full object-cover shrink-0"
+                        className="w-10 h-10 rounded-full object-cover shrink-0"
                     />
                     <div className="flex flex-col">
-                        <span className="font-semibold text-gray-900 text-sm lg:text-base">{user.name}</span>
-                        <span className="text-xs lg:text-sm text-gray-500">{displayUsername}</span>
+                        <span className="font-semibold text-gray-900 text-sm md:text-base">{user.name}</span>
+                        <span className="text-xs md:text-sm text-gray-500">{displayUsername}</span>
                     </div>
                 </div>
             </div>
@@ -58,7 +67,7 @@ export default function ChatUsers({ userId, onBack }: ChatHeaderProps) {
             </div>
 
             {/* ÁREA DE DIGITAÇÃO */}
-            <div className="p-3 lg:p-4 bg-white border-t border-gray-200 shrink-0">
+            <div className="p-3 md:p-4 bg-white border-t border-gray-200 shrink-0 pb-safe">
                 <Typing/>
             </div>
             

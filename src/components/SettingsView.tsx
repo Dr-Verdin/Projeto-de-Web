@@ -2,9 +2,6 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import type { User } from "../types/User";
 import { SettingsProfileSection } from "./settings/SettingsProfileSection";
-import { SettingsAccountSection } from "./settings/SettingsAccountSection";
-import { SettingsSecuritySection } from "./settings/SettingsSecuritySection";
-
 type SettingsViewProps = {
   user: User;
   onSave: (updatedUser: User) => void;
@@ -18,35 +15,9 @@ export function SettingsView({ user, onSave, onDeleteClick, isSaving = false }: 
   const [username, setUsername] = useState(user.username.replace(/^@/, ""));
   const [bio, setBio] = useState(user.bio);
   const [pronoun, setPronoun] = useState(user.pronoun ?? "");
-  const [email, setEmail] = useState(user.email ?? "");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-
-  function clearPasswordError() {
-    setPasswordError("");
-  }
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-
-    if (newPassword || confirmPassword || currentPassword) {
-      if (currentPassword !== user.senha) {
-        setPasswordError("Senha atual incorreta.");
-        return;
-      }
-      if (newPassword.length < 6) {
-        setPasswordError("A nova senha deve ter pelo menos 6 caracteres.");
-        return;
-      }
-      if (newPassword !== confirmPassword) {
-        setPasswordError("As senhas não coincidem.");
-        return;
-      }
-    }
-
-    setPasswordError("");
     onSave({
       ...user,
       avatar,
@@ -54,8 +25,6 @@ export function SettingsView({ user, onSave, onDeleteClick, isSaving = false }: 
       username: username.startsWith("@") ? username : `@${username}`,
       bio,
       pronoun,
-      email,
-      ...(newPassword ? { senha: newPassword } : {}),
     });
   }
 
@@ -75,16 +44,6 @@ export function SettingsView({ user, onSave, onDeleteClick, isSaving = false }: 
           avatar={avatar} name={name} username={username} pronoun={pronoun} bio={bio}
           onAvatarChange={setAvatar} onNameChange={setName} onUsernameChange={setUsername}
           onPronounChange={setPronoun} onBioChange={setBio}
-        />
-
-        <SettingsAccountSection email={email} onEmailChange={setEmail} />
-
-        <SettingsSecuritySection
-          currentPassword={currentPassword} newPassword={newPassword} confirmPassword={confirmPassword}
-          passwordError={passwordError}
-          onCurrentPasswordChange={(v) => { setCurrentPassword(v); clearPasswordError(); }}
-          onNewPasswordChange={(v) => { setNewPassword(v); clearPasswordError(); }}
-          onConfirmPasswordChange={(v) => { setConfirmPassword(v); clearPasswordError(); }}
         />
 
         {/* Excluir conta — dentro do scroll, no fim */}

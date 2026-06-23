@@ -5,9 +5,10 @@ type Props = {
   user: User;
   mobile?: boolean;
   isOwnProfile?: boolean;
+  postCount?: number;
 };
 
-export function UserProfileCard({ user, mobile = false, isOwnProfile = true }: Props) {
+export function UserProfileCard({ user, mobile = false, isOwnProfile = true, postCount }: Props) {
   const [following, setFollowing] = useState(false);
 
   const avatar =
@@ -27,58 +28,72 @@ export function UserProfileCard({ user, mobile = false, isOwnProfile = true }: P
     // else await followService.unfollow(user.id);
   }
 
-  /* ── MOBILE: layout horizontal compacto ── */
+  /* ── MOBILE: layout estilo Instagram ── */
   if (mobile) {
     return (
-      <div className="w-full rounded-2xl bg-white border border-gray-100 shadow-sm p-4 flex items-center gap-4">
-        <img
-          src={avatar}
-          alt={user.name}
-          className="w-16 h-16 rounded-full object-cover shrink-0 ring-2 ring-[#efce7b]"
-        />
+      <div className="w-full px-4 pt-4 pb-3 flex flex-col gap-3">
 
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center justify-between gap-2">
-            <div className="min-w-0">
-              <h2 className="text-base font-bold text-gray-900 truncate">
+        {/* LINHA 1: avatar + stats */}
+        <div className="flex items-center gap-4">
+          {/* avatar */}
+          <div className="shrink-0">
+            <img
+              src={avatar}
+              alt={user.name}
+              className="w-20 h-20 rounded-full object-cover ring-2 ring-[#efce7b]"
+            />
+          </div>
+
+          {/* nome + pronome + stats */}
+          <div className="flex-1 min-w-0 flex flex-col gap-2">
+            <div>
+              <p className="text-base font-bold text-gray-900 leading-tight">
                 {user.name || "Novo usuário"}
-              </h2>
-              <p className="text-xs text-gray-500 truncate">
-                {user.username || "@user"}
-                {user.pronoun && <span className="text-gray-400"> · {user.pronoun}</span>}
+                {user.pronoun && (
+                  <span className="text-sm font-normal text-gray-500 ml-2">{user.pronoun}</span>
+                )}
               </p>
+              <p className="text-xs text-gray-400 mt-0.5">{user.username || "@user"}</p>
             </div>
 
-            {/* botão seguir — só para outros perfis */}
-            {!isOwnProfile && (
-              <button
-                onClick={handleFollow}
-                className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-bold transition-all active:scale-95 ${
-                  following
-                    ? "bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-500"
-                    : "bg-[#b7bb86] text-white hover:bg-[#e1903e]"
-                }`}
-              >
-                {following ? "Seguindo" : "Seguir"}
-              </button>
-            )}
-          </div>
-
-          <div className="flex gap-4 mt-2 text-xs">
-            <span>
-              <strong className="text-gray-800">{followers}</strong>{" "}
-              <span className="text-gray-400">seguidores</span>
-            </span>
-            <span>
-              <strong className="text-gray-800">{followingCount}</strong>{" "}
-              <span className="text-gray-400">seguindo</span>
-            </span>
-            <span>
-              <strong className="text-gray-800">{studyTime}h</strong>{" "}
-              <span className="text-gray-400">estudadas</span>
-            </span>
+            {/* stats em linha */}
+            <div className="flex gap-5 text-sm">
+              <div className="flex flex-col items-center">
+                <span className="font-bold text-gray-900">{postCount ?? 0}</span>
+                <span className="text-gray-500 text-xs">posts</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="font-bold text-gray-900">{followers}</span>
+                <span className="text-gray-500 text-xs">seguidores</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="font-bold text-gray-900">{followingCount}</span>
+                <span className="text-gray-500 text-xs">seguindo</span>
+              </div>
+            </div>
           </div>
         </div>
+
+        {/* bio */}
+        {user.bio && (
+          <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+            {user.bio}
+          </p>
+        )}
+
+        {/* LINHA 4: botão seguir (outros perfis) */}
+        {!isOwnProfile && (
+          <button
+            onClick={handleFollow}
+            className={`w-full py-1.5 rounded-lg text-sm font-bold transition-all active:scale-95 ${
+              following
+                ? "bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-500"
+                : "bg-[#b7bb86] text-white hover:bg-[#e1903e]"
+            }`}
+          >
+            {following ? "Seguindo" : "Seguir"}
+          </button>
+        )}
       </div>
     );
   }

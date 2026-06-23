@@ -72,20 +72,20 @@ export default function Profile() {
   const isOwnProfile = loggedUserId === id;
 
   return (
-    <main className="w-full min-h-screen px-3 py-4 md:p-8">
-      <div className="max-w-7xl mx-auto flex gap-6 lg:gap-8 items-start">
+    <main className="w-full min-h-screen px-3 py-4 md:p-6 xl:p-8">
+      <div className="max-w-5xl mx-auto flex gap-6 items-start">
 
         {/* COLUNA ESQUERDA — card de perfil, some no mobile */}
-        <aside className="hidden lg:block w-72 shrink-0 sticky top-8">
-          <UserProfileCard user={user} isOwnProfile={isOwnProfile} />
+        <aside className="hidden md:block w-56 lg:w-64 shrink-0 sticky top-8">
+          <UserProfileCard user={user} isOwnProfile={isOwnProfile} postCount={userPosts.length} />
         </aside>
 
         {/* COLUNA CENTRAL — feed */}
         <section className="flex-1 min-w-0 flex flex-col">
 
-          {/* CARD DE PERFIL MOBILE — aparece só no mobile, horizontal */}
-          <div className="lg:hidden mb-4">
-            <UserProfileCard user={user} mobile isOwnProfile={isOwnProfile} />
+          {/* CARD DE PERFIL MOBILE */}
+          <div className="md:hidden mb-1">
+            <UserProfileCard user={user} mobile isOwnProfile={isOwnProfile} postCount={userPosts.length} />
           </div>
 
           {/* FILTROS */}
@@ -100,20 +100,10 @@ export default function Profile() {
             >
               Posts
             </button>
-            <button
-              onClick={() => setActiveTab("comunidades")}
-              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
-                activeTab === "comunidades"
-                  ? "bg-[#efce7b]/40 text-[#e1903e]"
-                  : "text-gray-500 hover:bg-gray-100"
-              }`}
-            >
-              Comunidades
-            </button>
           </div>
 
           {/* LISTA DE POSTS */}
-          <div className="flex flex-col gap-4 md:gap-6 pb-6 lg:pb-0">
+          <div className="flex flex-col gap-4 md:gap-6 pb-24 md:pb-8">
             {userPosts.length === 0 ? (
               <EmptyPostsState />
             ) : (
@@ -124,10 +114,12 @@ export default function Profile() {
           </div>
         </section>
 
-        {/* COLUNA DIREITA — tasks, só no desktop */}
-        <aside className="hidden lg:block w-64 shrink-0 sticky top-8">
-          <TaskChecklist />
-        </aside>
+        {/* COLUNA DIREITA — tasks, só no próprio perfil e em telas bem largas */}
+        {isOwnProfile && (
+          <aside className="hidden xl:block w-56 shrink-0 sticky top-8">
+            <TaskChecklist showFloatingButton />
+          </aside>
+        )}
 
       </div>
     </main>

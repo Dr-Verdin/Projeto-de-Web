@@ -37,13 +37,10 @@ export default function Feed() {
             <button className="px-4 py-1.5 rounded-full text-sm font-semibold bg-[#efce7b]/40 text-[#e1903e]">
               Para você
             </button>
-            <button className="px-4 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors">
-              Seguindo
-            </button>
           </div>
 
           {/* POSTS */}
-          <div className="flex flex-col gap-4 md:gap-6 pb-6 lg:pb-0">
+          <div className="flex flex-col gap-4 md:gap-6 pb-24 md:pb-8">
             {posts.map((post) => (
               <PostComponent key={post.id} post={post} />
             ))}

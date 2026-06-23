@@ -10,14 +10,12 @@ import {
   IconTrash,
   IconCamera,
 } from "@tabler/icons-react";
-import { SettingsAccountSection } from "../components/settings/SettingsAccountSection";
-import { SettingsSecuritySection } from "../components/settings/SettingsSecuritySection";
 import { DeleteConfirmView } from "../components/DeleteConfirmView";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
 import type { User } from "../types/User";
 
-type Section = "menu" | "profile" | "account" | "security" | "delete";
+type Section = "menu" | "profile" | "account" | "delete";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
@@ -31,11 +29,6 @@ export default function SettingsPage() {
   const [username, setUsername]   = useState((user?.username ?? "").replace(/^@/, ""));
   const [bio, setBio]             = useState(user?.bio ?? "");
   const [pronoun, setPronoun]     = useState(user?.pronoun ?? "");
-  const [email, setEmail]         = useState(user?.email ?? "");
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword]         = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [passwordError, setPasswordError]     = useState("");
 
   function handleBack() {
     if (section === "menu") navigate(-1);
@@ -43,19 +36,12 @@ export default function SettingsPage() {
   }
 
   async function handleSave() {
-    if (section === "security") {
-      if (newPassword || confirmPassword) {
-        if (newPassword.length < 6) { setPasswordError("Mínimo 6 caracteres."); return; }
-        if (newPassword !== confirmPassword) { setPasswordError("As senhas não coincidem."); return; }
-      }
-      setPasswordError("");
-    }
     setIsSaving(true);
     try {
       const updatedUser = {
         ...user, avatar, name,
         username: username.startsWith("@") ? username : `@${username}`,
-        bio, pronoun, email,
+        bio, pronoun,
       } as User;
       localStorage.setItem("user", JSON.stringify(updatedUser));
       window.dispatchEvent(new CustomEvent("user-updated", { detail: { userId: user?.id } }));
@@ -82,7 +68,6 @@ export default function SettingsPage() {
     menu:     "Configurações",
     profile:  "Editar perfil",
     account:  "Conta",
-    security: "Segurança",
     delete:   "Excluir conta",
   };
 
@@ -151,11 +136,7 @@ export default function SettingsPage() {
               <div className="w-full px-4 -mt-4 pb-10 grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
                 <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
                   <MenuRow icon={IconUser}  label="Editar perfil" subtitle="Nome, foto, bio, pronomes"      onClick={() => setSection("profile")} />
-                  <div className="h-px bg-gray-100 mx-5" />
-                  <MenuRow icon={IconMail}  label="Conta"         subtitle="E-mail"                         onClick={() => setSection("account")} />
-                  <div className="h-px bg-gray-100 mx-5" />
-                  <MenuRow icon={IconLock}  label="Segurança"     subtitle="Alterar senha"                  onClick={() => setSection("security")} />
-                </div>
+                </div>    
                 <div className="bg-white rounded-3xl shadow-sm overflow-hidden self-start">
                   <MenuRow icon={IconTrash} label="Excluir conta" subtitle="Ação permanente e irreversível" onClick={() => setSection("delete")} danger />
                 </div>
@@ -208,28 +189,6 @@ export default function SettingsPage() {
                     rows={4} className="rounded-2xl text-base px-4 py-3 border-gray-200 focus-visible:border-[#efce7b] focus-visible:ring-[#efce7b]/50 resize-none" />
                 </Field>
               </div>
-            </div>
-          )}
-
-          {/* ── CONTA ── */}
-          {section === "account" && (
-            <div className="px-4 pt-6 pb-10">
-              <SettingsAccountSection email={email} onEmailChange={setEmail} />
-            </div>
-          )}
-
-          {/* ── SEGURANÇA ── */}
-          {section === "security" && (
-            <div className="px-4 pt-6 pb-10">
-              <SettingsSecuritySection
-                currentPassword={currentPassword}
-                newPassword={newPassword}
-                confirmPassword={confirmPassword}
-                passwordError={passwordError}
-                onCurrentPasswordChange={(v) => { setCurrentPassword(v); setPasswordError(""); }}
-                onNewPasswordChange={(v) => { setNewPassword(v); setPasswordError(""); }}
-                onConfirmPasswordChange={(v) => { setConfirmPassword(v); setPasswordError(""); }}
-              />
             </div>
           )}
 
