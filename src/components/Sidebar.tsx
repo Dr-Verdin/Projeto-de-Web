@@ -1,20 +1,16 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { useState } from "react";
 
 import {
   IconHome,
   IconSearch,
   IconPlus,
-  IconHeart,
+  IconBell,
   IconMessageCircle,
   IconApple,
   IconDoorExit,
   IconSettings,
 } from "@tabler/icons-react";
-
-import { SettingsModal } from "./SettingsModal";
-import type { User } from "../types/User";
 
 type SidebarProps = {
   open: boolean;
@@ -24,30 +20,15 @@ type SidebarProps = {
   activePanelType: "search" | "notifications" | null;
   setActivePanelType: React.Dispatch<React.SetStateAction<"search" | "notifications" | null>>;
   openCreateModal: () => void;
+  openSettingsModal: () => void;
 };
 
-export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelType, setActivePanelType, openCreateModal }: SidebarProps) {
+export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelType, setActivePanelType, openCreateModal, openSettingsModal }: SidebarProps) {
   const { user, logout } = useAuth();
   const currentUserId = user?.id ?? user?.sub;
   const location = useLocation();
-  const navigate = useNavigate();
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const isProfileActive = location.pathname === `/perfil/${currentUserId}`;
-
-  function handleSaveProfile(updatedUser: User) {
-    localStorage.setItem("user", JSON.stringify(updatedUser));
-    try {
-      window.dispatchEvent(new CustomEvent("user-updated", { detail: { userId: currentUserId } }));
-    } catch (e) {
-      // ignore
-    }
-  }
-
-  function handleDeleteProfile() {
-    logout();
-    navigate("/login");
-  }
 
   return (
     <aside
@@ -98,7 +79,7 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelTyp
         />
 
         <SidebarItem
-          icon={IconHeart}
+          icon={IconBell}
           label="Notificações"
           active={activePanelType === "notifications"}
           onClick={() => {
@@ -153,7 +134,7 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelTyp
       </nav>
 
       <div
-        onClick={() => { setSettingsOpen(true); setOpen(false); }}
+        onClick={() => { openSettingsModal(); setOpen(false); }}
         className={`flex items-center px-3 py-3 mx-2 mb-4 rounded-2xl hover:bg-gray-300 transition-all duration-300 hover:scale-[1.02] cursor-pointer active:scale-95 relative ${
           open && !panelOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
@@ -172,14 +153,6 @@ export function Sidebar({ open, setOpen, panelOpen, setPanelOpen, activePanelTyp
         <IconDoorExit className="w-6 h-6" color="#e63946" />
         <span className="ml-3 text-red-500 font-medium">Sair</span>
       </Link>
-
-      <SettingsModal
-        user={user}
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        onSave={handleSaveProfile}
-        onDeleteProfile={handleDeleteProfile}
-      />
     </aside>
   );
 }

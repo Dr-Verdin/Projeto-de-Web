@@ -97,8 +97,8 @@ export function Post({ post }: { post: PostType }) {
         className="cursor-pointer w-full flex flex-col gap-3 p-2 rounded-lg transition-colors duration-300 hover:bg-[#efce7b]/30"
       >
         {/* CABEÇALHO */}
-        <header className="w-full h-12 flex items-center gap-2 px-4">
-          <Avatar className="w-10 h-10">
+        <header className="w-full h-12 flex items-center gap-2 px-2 md:px-4">
+          <Avatar className="w-8 h-8 md:w-10 md:h-10 shrink-0">
             <AvatarImage src={avatar} alt={displayName} />
             <AvatarFallback>CN</AvatarFallback>
             <AvatarBadge className="bg-green-600 dark:bg-green-800" />
@@ -111,19 +111,19 @@ export function Post({ post }: { post: PostType }) {
                 : `/perfil/${post.authorId}`
             }
             onClick={(e) => e.stopPropagation()}
-            className="text-slate-800 text-xs font-medium hover:underline"
+            className="text-slate-800 text-xs font-medium hover:underline truncate max-w-[120px] md:max-w-none"
           >
             {post.communityId ? "c/" : "u/"}
             {displayName}
           </Link>
 
-          <span className="text-gray-500 text-xs">• {createdAt}</span>
+          <span className="text-gray-500 text-xs shrink-0">• {createdAt}</span>
 
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-1 md:gap-2 shrink-0">
             {!isOwnPost && (
               <Button
                 onClick={(e) => e.stopPropagation()}
-                className="rounded-full px-4 h-8 text-xs text-white bg-[#b7bb86] hover:bg-[#e1903e]"
+                className="rounded-full px-3 md:px-4 h-7 md:h-8 text-xs text-white bg-[#b7bb86] hover:bg-[#e1903e]"
               >
                 seguir
               </Button>
@@ -132,9 +132,9 @@ export function Post({ post }: { post: PostType }) {
             <div ref={menuRef} className="relative" onClick={(e) => e.stopPropagation()}>
               <Button
                 onClick={() => setMenuOpen((v) => !v)}
-                className="w-8 h-8 p-0 flex items-center justify-center rounded-full bg-transparent hover:bg-slate-300 text-slate-900"
+                className="w-7 h-7 md:w-8 md:h-8 p-0 flex items-center justify-center rounded-full bg-transparent hover:bg-slate-300 text-slate-900"
               >
-                <IconDots size={18} />
+                <IconDots size={16} />
               </Button>
 
               {menuOpen && (
@@ -163,9 +163,9 @@ export function Post({ post }: { post: PostType }) {
         </header>
 
         {/* CONTEUDO */}
-        <div className="w-full flex flex-col gap-2 px-4">
+        <div className="w-full flex flex-col gap-2 px-2 md:px-4">
           {title && (
-            <h2 className="text-slate-900 font-bold text-lg">{title}</h2>
+            <h2 className="text-slate-900 font-bold text-base md:text-lg">{title}</h2>
           )}
 
           {content && (
@@ -173,13 +173,12 @@ export function Post({ post }: { post: PostType }) {
           )}
 
           {image && (
-            <div className="relative w-full h-[60vh] overflow-hidden rounded-lg bg-black">
+            <div className="relative w-full h-[45vw] md:h-[60vh] max-h-[420px] overflow-hidden rounded-lg bg-black">
               <img
                 src={image}
                 alt="blur background"
                 className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40"
               />
-
               <img
                 src={image}
                 alt="post"
@@ -190,24 +189,24 @@ export function Post({ post }: { post: PostType }) {
         </div>
 
         {/* FOOTER */}
-        <footer className="w-full flex items-center justify-between px-4 py-2">
-          <div className="flex items-center gap-5">
+        <footer className="w-full flex items-center justify-between px-2 md:px-4 py-2">
+          <div className="flex items-center gap-4 md:gap-5">
             <button
               onClick={(e) => e.stopPropagation()}
               className="flex items-center gap-1 hover:text-[#e63946] transition-colors text-black"
             >
-              <IconHeart size={30} />
+              <IconHeart size={26} />
             </button>
 
             <button
               onClick={(e) => { e.stopPropagation(); setOpen(true); }}
               className="flex gap-1 items-center text-black"
             >
-              <IconMessageCircle size={30} />
+              <IconMessageCircle size={26} />
             </button>
 
             <button onClick={(e) => { e.stopPropagation(); navigate("/mensagens"); }} className="text-black hover:text-[#e1903e] transition-colors">
-              <IconSend size={30} />
+              <IconSend size={26} />
             </button>
           </div>
         </footer>

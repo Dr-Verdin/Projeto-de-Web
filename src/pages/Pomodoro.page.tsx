@@ -64,7 +64,7 @@ function Pomodoro() {
     }
 
     return (
-        <div className="relative flex h-screen w-full flex-col items-center justify-center bg-cover bg-center font-sans text-white"
+        <div className="relative flex min-h-full w-full flex-col items-center justify-center bg-cover bg-center font-sans text-white"
             style={{ backgroundImage: "url('/wallpaper_pomodoro.jpg')" }}>
         
             <div className="absolute inset-0 bg-black/30 pointer-events-none"></div>
@@ -108,10 +108,11 @@ function Pomodoro() {
                 </div>
             </div>
 
-            <div className="absolute right-10 flex h-full flex-col items-center justify-center py-10 z-20">
+            {/* fixed na tela real, acima da barra de navegação mobile */}
+            <div className="fixed right-6 bottom-24 md:bottom-10 z-20">
                 <button 
                     onClick={fullScreen}
-                    className="mt-auto opacity-85 hover:opacity-100 hover:scale-110 transition-transform">
+                    className="opacity-85 hover:opacity-100 hover:scale-110 transition-transform">
                         
                     <IconMaximize size={60} />
                 </button>

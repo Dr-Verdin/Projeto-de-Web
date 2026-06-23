@@ -1,12 +1,6 @@
 import { CommunitiesCard } from "../components/CommunitiesCard";
 import type { Post } from "../types/Post";
 import { Post as PostComponent } from "../components/Post";
-import {
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuTrigger,
-} from "../components/ui/navigation-menu";
 import { useEffect, useState } from "react";
 import { postService } from "../services/postService";
 
@@ -32,37 +26,36 @@ export default function Feed() {
   }, []);
 
   return (
-    <main className="w-full min-h-screen p-8 relative">
-      {/* CONTAINER PRINCIPAL */}
-      <div className="max-w-7xl mx-auto flex justify-center gap-8 relative">
+    <main className="w-full min-h-screen px-3 py-4 md:p-8">
+      <div className="max-w-7xl mx-auto flex gap-6 lg:gap-8 justify-center">
 
         {/* FEED */}
-        <section className="flex-1 max-w-2xl flex flex-col">
+        <section className="w-full max-w-2xl flex flex-col min-w-0">
 
           {/* FILTROS */}
-          <div className="h-11 flex items-center gap-4 px-4">
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger>For You</NavigationMenuTrigger>
-                  <NavigationMenuTrigger>Seguindo</NavigationMenuTrigger>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+          <div className="h-11 flex items-center gap-2 px-1 mb-1">
+            <button className="px-4 py-1.5 rounded-full text-sm font-semibold bg-[#efce7b]/40 text-[#e1903e]">
+              Para você
+            </button>
+            <button className="px-4 py-1.5 rounded-full text-sm font-medium text-gray-500 hover:bg-gray-100 transition-colors">
+              Seguindo
+            </button>
           </div>
 
           {/* POSTS */}
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4 md:gap-6 pb-6 lg:pb-0">
             {posts.map((post) => (
               <PostComponent key={post.id} post={post} />
             ))}
           </div>
         </section>
 
-        {/* COMUNIDADES */}
-        <aside className="shrink-0 absolute top-10 -right-1 h-full">
+        {/* COMUNIDADES — só no desktop, sticky */}
+      <aside className="hidden md:block w-[clamp(12rem,16vw,16rem)] shrink-0">
+        <div className="sticky top-8">
           <CommunitiesCard />
-        </aside>
+        </div>
+      </aside>
       </div>
     </main>
   );

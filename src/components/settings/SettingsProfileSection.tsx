@@ -62,7 +62,7 @@ export function SettingsProfileSection({
               <Input
                 value={name}
                 onChange={(e) => onNameChange(e.target.value)}
-                className="rounded-xl border-gray-200 bg-gray-50/30 py-3 text-base focus-visible:ring-[#e1903e]"
+                className="rounded-xl border-gray-200 bg-gray-50/30 py-3 text-base  text-gray-400 focus-visible:border-[#efce7b] focus-visible:ring-[#efce7b]/50"
                 placeholder="Adicione seu nome"
               />
             </div>
@@ -71,7 +71,7 @@ export function SettingsProfileSection({
               <Input
                 value={username}
                 onChange={(e) => onUsernameChange(e.target.value)}
-                className="rounded-xl border-gray-200 bg-gray-50/30 py-3 text-base focus-visible:ring-[#e1903e]"
+                className="rounded-xl border-gray-200 bg-gray-50/30 py-3 text-base text-gray-400 focus-visible:border-[#efce7b] focus-visible:ring-[#efce7b]/50"
                 placeholder="Adicione seu usuário"
               />
             </div>
@@ -82,7 +82,7 @@ export function SettingsProfileSection({
             <Input
               value={pronoun}
               onChange={(e) => onPronounChange(e.target.value)}
-              className="rounded-xl border-gray-200 bg-gray-50/30 py-3 text-base focus-visible:ring-[#e1903e]"
+              className="rounded-xl border-gray-200 bg-gray-50/30 py-3 text-gray-400 text-base focus-visible:border-[#efce7b] focus-visible:ring-[#efce7b]/50"
               placeholder="ex: ele/dele, ela/dela, elu/delu"
             />
           </div>
@@ -92,7 +92,7 @@ export function SettingsProfileSection({
             <Textarea
               value={bio}
               onChange={(e) => onBioChange(e.target.value)}
-              className="rounded-xl border-gray-200 bg-gray-50/30 text-base focus-visible:ring-[#e1903e] resize-none p-4"
+              className="rounded-xl border-gray-200 bg-gray-50/30 text-base  text-gray-400 focus-visible:border-[#efce7b] focus-visible:ring-[#efce7b]/50 resize-none p-4"
               rows={3}
               placeholder="Adicione uma descrição..."
             />

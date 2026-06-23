@@ -24,7 +24,7 @@ export function SettingsSecuritySection({
             type="password"
             value={currentPassword}
             onChange={(e) => onCurrentPasswordChange(e.target.value)}
-            className="rounded-xl border-gray-200 bg-gray-50/30 py-3 text-base focus-visible:ring-[#e1903e] placeholder:text-gray-400"
+            className="rounded-xl border-gray-200 bg-gray-50/30 py-3 text-base focus-visible:border-[#efce7b] focus-visible:ring-[#efce7b]/50 placeholder:text-gray-400"
             placeholder=""
           />
         </div>
@@ -34,7 +34,7 @@ export function SettingsSecuritySection({
             type="password"
             value={newPassword}
             onChange={(e) => onNewPasswordChange(e.target.value)}
-            className="rounded-xl border-gray-200 bg-gray-50/30 py-3 text-base focus-visible:ring-[#e1903e] placeholder:text-gray-400"
+            className="rounded-xl border-gray-200 bg-gray-50/30 py-3 text-base focus-visible:border-[#efce7b] focus-visible:ring-[#efce7b]/50 placeholder:text-gray-400"
             placeholder=""
           />
         </div>
@@ -44,7 +44,7 @@ export function SettingsSecuritySection({
             type="password"
             value={confirmPassword}
             onChange={(e) => onConfirmPasswordChange(e.target.value)}
-            className="rounded-xl border-gray-200 bg-gray-50/30 py-3 text-base focus-visible:ring-[#e1903e] placeholder:text-gray-400"
+            className="rounded-xl border-gray-200 bg-gray-50/30 py-3 text-base focus-visible:border-[#efce7b] focus-visible:ring-[#efce7b]/50 placeholder:text-gray-400"
             placeholder=""
           />
         </div>

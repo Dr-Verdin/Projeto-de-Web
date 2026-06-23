@@ -3,12 +3,6 @@ import { useParams } from "react-router-dom";
 import { UserProfileCard } from "../components/UserProfileCard";
 import { Post } from "../components/Post";
 import { TaskChecklist } from "@/components/TaskChecklist";
-import {
-  NavigationMenu,
-  NavigationMenuList,
-  NavigationMenuItem,
-  NavigationMenuTrigger,
-} from "../components/ui/navigation-menu";
 import { userService } from "@/services/userService";
 import { postService } from "@/services/postService";
 
@@ -18,6 +12,7 @@ export default function Profile() {
   const [loadingUser, setLoadingUser] = useState(true);
   const [userPosts, setUserPosts] = useState<any[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [activeTab, setActiveTab] = useState<"posts" | "comunidades">("posts");
 
   useEffect(() => {
     async function loadUser() {
@@ -51,63 +46,84 @@ export default function Profile() {
       }
     }
     loadPosts();
-
     window.addEventListener("posts-updated", loadPosts);
     return () => window.removeEventListener("posts-updated", loadPosts);
   }, [id]);
 
   if (loadingUser || loadingPosts) {
-    return <div>Carregando...</div>;
+    return (
+      <div className="flex items-center justify-center w-full min-h-screen">
+        <p className="text-gray-400 text-sm">Carregando...</p>
+      </div>
+    );
   }
 
   if (!user) {
-    return <div>Usuário não encontrado</div>;
+    return (
+      <div className="flex items-center justify-center w-full min-h-screen">
+        <p className="text-gray-400 text-sm">Usuário não encontrado</p>
+      </div>
+    );
   }
 
   return (
-    <main className="w-full min-h-screen p-8">
-      <div className="w-full max-w-7xl mx-auto">
-        <div className="justify-center gap-8 relative">
-          {/* POSTS */}
-          <section className="min-w-0 max-w-2xl mx-auto">
-            {/* PERFIL */}
-            <aside className="shrink-0 absolute top-10 left-0 h-full">
-              <div className="sticky top-4">
-                <UserProfileCard user={user} />
-              </div>
-            </aside>
+    <main className="w-full min-h-screen px-3 py-4 md:p-8">
+      <div className="max-w-7xl mx-auto flex gap-6 lg:gap-8 items-start">
 
-            {/* TASKS (direita) */}
-            <aside className="shrink-0 absolute top-10 right-1 h-full">
-              <div className="sticky top-4">
-                <TaskChecklist />
-              </div>
-            </aside>
+        {/* COLUNA ESQUERDA — card de perfil, some no mobile */}
+        <aside className="hidden lg:block w-72 shrink-0 sticky top-8">
+          <UserProfileCard user={user} />
+        </aside>
 
-            {/* FILTROS */}
-            <div className="h-11 flex items-center gap-4 px-4">
-              <NavigationMenu>
-                <NavigationMenuList>
-                  <NavigationMenuItem>
-                    <NavigationMenuTrigger>Posts</NavigationMenuTrigger>
-                    <NavigationMenuTrigger>Comunidades</NavigationMenuTrigger>
-                  </NavigationMenuItem>
-                </NavigationMenuList>
-              </NavigationMenu>
-            </div>
+        {/* COLUNA CENTRAL — feed */}
+        <section className="flex-1 min-w-0 flex flex-col">
 
-            {/* LISTA */}
-            <div className="flex flex-col gap-6">
-              {userPosts.length === 0 ? (
-                <EmptyPostsState />
-              ) : (
-                userPosts.map((post) => (
-                  <Post key={post.id} post={post} />
-                ))
-              )}
-            </div>
-          </section>
-        </div>
+          {/* CARD DE PERFIL MOBILE — aparece só no mobile, horizontal */}
+          <div className="lg:hidden mb-4">
+            <UserProfileCard user={user} mobile />
+          </div>
+
+          {/* FILTROS */}
+          <div className="h-11 flex items-center gap-2 px-1 mb-2">
+            <button
+              onClick={() => setActiveTab("posts")}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                activeTab === "posts"
+                  ? "bg-[#efce7b]/40 text-[#e1903e]"
+                  : "text-gray-500 hover:bg-gray-100"
+              }`}
+            >
+              Posts
+            </button>
+            <button
+              onClick={() => setActiveTab("comunidades")}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-colors ${
+                activeTab === "comunidades"
+                  ? "bg-[#efce7b]/40 text-[#e1903e]"
+                  : "text-gray-500 hover:bg-gray-100"
+              }`}
+            >
+              Comunidades
+            </button>
+          </div>
+
+          {/* LISTA DE POSTS */}
+          <div className="flex flex-col gap-4 md:gap-6 pb-6 lg:pb-0">
+            {userPosts.length === 0 ? (
+              <EmptyPostsState />
+            ) : (
+              userPosts.map((post) => (
+                <Post key={post.id} post={post} />
+              ))
+            )}
+          </div>
+        </section>
+
+        {/* COLUNA DIREITA — tasks, só no desktop */}
+        <aside className="hidden lg:block w-64 shrink-0 sticky top-8">
+          <TaskChecklist />
+        </aside>
+
       </div>
     </main>
   );
@@ -120,12 +136,9 @@ function EmptyPostsState() {
       <h2 className="text-lg font-semibold text-gray-700">
         Nenhuma publicação ainda
       </h2>
-      <p className="mt-2 max-w-sm">
+      <p className="mt-2 max-w-sm text-sm">
         Este usuário ainda não publicou nada. Quando houver posts, eles aparecerão aqui.
       </p>
-      <div className="mt-4 text-sm text-gray-400">
-        Seja o primeiro a interagir com este perfil
-      </div>
     </div>
   );
 }
