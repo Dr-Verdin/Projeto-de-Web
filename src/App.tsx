@@ -21,6 +21,7 @@ import Comunidade from "./pages/Community.page";
 import CreateModal from "./components/CreateModal";
 import { useAuth } from "./contexts/AuthContext";
 import type { User } from "./types/User";
+import Mensagechat from "./pages/Chat.page";
 
 const NO_NAV_ROUTES = ["/login", "/register"];
 const MOBILE_FULLPAGE_ROUTES = ["/criar-post", "/configuracoes"];
@@ -142,6 +143,7 @@ function App() {
           <Route path="/comunidade/:id" element={<Comunidade />} />
           <Route path="/criar-post" element={<CreatePostPage />} />
           <Route path="/configuracoes" element={<SettingsPage />} />
+          <Route path="/mensagens" element={<Mensagechat />} />
         </Routes>
       </div>
 
