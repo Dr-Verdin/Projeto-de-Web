@@ -18,6 +18,7 @@ export function CommunitySettingsModal({ community, onClose, onSaved, onDelete }
   const [wallpaper, setWallpaper]     = useState(community.wallpaper ?? "");
   const [saving, setSaving]           = useState(false);
   const [error, setError]             = useState("");
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const imageRef     = useRef<HTMLInputElement>(null);
   const wallpaperRef = useRef<HTMLInputElement>(null);
@@ -154,15 +155,34 @@ export function CommunitySettingsModal({ community, onClose, onSaved, onDelete }
             {/* ZONA DE PERIGO — deletar comunidade */}
             {onDelete && (
               <div className="pt-4 border-t border-gray-200">
-                <button
-                  onClick={() => {
-                    onClose();
-                    onDelete();
-                  }}
-                  className="w-full px-4 py-2.5 rounded-xl border border-red-200 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
-                >
-                  Deletar comunidade
-                </button>
+                {!confirmDelete ? (
+                  <button
+                    onClick={() => setConfirmDelete(true)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-red-200 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    Deletar comunidade
+                  </button>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <p className="text-sm text-red-600 font-medium text-center">
+                      Tem certeza? Esta ação é irreversível.
+                    </p>
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setConfirmDelete(false)}
+                        className="flex-1 px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={() => { onClose(); onDelete(); }}
+                        className="flex-1 px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-bold transition-colors"
+                      >
+                        Deletar
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

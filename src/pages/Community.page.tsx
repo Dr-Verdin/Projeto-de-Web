@@ -89,7 +89,6 @@ export default function CommunityPage() {
 
   async function handleDeleteCommunity() {
     if (!id || !currentUserId || !community) return;
-    if (!window.confirm(`Tem certeza que deseja excluir "${community.name}"? Esta ação é irreversível.`)) return;
     try {
       await communityService.remove(id, currentUserId);
       window.location.href = "/comunidades";
