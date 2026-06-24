@@ -9,6 +9,8 @@ type TimerMode = "pomodoro" | "short pause" | "long pause";
 function Pomodoro() {
   const { user } = useAuth();
   const hasSavedRef = useRef(false);
+  // rastreia segundos estudados desde o último save
+  const accumulatedRef = useRef(0);
 
   const modes: Record<TimerMode, number> = {
     "pomodoro": 40 * 60,
@@ -26,36 +28,83 @@ function Pomodoro() {
     return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
+  async function saveStudyTime(seconds: number) {
+    if (seconds <= 0) return;
+    const userId = user?.id ?? user?.sub;
+    if (!userId) return;
+    const hours = Math.round((seconds / 3600) * 100) / 100;
+    if (hours <= 0) return;
+    try {
+      await userService.addStudyTime(userId, hours);
+    } catch (err) {
+      console.error("Erro ao salvar tempo de estudo:", err);
+    }
+  }
+
+  // salva ao pausar, trocar modo, resetar ou sair da página
+  function flushAccumulated() {
+    if (currentMode !== "pomodoro") return;
+    if (accumulatedRef.current > 0) {
+      saveStudyTime(accumulatedRef.current);
+      accumulatedRef.current = 0;
+    }
+  }
+
   useEffect(() => {
     let interval: ReturnType<typeof setInterval> | null = null;
 
     if (isActive && secondsLeft > 0) {
       interval = setInterval(() => {
         setSecondsLeft((prev) => prev - 1);
+        if (currentMode === "pomodoro") {
+          accumulatedRef.current += 1;
+        }
       }, 1000);
     }
 
+    // timer terminou — salva e marca
     if (isActive && secondsLeft === 0 && !hasSavedRef.current && currentMode === "pomodoro") {
       setIsActive(false);
       hasSavedRef.current = true;
-      const hours = Math.round((modes[currentMode] / 3600) * 100) / 100;
-      saveStudyTime(hours);
+      flushAccumulated();
     }
 
     return () => { if (interval) clearInterval(interval); };
   }, [isActive, secondsLeft, currentMode]);
 
+  // salva quando sai da página (fecha aba, navega para outra rota)
+  useEffect(() => {
+    function handleUnload() { flushAccumulated(); }
+    window.addEventListener("beforeunload", handleUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleUnload);
+      flushAccumulated(); // salva ao desmontar o componente (troca de rota)
+    };
+  }, []);
+
   const handleModeChange = (mode: TimerMode) => {
+    if (isActive) flushAccumulated(); // salva antes de trocar modo
     setCurrentMode(mode);
     setIsActive(false);
     setSecondsLeft(modes[mode]);
     hasSavedRef.current = false;
+    accumulatedRef.current = 0;
   };
 
   const resetTimer = () => {
+    if (isActive) flushAccumulated(); // salva antes de resetar
     setIsActive(false);
     setSecondsLeft(modes[currentMode]);
     hasSavedRef.current = false;
+    accumulatedRef.current = 0;
+  };
+
+  const handleStartPause = () => {
+    if (isActive) {
+      // pausando — salva o que acumulou
+      flushAccumulated();
+    }
+    setIsActive(!isActive);
   };
 
   const fullScreen = () => {
@@ -67,16 +116,6 @@ function Pomodoro() {
       document.exitFullscreen();
     }
   };
-
-  async function saveStudyTime(hours: number) {
-    const userId = user?.id ?? user?.sub;
-    if (!userId) return;
-    try {
-      await userService.addStudyTime(userId, hours);
-    } catch (err) {
-      console.error("Erro ao salvar tempo de estudo:", err);
-    }
-  }
 
   return (
     <div
@@ -114,7 +153,7 @@ function Pomodoro() {
         {/* controles */}
         <div className="flex items-center gap-6 md:gap-7">
           <Button
-            onClick={() => setIsActive(!isActive)}
+            onClick={handleStartPause}
             className="rounded-full bg-white/20 px-10 md:px-12 py-5 md:py-6 text-lg font-bold text-white backdrop-blur-md border border-white/40 hover:bg-white/30 transition-all shadow-md"
           >
             {isActive ? "pause" : "start"}
