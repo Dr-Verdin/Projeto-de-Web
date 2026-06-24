@@ -6,6 +6,10 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { useAuth } from "../contexts/AuthContext";
 import { communityPostService, type CommunityPost } from "../services/communityPostService";
+import { PostModal } from "./PostModal";
+import type { Post as PostType } from "../types/Post";
+import api from "../services/api";
+import { isLiked as getCachedLike, setLiked as setCachedLike } from "../lib/communityLikeCache";
 
 type Props = {
   post: CommunityPost;
@@ -20,13 +24,35 @@ export function CommunityPostItem({ post, communityAdminId, communityName, onDel
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [deleted, setDeleted]   = useState(false);
+  const [liked, setLiked]       = useState(() =>
+    currentUserId ? getCachedLike(currentUserId, post.id) : false
+  );
+  const [likes, setLikes]       = useState(post.likes ?? 0);
+  const [commentCount, setCommentCount] = useState(post._count?.comments ?? 0);
+  const [modalOpen, setModalOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // Adapta CommunityPost → PostType para passar ao PostModal
+  const postForModal: PostType = {
+    id: post.id,
+    title: post.title,
+    content: post.content,
+    image: post.image,
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+    likes,
+    author: post.author,
+    authorId: post.authorId,
+    communityId: post.communityId,
+    community: post.community,
+    _count: { comments: commentCount },
+  };
 
   const isAuthor = post.authorId === currentUserId;
   const isAdmin  = communityAdminId === currentUserId;
   const canDelete = isAuthor || isAdmin;
 
-  const displayName = post.author?.name ?? post.author?.username ?? "user";
+  const displayName = post.author?.username ?? post.author?.name ?? "user";
   const avatar      = post.author?.avatar ?? "";
   const avatarFallback = displayName.slice(0, 2).toUpperCase();
   // nome da comunidade: prop > objeto aninhado > fallback
@@ -58,6 +84,28 @@ export function CommunityPostItem({ post, communityAdminId, communityName, onDel
     }
   }
 
+  async function handleLike(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!currentUserId) return;
+    const wasLiked = liked;
+    const newLiked = !wasLiked;
+    setLiked(newLiked);
+    setLikes((prev) => (wasLiked ? prev - 1 : prev + 1));
+    setCachedLike(currentUserId, post.id, newLiked);
+    try {
+      const res = await api.patch(`/community-posts/${post.id}/like`, { userId: currentUserId });
+      // backend retorna { liked } — sincroniza caso haja divergência
+      setLiked(res.data.liked);
+      setCachedLike(currentUserId, post.id, res.data.liked);
+      if (res.data.likes !== undefined) setLikes(res.data.likes);
+    } catch {
+      // reverte em caso de erro
+      setLiked(wasLiked);
+      setLikes((prev) => (wasLiked ? prev + 1 : prev - 1));
+      setCachedLike(currentUserId, post.id, wasLiked);
+    }
+  }
+
   function handleCopyLink(e: React.MouseEvent) {
     e.stopPropagation();
     navigator.clipboard.writeText(`${window.location.origin}/post/${post.id}`);
@@ -67,7 +115,11 @@ export function CommunityPostItem({ post, communityAdminId, communityName, onDel
   if (deleted) return null;
 
   return (
-    <div className="w-full flex flex-col gap-3 p-3 md:p-4 rounded-xl transition-colors duration-300 hover:bg-[#efce7b]/30">
+    <>
+      <div
+        onClick={() => setModalOpen(true)}
+        className="cursor-pointer w-full flex flex-col gap-3 p-3 md:p-4 rounded-xl transition-colors duration-300 hover:bg-[#efce7b]/30"
+      >
 
       {/* CABEÇALHO */}
       <header className="w-full flex items-center gap-2 px-1">
@@ -149,15 +201,38 @@ export function CommunityPostItem({ post, communityAdminId, communityName, onDel
 
       {/* FOOTER */}
       <footer className="w-full flex items-center gap-5 px-1 py-1">
-        <div className="flex items-center gap-1.5 text-gray-500">
-          <IconHeart size={22} className="text-gray-400" />
-          <span className="text-sm">{post.likes ?? 0}</span>
-        </div>
-        <div className="flex items-center gap-1.5 text-gray-500">
+        <button
+          onClick={handleLike}
+          className="group flex items-center gap-1.5 transition-colors"
+        >
+          <IconHeart
+            size={22}
+            className={liked ? "text-red-500 fill-red-500" : "text-gray-400 group-hover:text-red-400"}
+          />
+          <span className={`text-sm ${liked ? "text-red-500" : "text-gray-500"}`}>{likes}</span>
+        </button>
+        <button
+          onClick={(e) => { e.stopPropagation(); setModalOpen(true); }}
+          className="flex items-center gap-1.5 text-gray-500 hover:text-[#e1903e] transition-colors"
+        >
           <IconMessageCircle size={22} className="text-gray-400" />
-          <span className="text-sm">{post._count?.comments ?? 0}</span>
-        </div>
+          <span className="text-sm">{commentCount}</span>
+        </button>
       </footer>
     </div>
+
+      <PostModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        post={postForModal}
+        liked={liked}
+        likes={likes}
+        onCommentAdded={(total) => setCommentCount(total)}
+        onLikeChanged={(newLiked, newLikes) => {
+          setLiked(newLiked);
+          setLikes(newLikes);
+        }}
+      />
+    </>
   );
 }

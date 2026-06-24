@@ -37,14 +37,22 @@ export const communityPostService = {
       const res = await api.get("/community-posts");
       return res.data;
     } catch {
-      // fallback: busca todas as comunidades e agrega os posts
+      // fallback: busca todas as comunidades e agrega os posts injetando community.name
       try {
         const commRes = await api.get("/communities");
-        const communities: { id: string }[] = commRes.data;
+        const communities: { id: string; name: string; image?: string }[] = commRes.data;
         const allPosts = await Promise.all(
-          communities.map((c) =>
-            api.get(`/community-posts/community/${c.id}`).then((r) => r.data as CommunityPost[]).catch(() => [] as CommunityPost[])
-          )
+          communities.map(async (c) => {
+            const posts: CommunityPost[] = await api
+              .get(`/community-posts/community/${c.id}`)
+              .then((r) => r.data as CommunityPost[])
+              .catch(() => [] as CommunityPost[]);
+            // injeta o objeto community em cada post para o front poder usar o nome
+            return posts.map((p) => ({
+              ...p,
+              community: { id: c.id, name: c.name, image: c.image },
+            }));
+          })
         );
         return allPosts.flat().sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -62,7 +70,6 @@ export const communityPostService = {
       const res = await api.get(`/community-posts/user/${userId}`);
       return res.data;
     } catch {
-      // fallback: pega todos e filtra pelo authorId
       try {
         const all = await communityPostService.getAll();
         return all.filter((p) => p.authorId === userId);

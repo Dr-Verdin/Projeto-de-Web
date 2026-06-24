@@ -1,129 +1,150 @@
-{/*Para digitar mensagem*/}
-
 import { useState, useRef, useEffect, type ChangeEvent } from "react";
-import { IconMoodSmile, IconPhoto, IconVideo, IconSend, IconX } from "@tabler/icons-react";
+import { IconMoodSmile, IconPhoto, IconSend, IconX } from "@tabler/icons-react";
 
-export default function Typing() {
-    const [title, setTitle] = useState("");
-    const [showEmojis, setShowEmojis] = useState(false);
+type TypingProps = {
+  onSend: (content: string, image?: string) => Promise<void>;
+  disabled?: boolean;
+};
 
-    // Referências
-    const imageInputRef = useRef<HTMLInputElement>(null);
-    const videoInputRef = useRef<HTMLInputElement>(null);
-    const textareaRef = useRef<HTMLTextAreaElement>(null); // Adicionamos a referência do textarea!
+const commonEmojis = ["😀", "😂", "🥰", "😎", "🤔", "🙌", "👍", "🔥", "✨", "🎉", "❤️", "👀"];
 
-    const commonEmojis = ["😀", "😂", "🥰", "😎", "🤔", "🙌", "👍", "🔥", "✨", "🎉", "❤️", "👀"];
+export default function Typing({ onSend, disabled = false }: TypingProps) {
+  const [text, setText] = useState("");
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [showEmojis, setShowEmojis] = useState(false);
+  const [sending, setSending] = useState(false);
 
-    // Função que recalcula a altura do textarea
-    const adjustTextareaHeight = () => {
-        const textarea = textareaRef.current;
-        if (textarea) {
-            textarea.style.height = "auto"; // Zera a altura para o navegador recalcular
-            textarea.style.height = `${textarea.scrollHeight}px`; // Define a altura exata do texto
-        }
-    };
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    const handleTitleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-        setTitle(event.target.value);
-        adjustTextareaHeight(); // Chama a função sempre que você digita
-    };
+  const adjustHeight = () => {
+    const el = textareaRef.current;
+    if (el) {
+      el.style.height = "auto";
+      el.style.height = `${el.scrollHeight}px`;
+    }
+  };
 
-    const addEmoji = (emoji: string) => {
-        setTitle((prev) => prev + emoji);
-        setShowEmojis(false);
-    };
+  useEffect(() => { adjustHeight(); }, [text]);
 
-    // Garante que a caixa ajuste o tamanho se você apagar tudo ou enviar a mensagem
-    useEffect(() => {
-        adjustTextareaHeight();
-    }, [title]);
+  function handleTextChange(e: ChangeEvent<HTMLTextAreaElement>) {
+    setText(e.target.value);
+  }
 
-    const handleFileSelected = (event: ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files?.[0];
-        if (file) {
-            event.target.value = ''; 
-        }
-    };
+  function addEmoji(emoji: string) {
+    setText((prev) => prev + emoji);
+    setShowEmojis(false);
+    textareaRef.current?.focus();
+  }
 
-    return (
-        <div className="flex flex-col items-center gap-6 w-full relative">        
-            
-            {/* MENU FLUTUANTE DE EMOJIS */}
-            {showEmojis && (
-                <div className="absolute bottom-16 left-0 md:left-4 bg-white border border-gray-200 shadow-lg rounded-xl p-3 flex flex-wrap w-64 max-w-[90vw] gap-2 z-50">
-                    <div className="w-full flex justify-between items-center mb-1">
-                        <span className="text-xs font-bold text-gray-400 uppercase">Emojis</span>
-                        <button onClick={() => setShowEmojis(false)} className="text-gray-400 hover:text-red-500">
-                            <IconX size={16} />
-                        </button>
-                    </div>
-                    {commonEmojis.map((emoji) => (
-                        <button 
-                            key={emoji} 
-                            onClick={() => addEmoji(emoji)}
-                            className="text-xl hover:bg-gray-100 p-1 rounded-md transition-colors"
-                        >
-                            {emoji}
-                        </button>
-                    ))}
-                </div>
-            )}
+  function handleImageSelected(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setImagePreview(reader.result as string);
+    reader.readAsDataURL(file);
+    e.target.value = "";
+  }
 
-            {/* INPUTS INVISÍVEIS PARA ARQUIVOS */}
-            <input type="file" accept="image/*" ref={imageInputRef} onChange={handleFileSelected} className="hidden" />
-            <input type="file" accept="video/*" ref={videoInputRef} onChange={handleFileSelected} className="hidden" />
+  async function handleSend() {
+    if ((!text.trim() && !imagePreview) || sending || disabled) return;
+    setSending(true);
+    try {
+      await onSend(text.trim(), imagePreview ?? undefined);
+      setText("");
+      setImagePreview(null);
+    } finally {
+      setSending(false);
+    }
+  }
 
-            {/* CAIXA EXTERNA DE DIGITAÇÃO */}
-            <div className="flex items-end w-full min-h-[3rem] px-4 py-2.5 bg-zinc-100 border border-zinc-300 rounded-3xl focus-within:ring-1 focus-within:ring-zinc-400 gap-3">
-                
-                {/* BOTÃO DE EMOJI */}
-                <button 
-                    onClick={() => setShowEmojis(!showEmojis)}
-                    className={`mb-0.5 ${showEmojis ? 'text-[#e1903e]' : 'text-zinc-400'} hover:text-zinc-600 transition-colors shrink-0`}
-                >
-                    <IconMoodSmile size={24} stroke={1.5} />
-                </button>
+  function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
+  }
 
-                {/* INPUT DE TEXTO */}
-                <textarea
-                    id="titleInput"
-                    ref={textareaRef} 
-                    value={title}
-                    rows={1} 
-                    onChange={handleTitleChange}
-                    placeholder="Envie uma mensagem..."
-                    className="flex-1 bg-transparent text-zinc-800 text-md placeholder:text-slate-400 focus:outline-none resize-none max-h-40 overflow-y-auto scrollbar-none"
-                />
+  const canSend = (text.trim().length > 0 || !!imagePreview) && !sending && !disabled;
 
-                {/* BOTÃO DE IMAGEM */}
-                <button 
-                    onClick={() => imageInputRef.current?.click()}
-                    className="mb-0.5 text-zinc-400 hover:text-zinc-600 transition-colors shrink-0"
-                >
-                    <IconPhoto size={24} stroke={1.5} />
-                </button>
+  return (
+    <div className="flex flex-col items-center gap-2 w-full relative">
 
-                {/* BOTÃO DE VÍDEO */}
-                <button 
-                    onClick={() => videoInputRef.current?.click()}
-                    className="mb-0.5 text-zinc-400 hover:text-zinc-600 transition-colors shrink-0"
-                >
-                    <IconVideo size={24} stroke={1.5} />
-                </button>
-
-                {/* BOTÃO DE ENVIAR */}
-                {title.trim().length > 0 && (
-                    <button 
-                        onClick={() => {
-                            setTitle(""); 
-                        }}
-                        className="mb-0.5 text-[#e1903e] hover:scale-110 transition-all shrink-0"
-                    >
-                        <IconSend size={24} stroke={1.5} />
-                    </button>
-                )}
-
-            </div>            
+      {/* MENU DE EMOJIS */}
+      {showEmojis && (
+        <div className="absolute bottom-16 left-0 md:left-4 bg-white border border-gray-200 shadow-lg rounded-xl p-3 flex flex-wrap w-64 max-w-[90vw] gap-2 z-50">
+          <div className="w-full flex justify-between items-center mb-1">
+            <span className="text-xs font-bold text-gray-400 uppercase">Emojis</span>
+            <button onClick={() => setShowEmojis(false)} className="text-gray-400 hover:text-red-500">
+              <IconX size={16} />
+            </button>
+          </div>
+          {commonEmojis.map((emoji) => (
+            <button
+              key={emoji}
+              onClick={() => addEmoji(emoji)}
+              className="text-xl hover:bg-gray-100 p-1 rounded-md transition-colors"
+            >
+              {emoji}
+            </button>
+          ))}
         </div>
-    );
+      )}
+
+      {/* PREVIEW DE IMAGEM */}
+      {imagePreview && (
+        <div className="relative self-start ml-2">
+          <img src={imagePreview} alt="preview" className="h-20 rounded-xl object-cover" />
+          <button
+            onClick={() => setImagePreview(null)}
+            className="absolute -top-1.5 -right-1.5 bg-white border border-gray-200 rounded-full p-0.5 text-gray-500 hover:text-red-500 transition-colors"
+          >
+            <IconX size={14} />
+          </button>
+        </div>
+      )}
+
+      {/* INPUT INVISÍVEL PARA IMAGEM */}
+      <input type="file" accept="image/*" ref={imageInputRef} onChange={handleImageSelected} className="hidden" />
+
+      {/* CAIXA DE DIGITAÇÃO */}
+      <div className="flex items-end w-full min-h-[3rem] px-4 py-2.5 bg-zinc-100 border border-zinc-300 rounded-3xl focus-within:ring-1 focus-within:ring-zinc-400 gap-3">
+
+        <button
+          onClick={() => setShowEmojis(!showEmojis)}
+          className={`mb-0.5 shrink-0 transition-colors ${showEmojis ? "text-[#e1903e]" : "text-zinc-400 hover:text-zinc-600"}`}
+        >
+          <IconMoodSmile size={24} stroke={1.5} />
+        </button>
+
+        <textarea
+          ref={textareaRef}
+          value={text}
+          rows={1}
+          onChange={handleTextChange}
+          onKeyDown={handleKeyDown}
+          placeholder="Envie uma mensagem..."
+          disabled={disabled || sending}
+          className="flex-1 bg-transparent text-zinc-800 text-sm placeholder:text-slate-400 focus:outline-none resize-none max-h-40 overflow-y-auto scrollbar-none disabled:opacity-50"
+        />
+
+        <button
+          onClick={() => imageInputRef.current?.click()}
+          className="mb-0.5 text-zinc-400 hover:text-zinc-600 transition-colors shrink-0"
+        >
+          <IconPhoto size={24} stroke={1.5} />
+        </button>
+
+        {canSend && (
+          <button
+            onClick={handleSend}
+            disabled={sending}
+            className="mb-0.5 text-[#e1903e] hover:scale-110 transition-all shrink-0 disabled:opacity-40"
+          >
+            <IconSend size={24} stroke={1.5} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }

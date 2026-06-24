@@ -21,6 +21,7 @@ import api from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { postService } from "../services/postService";
 import { userService } from "../services/userService";
+import { isLiked as getCachedLike, setLiked as setCachedLike } from "../lib/communityLikeCache";
 
 export function Post({ post }: { post: PostType }) {
   const [open, setOpen] = useState(false);
@@ -29,7 +30,15 @@ export function Post({ post }: { post: PostType }) {
   const menuRef = useRef<HTMLDivElement>(null);
   const { user } = useAuth();
 
-  const [liked, setLiked] = useState(false);
+  // currentUserId precisa ser calculado antes dos useState que dependem dele
+  const storedUser = localStorage.getItem("user");
+  const currentUserId = storedUser
+    ? (JSON.parse(storedUser)?.id ?? JSON.parse(storedUser)?.sub)
+    : null;
+
+  const [liked, setLiked] = useState(() =>
+    post.communityId && currentUserId ? getCachedLike(currentUserId, post.id) : false
+  );
   const [likes, setLikes] = useState(post.likes ?? 0);
   const [commentCount, setCommentCount] = useState(post._count?.comments ?? 0);
   const [following, setFollowing] = useState(false);
@@ -69,13 +78,9 @@ export function Post({ post }: { post: PostType }) {
 
   const userId = post.authorId;
 
-  const displayName = author?.name ?? author?.username ?? "unknown";
+  const displayName = author?.username ?? author?.name ?? "unknown";
   const avatar = author?.avatar ?? "";
 
-  const storedUser = localStorage.getItem("user");
-  const currentUserId = storedUser
-    ? (JSON.parse(storedUser)?.id ?? JSON.parse(storedUser)?.sub)
-    : null;
   const isOwnPost = userId === currentUserId;
 
   // busca status de follow para posts de outros usuários
@@ -108,17 +113,21 @@ export function Post({ post }: { post: PostType }) {
       const userId = user?.id ?? user?.sub;
       if (!userId) return;
       try {
-        const res = await api.get(`/posts/${post.id}`, {
-          params: { userId },
-        });
-        setLiked(res.data.likedByMe);
-        setLikes(res.data.likes);
+        if (post.communityId) {
+          // backend não tem GET /community-posts/:id — usa cache local
+          setLiked(getCachedLike(userId, post.id));
+          setLikes(post.likes ?? 0);
+        } else {
+          const res = await api.get(`/posts/${post.id}`, { params: { userId } });
+          setLiked(res.data.likedByMe ?? false);
+          setLikes(res.data.likes ?? post.likes ?? 0);
+        }
       } catch {
-        // silently fail
+        // silently fail — mantém o estado inicial
       }
     }
     fetchLikeState();
-  }, [post.id, user?.id, user?.sub]);
+  }, [post.id, post.communityId, user?.id, user?.sub]);
 
   useEffect(() => {
     function handleCloseAll() { setOpen(false); }
@@ -143,15 +152,22 @@ export function Post({ post }: { post: PostType }) {
     if (!userId) return;
 
     const wasLiked = liked;
-    setLiked(!wasLiked);
+    const newLiked = !wasLiked;
+    setLiked(newLiked);
     setLikes((prev) => (wasLiked ? prev - 1 : prev + 1));
+    if (post.communityId) setCachedLike(userId, post.id, newLiked);
 
     try {
-      const res = await api.patch(`/posts/${post.id}/like`, { userId });
+      const route = post.communityId
+        ? `/community-posts/${post.id}/like`
+        : `/posts/${post.id}/like`;
+      const res = await api.patch(route, { userId });
       setLiked(res.data.liked);
+      if (post.communityId) setCachedLike(userId, post.id, res.data.liked);
     } catch {
       setLiked(wasLiked);
       setLikes((prev) => (wasLiked ? prev + 1 : prev - 1));
+      if (post.communityId) setCachedLike(userId, post.id, wasLiked);
     }
   }
 
@@ -328,7 +344,18 @@ export function Post({ post }: { post: PostType }) {
         </footer>
       </div>
 
-      <PostModal open={modalOpen} onOpenChange={setOpen} post={post} onCommentAdded={(total) => setCommentCount(total)} />
+      <PostModal
+        open={modalOpen}
+        onOpenChange={setOpen}
+        post={post}
+        liked={liked}
+        likes={likes}
+        onCommentAdded={(total) => setCommentCount(total)}
+        onLikeChanged={(newLiked, newLikes) => {
+          setLiked(newLiked);
+          setLikes(newLikes);
+        }}
+      />
     </>
   );
 }

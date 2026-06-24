@@ -169,6 +169,7 @@ export default function CommunityPage() {
                     key={post.id}
                     post={post}
                     communityAdminId={community.adminId}
+                    communityName={community.name}
                     onDeleted={(deletedId) => {
                       setPosts((prev) => prev.filter((p) => p.id !== deletedId));
                       setCommunity((prev) =>

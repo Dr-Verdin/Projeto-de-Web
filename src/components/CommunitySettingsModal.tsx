@@ -154,10 +154,6 @@ export function CommunitySettingsModal({ community, onClose, onSaved, onDelete }
             {/* ZONA DE PERIGO — deletar comunidade */}
             {onDelete && (
               <div className="pt-4 border-t border-gray-200">
-                <h3 className="text-sm font-semibold text-red-600 mb-2">Zona de Perigo</h3>
-                <p className="text-xs text-gray-500 mb-3">
-                  Deletar a comunidade é permanente e não pode ser desfeito. Todos os posts e membros serão removidos.
-                </p>
                 <button
                   onClick={() => {
                     onClose();

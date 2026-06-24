@@ -10,17 +10,23 @@ import type { Comment as CommentType } from "../types/Comment";
 
 import { useEffect, useState, useRef } from "react";
 import { commentService } from "../services/commentService";
+import { communityCommentService } from "../services/communityCommentService";
 import { CommentItem } from "./Comment";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../services/api";
 import { postService } from "../services/postService";
+import { communityPostService } from "../services/communityPostService";
 import { userService } from "../services/userService";
+import { setLiked as setCachedLike } from "../lib/communityLikeCache";
 
 type PostModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   post: PostType;
+  liked: boolean;
+  likes: number;
   onCommentAdded?: (total: number) => void;
+  onLikeChanged?: (liked: boolean, likes: number) => void;
 };
 
 // conta comentários raiz + todas as replies recursivamente
@@ -41,20 +47,18 @@ function removeComment(comments: CommentType[], id: string): CommentType[] {
     }));
 }
 
-export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModalProps) {
+export function PostModal({ open, onOpenChange, post, liked, likes, onCommentAdded, onLikeChanged }: PostModalProps) {
   const { user } = useAuth();
-
-  const [liked, setLiked] = useState(false);
-  const [likes, setLikes] = useState(post.likes ?? 0);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [following, setFollowing] = useState(false);
-  const [loadingFollow, setLoadingFollow] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
 
   const isCommunityPost = !!post.communityId;
   const storedUser = localStorage.getItem("user");
   const currentUserId = storedUser ? (JSON.parse(storedUser)?.id ?? JSON.parse(storedUser)?.sub) : null;
   const isOwnPost = post.authorId === currentUserId;
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [following, setFollowing] = useState(false);
+  const [loadingFollow, setLoadingFollow] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
   // busca status de follow
   useEffect(() => {
@@ -103,7 +107,11 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
     e.stopPropagation();
     setMenuOpen(false);
     try {
-      await postService.remove(post.id);
+      if (isCommunityPost) {
+        await communityPostService.remove(post.id, currentUserId!);
+      } else {
+        await postService.remove(post.id);
+      }
       window.location.reload();
     } catch (err) {
       console.error("Erro ao deletar post:", err);
@@ -115,56 +123,35 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
   const [loading, setLoading] = useState(false);
 
   const author = post.author ?? null;
-  const displayName = author?.name ?? author?.username ?? "user";
+  const displayName = author?.username ?? author?.name ?? "user";
   const avatar = author?.avatar ?? "";
-
-  useEffect(() => {
-    setLikes(post.likes ?? 0);
-  }, [post.id, post.likes]);
+  const communityName = post.community?.name ?? null;
 
   useEffect(() => {
     async function loadComments() {
       try {
-        const data = await commentService.getByPost(post.id);
+        const data = isCommunityPost
+          ? await communityCommentService.getByPost(post.id)
+          : await commentService.getByPost(post.id);
         setComments(data);
       } catch (err) {
         console.error(err);
       }
     }
     loadComments();
-  }, [post.id]);
-
-  useEffect(() => {
-    async function fetchLikeState() {
-      const userId = user?.id ?? user?.sub;
-      if (!userId) return;
-      try {
-        const res = await api.get(`/posts/${post.id}`, {
-          params: { userId },
-        });
-        setLiked(res.data.likedByMe);
-        setLikes(res.data.likes);
-      } catch (err) {
-        console.error(err);
-      }
-    }
-    fetchLikeState();
-  }, [post.id, user?.id, user?.sub]);
+  }, [post.id, isCommunityPost]);
 
   async function handleSendComment() {
     const authorId = user?.id ?? user?.sub;
     if (!newComment.trim() || !authorId) return;
     setLoading(true);
     try {
-      const created = await commentService.create({
-        content: newComment,
-        authorId,
-        postId: post.id,
-      });
+      const created = isCommunityPost
+        ? await communityCommentService.create({ content: newComment, authorId, postId: post.id })
+        : await commentService.create({ content: newComment, authorId, postId: post.id });
       setNewComment("");
       const updated = [created, ...comments];
       setComments(updated);
-      // passa o total real de comentários (raiz + replies)
       onCommentAdded?.(countAllComments(updated));
     } catch (err) {
       console.error(err);
@@ -179,16 +166,26 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
     if (!userId) return;
 
     const wasLiked = liked;
-    setLiked(!wasLiked);
-    setLikes((prev) => (wasLiked ? prev - 1 : prev + 1));
+    const newLiked = !wasLiked;
+    const optimisticLikes = wasLiked ? likes - 1 : likes + 1;
+
+    // notifica o pai imediatamente (optimistic)
+    onLikeChanged?.(newLiked, optimisticLikes);
+    if (isCommunityPost) setCachedLike(userId, post.id, newLiked);
 
     try {
-      const res = await api.patch(`/posts/${post.id}/like`, { userId });
-      setLiked(res.data.liked);
+      const route = isCommunityPost
+        ? `/community-posts/${post.id}/like`
+        : `/posts/${post.id}/like`;
+      const res = await api.patch(route, { userId });
+      if (isCommunityPost) setCachedLike(userId, post.id, res.data.liked);
+      const finalLikes = res.data.likes !== undefined ? res.data.likes : optimisticLikes;
+      onLikeChanged?.(res.data.liked, finalLikes);
     } catch (err) {
       console.error(err);
-      setLiked(wasLiked);
-      setLikes((prev) => (wasLiked ? prev + 1 : prev - 1));
+      // reverte
+      onLikeChanged?.(wasLiked, likes);
+      if (isCommunityPost) setCachedLike(userId, post.id, wasLiked);
     }
   }
 
@@ -215,7 +212,7 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
                               bg-gradient-to-b from-black/60 to-transparent
                               px-4 pt-3 pb-6 flex items-center gap-2">
                 <Link
-                  to={isCommunityPost ? `/comunidade/${post.communityId}` : `/perfil/${post.authorId}`}
+                  to={`/perfil/${post.authorId}`}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Avatar className="w-8 h-8">
@@ -224,13 +221,24 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
                     <AvatarBadge className="bg-green-500" />
                   </Avatar>
                 </Link>
-                <Link
-                  to={isCommunityPost ? `/comunidade/${post.communityId}` : `/perfil/${post.authorId}`}
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-white text-xs font-semibold hover:underline truncate flex-1"
-                >
-                  {isCommunityPost ? "c/" : "u/"}{displayName}
-                </Link>
+                <div className="flex flex-col min-w-0 flex-1">
+                  {isCommunityPost && communityName && (
+                    <Link
+                      to={`/comunidade/${post.communityId}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-white text-xs font-bold hover:underline truncate leading-tight"
+                    >
+                      c/{communityName}
+                    </Link>
+                  )}
+                  <Link
+                    to={`/perfil/${post.authorId}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-white/80 text-xs hover:underline truncate leading-tight"
+                  >
+                    u/{displayName}
+                  </Link>
+                </div>
                 {!isCommunityPost && (
                   <Button
                     onClick={handleFollow}
@@ -253,10 +261,7 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
 
             {/* HEADER — só no desktop (no mobile fica sobre a imagem) */}
             <header className="hidden md:flex shrink-0 border-b border-zinc-200 px-4 py-3 items-center gap-2">
-              <Link
-                to={isCommunityPost ? `/comunidade/${post.communityId}` : `/perfil/${post.authorId}`}
-                onClick={(e) => e.stopPropagation()}
-              >
+              <Link to={`/perfil/${post.authorId}`} onClick={(e) => e.stopPropagation()}>
                 <Avatar className="w-9 h-9">
                   <AvatarImage src={avatar} alt={displayName} />
                   <AvatarFallback>U</AvatarFallback>
@@ -264,32 +269,37 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
                 </Avatar>
               </Link>
               <div className="flex flex-col leading-tight min-w-0">
-                <Link
-                  to={isCommunityPost ? `/comunidade/${post.communityId}` : `/perfil/${post.authorId}`}
-                  onClick={(e) => e.stopPropagation()}
-                  className="text-slate-800 text-xs font-medium hover:underline truncate"
-                >
-                  {isCommunityPost ? "c/" : "u/"}{displayName}
-                </Link>
-                {isCommunityPost && (
-                  <Link to={`/perfil/${post.authorId}`} onClick={(e) => e.stopPropagation()}
-                    className="text-[11px] text-zinc-500 hover:underline truncate">
-                    por u/{post.authorId}
+                {isCommunityPost && communityName && (
+                  <Link
+                    to={`/comunidade/${post.communityId}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="text-xs font-bold text-[#e1903e] hover:underline truncate leading-tight"
+                  >
+                    c/{communityName}
                   </Link>
                 )}
+                <Link
+                  to={`/perfil/${post.authorId}`}
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-slate-600 text-xs hover:underline truncate leading-tight"
+                >
+                  u/{displayName}
+                </Link>
               </div>
               <div className="ml-auto flex items-center gap-1 shrink-0">
-                <Button
-                  onClick={handleFollow}
-                  disabled={loadingFollow}
-                  className={`rounded-full px-3 h-7 text-xs font-bold transition-all disabled:opacity-50 ${
-                    following
-                      ? "bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-500"
-                      : "text-white bg-[#b7bb86] hover:bg-[#e1903e]"
-                  }`}
-                >
-                  {following ? "Seguindo" : "Seguir"}
-                </Button>
+                {!isCommunityPost && (
+                  <Button
+                    onClick={handleFollow}
+                    disabled={loadingFollow}
+                    className={`rounded-full px-3 h-7 text-xs font-bold transition-all disabled:opacity-50 ${
+                      following
+                        ? "bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-500"
+                        : "text-white bg-[#b7bb86] hover:bg-[#e1903e]"
+                    }`}
+                  >
+                    {following ? "Seguindo" : "Seguir"}
+                  </Button>
+                )}
                 <div ref={menuRef} className="relative" onClick={(e) => e.stopPropagation()}>
                   <Button
                     onClick={() => setMenuOpen((v) => !v)}
@@ -338,6 +348,7 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
                       <CommentItem
                         {...c}
                         postId={post.id}
+                        isCommunityComment={isCommunityPost}
                         onDeleted={(deletedId) =>
                           setComments((prev) => removeComment(prev, deletedId))
                         }

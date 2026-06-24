@@ -9,16 +9,18 @@ import {
 import { useAuth } from "../contexts/AuthContext";
 import { useState, useRef, useEffect } from "react";
 import { commentService } from "../services/commentService";
+import { communityCommentService } from "../services/communityCommentService";
 
 type CommentProps = {
   id: string;
   content: string;
   createdAt: string;
   postId?: string;
-  rootId?: string; // id do comentário raiz (para replies de replies)
+  rootId?: string;
   likes?: number;
   comments?: number;
   commentLikes?: { userId: string }[];
+  isCommunityComment?: boolean;
   author?: {
     id: string;
     name?: string;
@@ -40,6 +42,7 @@ export function CommentItem({
   likes: initialLikes = 0,
   commentLikes,
   replies = [],
+  isCommunityComment = false,
   onDeleted,
   onReplyCreated,
 }: CommentProps) {
@@ -55,7 +58,7 @@ export function CommentItem({
   const [sending, setSending]     = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const displayName = author?.name ?? author?.username ?? "user";
+  const displayName = author?.username ?? author?.name ?? "user";
   const avatar      = author?.avatar ?? "";
   const isOwn       = author?.id === (user?.sub ?? user?.id);
 
@@ -77,9 +80,18 @@ export function CommentItem({
     setLiked(!was);
     setLikes((n) => (was ? n - 1 : n + 1));
     try {
-      const res = await commentService.toggleLike(id, userId);
-      setLiked(res.liked);
-      setLikes(res.likes);
+      if (isCommunityComment) {
+        const res = await communityCommentService.toggleLike(id, userId);
+        setLiked(res.liked);
+        // comunityCommentService só retorna { liked }, ajusta contador se diferir do otimista
+        if (res.liked !== !was) {
+          setLikes((n) => res.liked ? n + 1 : n - 1);
+        }
+      } else {
+        const res = await commentService.toggleLike(id, userId);
+        setLiked(res.liked);
+        setLikes(res.likes);
+      }
     } catch {
       setLiked(was);
       setLikes((n) => (was ? n + 1 : n - 1));
@@ -89,7 +101,11 @@ export function CommentItem({
   async function handleDelete() {
     setMenuOpen(false);
     try {
-      await commentService.remove(id);
+      if (isCommunityComment) {
+        await communityCommentService.remove(id);
+      } else {
+        await commentService.remove(id);
+      }
       onDeleted?.(id);
     } catch (err) {
       console.error("Erro ao deletar comentário:", err);
@@ -101,15 +117,11 @@ export function CommentItem({
     if (!replyText.trim() || !authorId || !postId) return;
     setSending(true);
     try {
-      const created = await commentService.create({
-        content: replyText,
-        authorId,
-        postId,
-        parentId: id,
-      });
+      const created = isCommunityComment
+        ? await communityCommentService.create({ content: replyText, authorId, postId, parentId: id })
+        : await commentService.create({ content: replyText, authorId, postId, parentId: id });
       setReplyText("");
       setReplyOpen(false);
-      // se este item já é um reply (tem rootId), sobe a reply para o comentário raiz
       onReplyCreated?.(created, rootId ?? id);
     } catch (err) {
       console.error("Erro ao responder:", err);
@@ -165,7 +177,7 @@ export function CommentItem({
                                text-red-500 hover:bg-red-50 transition-colors"
                   >
                     <IconTrash size={14} />
-                    Deletar comentário
+                    Deletar
                   </button>
                 )}
                 {!isOwn && (
@@ -245,6 +257,7 @@ export function CommentItem({
                 {...reply}
                 postId={postId}
                 rootId={rootId ?? id}
+                isCommunityComment={isCommunityComment}
                 onDeleted={onDeleted}
                 onReplyCreated={onReplyCreated}
               />
