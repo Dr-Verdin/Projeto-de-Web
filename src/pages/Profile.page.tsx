@@ -5,6 +5,7 @@ import { Post } from "../components/Post";
 import { TaskChecklist } from "@/components/TaskChecklist";
 import { userService } from "@/services/userService";
 import { postService } from "@/services/postService";
+import { communityPostService } from "@/services/communityPostService";
 import { useAuth } from "../contexts/AuthContext";
 import { IconChecklist } from "@tabler/icons-react";
 
@@ -53,8 +54,14 @@ export default function Profile() {
       if (!id) return;
       setLoadingPosts(true);
       try {
-        const data = await postService.getByUser(id);
-        setUserPosts(data);
+        const [regularPosts, communityPosts] = await Promise.all([
+          postService.getByUser(id).catch(() => []),
+          communityPostService.getByUser(id).catch(() => []),
+        ]);
+        const all = [...regularPosts, ...communityPosts].sort(
+          (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setUserPosts(all);
       } catch (err) {
         console.error(err);
         setUserPosts([]);

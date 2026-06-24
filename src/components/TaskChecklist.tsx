@@ -3,7 +3,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { IconPlus, IconChecklist, IconX, IconDots, IconTrash } from "@tabler/icons-react";
-import type { Task } from "../types/Task";
+import { checklistService, type ChecklistItem } from "../services/checklistService";
 
 export function TaskChecklist({
   showFloatingButton = false,
@@ -12,15 +12,23 @@ export function TaskChecklist({
   showFloatingButton?: boolean;
   onClose?: () => void;
 }) {
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: "1", text: "Estudar React", done: false },
-    { id: "2", text: "Fazer atividade de redes", done: true },
-  ]);
+  const [tasks, setTasks] = useState<ChecklistItem[]>([]);
   const [newTask, setNewTask] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [adding, setAdding] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
+  // carrega as tarefas do backend
+  useEffect(() => {
+    checklistService.getAll()
+      .then(setTasks)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  // fecha menu ao clicar fora
   useEffect(() => {
     if (!openMenuId) return;
     function handler(e: MouseEvent) {
@@ -31,19 +39,46 @@ export function TaskChecklist({
     return () => document.removeEventListener("mousedown", handler);
   }, [openMenuId]);
 
-  function toggleTask(id: string) {
-    setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
+  async function toggleTask(id: string) {
+    // otimista
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
+    );
+    try {
+      const updated = await checklistService.toggle(id);
+      setTasks((prev) => prev.map((t) => (t.id === id ? updated : t)));
+    } catch {
+      // reverte
+      setTasks((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t)),
+      );
+    }
   }
 
-  function addTask() {
-    if (!newTask.trim()) return;
-    setTasks((prev) => [{ id: crypto.randomUUID(), text: newTask, done: false }, ...prev]);
+  async function addTask() {
+    if (!newTask.trim() || adding) return;
+    setAdding(true);
+    const text = newTask.trim();
     setNewTask("");
+    try {
+      const created = await checklistService.create(text);
+      setTasks((prev) => [created, ...prev]);
+    } catch {
+      setNewTask(text); // restaura se falhar
+    } finally {
+      setAdding(false);
+    }
   }
 
-  function deleteTask(id: string) {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
+  async function deleteTask(id: string) {
     setOpenMenuId(null);
+    setTasks((prev) => prev.filter((t) => t.id !== id));
+    try {
+      await checklistService.remove(id);
+    } catch {
+      // se falhar, recarrega do servidor
+      checklistService.getAll().then(setTasks).catch(() => {});
+    }
   }
 
   const content = (
@@ -60,11 +95,13 @@ export function TaskChecklist({
               addTask();
             }
           }}
+          disabled={adding}
           className="rounded-lg border-[#b7bb86]/60 bg-white focus-visible:ring-[#b7bb86]/50 focus-visible:border-[#b7bb86] placeholder:text-gray-400 text-sm"
         />
         <Button
           onClick={addTask}
-          className="rounded-full shrink-0 bg-[#b7bb86] hover:bg-[#a0a46e] text-white"
+          disabled={adding || !newTask.trim()}
+          className="rounded-full shrink-0 bg-[#b7bb86] hover:bg-[#a0a46e] text-white disabled:opacity-50"
         >
           <IconPlus size={18} />
         </Button>
@@ -72,7 +109,10 @@ export function TaskChecklist({
 
       {/* LISTA */}
       <div className="flex flex-col gap-1">
-        {tasks.length === 0 && (
+        {loading && (
+          <p className="text-xs text-[#b7bb86]/70 text-center py-2">Carregando...</p>
+        )}
+        {!loading && tasks.length === 0 && (
           <p className="text-xs text-[#b7bb86]/70 text-center py-2">Nenhuma tarefa ainda</p>
         )}
         {tasks.map((task) => (
@@ -83,10 +123,14 @@ export function TaskChecklist({
             <Checkbox
               checked={task.done}
               onCheckedChange={() => toggleTask(task.id)}
-              className="shrink-0 border-[#b7bb86] data-[state=checked]:bg-[#b7bb86] data-[state=checked]:ring-1  data-[state=checked]:ring-[#8f9460]"
+              className="shrink-0 border-[#b7bb86] data-[state=checked]:bg-[#b7bb86] data-[state=checked]:border-[#b7bb86] data-[state=checked]:ring-1 data-[state=checked]:ring-gray-500"
             />
-            <span className={`flex-1 text-sm truncate ${task.done ? "line-through text-gray-400" : "text-gray-700"}`}>
-              {task.text}
+            <span
+              className={`flex-1 text-sm truncate ${
+                task.done ? "line-through text-gray-400" : "text-gray-700"
+              }`}
+            >
+              {task.content}
             </span>
 
             {/* MENU 3 PONTOS */}
@@ -128,10 +172,18 @@ export function TaskChecklist({
 
   return (
     <>
-      {/* CARD — usado tanto na coluna desktop quanto no modal */}
+      {/* CARD — desktop e modal */}
       <div className="w-full rounded-2xl p-4 shadow flex flex-col gap-4 bg-white border border-[#b7bb86]/30">
         <div className="flex items-center justify-between">
           <h2 className="font-semibold text-[#b7bb86]">Lista de Tarefas</h2>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="p-1 rounded-full hover:bg-[#b7bb86]/20 transition-colors"
+            >
+              <IconX size={16} className="text-[#b7bb86]" />
+            </button>
+          )}
         </div>
         {content}
       </div>

@@ -1,16 +1,23 @@
 import { CommunitiesCard } from "../components/CommunitiesCard";
-import type { Post } from "../types/Post";
 import { Post as PostComponent } from "../components/Post";
 import { useEffect, useState } from "react";
 import { postService } from "../services/postService";
+import { communityPostService } from "../services/communityPostService";
 
 export default function Feed() {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
 
   async function loadPosts() {
     try {
-      const data = await postService.getAll();
-      setPosts(data);
+      const [regularPosts, communityPosts] = await Promise.all([
+        postService.getAll().catch(() => []),
+        communityPostService.getAll().catch(() => []),
+      ]);
+
+      const all = [...regularPosts, ...communityPosts].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+      setPosts(all);
     } catch (err) {
       console.error(err);
     }
@@ -21,8 +28,10 @@ export default function Feed() {
   }, []);
 
   useEffect(() => {
-    window.addEventListener("posts-updated", loadPosts);
-    return () => window.removeEventListener("posts-updated", loadPosts);
+    // reload silencioso — não zera o estado antes de receber os dados
+    function handlePostsUpdated() { loadPosts(); }
+    window.addEventListener("posts-updated", handlePostsUpdated);
+    return () => window.removeEventListener("posts-updated", handlePostsUpdated);
   }, []);
 
   return (
@@ -48,7 +57,7 @@ export default function Feed() {
         </section>
 
         {/* COMUNIDADES — só no desktop, sticky */}
-        <aside className="hidden md:block w-[clamp(12rem,16vw,16rem)] shrink-0">
+        <aside className="hidden md:block w-[clamp(14rem,20vw,22rem)] shrink-0">
           <div className="sticky top-8">
             <CommunitiesCard />
           </div>

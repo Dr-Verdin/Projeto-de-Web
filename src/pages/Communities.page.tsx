@@ -1,10 +1,20 @@
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 import { IconArrowLeft, IconUsers } from "@tabler/icons-react";
-import { communities } from "../lib/mock";
+import { communityService, type Community } from "../services/communityService";
 
 export default function CommunitiesPage() {
   const navigate = useNavigate();
+  const [communities, setCommunities] = useState<Community[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    communityService
+      .getAll()
+      .then(setCommunities)
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -24,39 +34,60 @@ export default function CommunitiesPage() {
       {/* CONTEÚDO */}
       <div className="flex-1 px-4 py-4 pb-24 flex flex-col gap-3">
 
-        <p className="text-xs text-gray-400 font-medium uppercase tracking-wider px-1">
-          Populares
-        </p>
+        {loading && (
+          <p className="text-xs text-gray-400 text-center py-8">Carregando...</p>
+        )}
 
-        {Object.values(communities).map((community) => (
-          <Link
-            key={community.communityId}
-            to={`/comunidade/${community.communityId}`}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden active:scale-[0.98] transition-transform"
-          >
-            {/* banner */}
-            <div
-              className="w-full h-24 bg-cover bg-center bg-gray-200"
-              style={{ backgroundImage: community.background ? `url(${community.background})` : undefined }}
-            />
+        {!loading && communities.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+            <p className="text-4xl mb-3">🏘️</p>
+            <p className="text-sm">Nenhuma comunidade ainda</p>
+          </div>
+        )}
 
-            <div className="flex items-center gap-3 px-4 py-3">
-              <img
-                src={community.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(community.name)}&background=e1903e&color=fff`}
-                alt={community.name}
-                className="w-12 h-12 rounded-full object-cover ring-2 ring-white -mt-8 shrink-0 shadow-md"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="font-bold text-gray-900 text-sm truncate">{community.name}</p>
-                <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{community.description}</p>
-              </div>
-              <div className="flex items-center gap-1 shrink-0 text-gray-400">
-                <IconUsers size={14} />
-                <span className="text-xs">{community.members.toLocaleString()}</span>
-              </div>
-            </div>
-          </Link>
-        ))}
+        {!loading && communities.length > 0 && (
+          <>
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider px-1">
+              Populares
+            </p>
+
+            {communities.map((c) => (
+              <Link
+                key={c.id}
+                to={`/comunidade/${c.id}`}
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden active:scale-[0.98] transition-transform"
+              >
+                {/* banner */}
+                <div
+                  className="w-full h-24 bg-cover bg-center bg-gray-200"
+                  style={{
+                    backgroundImage: c.wallpaper ? `url(${c.wallpaper})` : undefined,
+                    backgroundColor: c.wallpaper ? undefined : "#e5e7eb",
+                  }}
+                />
+
+                <div className="flex items-center gap-3 px-4 py-3">
+                  <img
+                    src={
+                      c.image ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(c.name)}&background=b7bb86&color=fff&size=64`
+                    }
+                    alt={c.name}
+                    className="w-12 h-12 rounded-full object-cover ring-2 ring-white -mt-8 shrink-0 shadow-md"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-gray-900 text-sm truncate">{c.name}</p>
+                    <p className="text-xs text-gray-500 line-clamp-1 mt-0.5">{c.description}</p>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0 text-gray-400">
+                    <IconUsers size={14} />
+                    <span className="text-xs">{c._count.members.toLocaleString("pt-BR")}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </>
+        )}
       </div>
     </div>
   );

@@ -14,7 +14,8 @@ import {
   IconDoorExit,
   IconX,
 } from "@tabler/icons-react";
-import { communities } from "../lib/mock";
+import { communityService, type Community } from "../services/communityService";
+import api from "../services/api";
 
 export function MobileNav() {
   const { user, logout } = useAuth();
@@ -25,6 +26,7 @@ export function MobileNav() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchUsers, setSearchUsers] = useState<any[]>([]);
+  const [searchCommunities, setSearchCommunities] = useState<Community[]>([]);
   const [searchFocused, setSearchFocused] = useState(false);
   const drawerRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
@@ -57,29 +59,30 @@ export function MobileNav() {
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSearchUsers([]);
+      setSearchCommunities([]);
       return;
     }
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`http://localhost:3000/users/search?q=${encodeURIComponent(searchQuery)}`);
-        const data = await res.json();
-        setSearchUsers(Array.isArray(data) ? data : []);
+        const [usersData, allCommunities] = await Promise.all([
+          api.get(`/users/search?q=${encodeURIComponent(searchQuery)}`).then((r) => r.data).catch(() => []),
+          communityService.getAll().catch(() => []),
+        ]);
+        setSearchUsers(Array.isArray(usersData) ? usersData : []);
+
+        function norm(str: string) {
+          return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        }
+        setSearchCommunities(
+          allCommunities.filter((c: Community) => norm(c.name).includes(norm(searchQuery)))
+        );
       } catch {
         setSearchUsers([]);
+        setSearchCommunities([]);
       }
     }, 300);
     return () => clearTimeout(timer);
   }, [searchQuery]);
-
-  function normalize(str: string) {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  }
-
-  const filteredCommunities = searchQuery
-    ? Object.entries(communities).filter(([, c]) =>
-        normalize(c.name).includes(normalize(searchQuery))
-      )
-    : [];
 
   const showDropdown = searchFocused && searchQuery.trim().length > 0;
 
@@ -91,6 +94,7 @@ export function MobileNav() {
   function clearSearch() {
     setSearchQuery("");
     setSearchUsers([]);
+    setSearchCommunities([]);
     setSearchFocused(false);
   }
 
@@ -163,26 +167,28 @@ export function MobileNav() {
               )}
 
               {/* COMUNIDADES */}
-              {filteredCommunities.length > 0 && (
+              {searchCommunities.length > 0 && (
                 <div>
                   <p className="px-4 pt-3 pb-1 text-xs font-semibold text-gray-400 uppercase tracking-wider">
                     Comunidades
                   </p>
-                  {filteredCommunities.map(([id, community]) => (
+                  {searchCommunities.map((c) => (
                     <Link
-                      key={id}
-                      to={`/comunidade/${id}`}
+                      key={c.id}
+                      to={`/comunidade/${c.id}`}
                       onClick={clearSearch}
                       className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"
                     >
                       <img
-                        src={community.avatar}
-                        alt={community.name}
+                        src={c.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.name)}&background=b7bb86&color=fff&size=64`}
+                        alt={c.name}
                         className="w-9 h-9 rounded-full object-cover shrink-0"
                       />
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-gray-900 truncate">{community.name}</p>
-                        <p className="text-xs text-gray-400">{community.members} membros</p>
+                        <p className="text-sm font-semibold text-gray-900 truncate">{c.name}</p>
+                        <p className="text-xs text-gray-400">
+                          {c._count.members.toLocaleString("pt-BR")} membros
+                        </p>
                       </div>
                     </Link>
                   ))}
@@ -190,7 +196,7 @@ export function MobileNav() {
               )}
 
               {/* SEM RESULTADOS */}
-              {searchUsers.length === 0 && filteredCommunities.length === 0 && (
+              {searchUsers.length === 0 && searchCommunities.length === 0 && (
                 <div className="px-4 py-6 text-center text-gray-400 text-sm">
                   Nenhum resultado para "{searchQuery}"
                 </div>

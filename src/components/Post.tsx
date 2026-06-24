@@ -35,10 +35,27 @@ export function Post({ post }: { post: PostType }) {
   const [following, setFollowing] = useState(false);
   const [loadingFollow, setLoadingFollow] = useState(false);
 
+  const [deleted, setDeleted] = useState(false);
+
   // sincroniza o contador quando o objeto post mudar (ex: reload do feed)
   useEffect(() => {
     setCommentCount(post._count?.comments ?? 0);
   }, [post.id, post._count?.comments]);
+
+  // escuta o evento de delete para se remover da lista
+  useEffect(() => {
+    function handlePostDeleted(e: Event) {
+      if ((e as CustomEvent).detail?.postId === post.id) {
+        // fecha o modal primeiro, depois remove o componente
+        setOpen(false);
+        setTimeout(() => setDeleted(true), 300);
+      }
+    }
+    window.addEventListener("post-deleted", handlePostDeleted);
+    return () => window.removeEventListener("post-deleted", handlePostDeleted);
+  }, [post.id]);
+
+  if (deleted) return null;
 
   const { id, title, content, image, author } = post;
 
@@ -149,7 +166,7 @@ export function Post({ post }: { post: PostType }) {
     setMenuOpen(false);
     try {
       await postService.remove(id);
-      window.dispatchEvent(new CustomEvent("posts-updated"));
+      window.location.reload();
     } catch (err) {
       console.error("Erro ao deletar post:", err);
     }
@@ -164,27 +181,34 @@ export function Post({ post }: { post: PostType }) {
         className="cursor-pointer w-full flex flex-col gap-3 p-2 rounded-lg transition-colors duration-300 hover:bg-[#efce7b]/30"
       >
         {/* CABEÇALHO */}
-        <header className="w-full h-12 flex items-center gap-2 px-2 md:px-4">
-          <Avatar className="w-8 h-8 md:w-10 md:h-10 shrink-0">
+        <header className="w-full flex items-center gap-2 px-2 md:px-4 py-1">
+          <Avatar className="w-9 h-9 md:w-11 md:h-11 shrink-0">
             <AvatarImage src={avatar} alt={displayName} />
             <AvatarFallback>CN</AvatarFallback>
             <AvatarBadge className="bg-green-600 dark:bg-green-800" />
           </Avatar>
 
-          <Link
-            to={
-              post.communityId
-                ? `/comunidade/${post.communityId}`
-                : `/perfil/${post.authorId}`
-            }
-            onClick={(e) => e.stopPropagation()}
-            className="text-slate-800 text-xs font-medium hover:underline truncate max-w-[120px] md:max-w-none"
-          >
-            {post.communityId ? "c/" : "u/"}
-            {displayName}
-          </Link>
+          <div className="flex flex-col min-w-0">
+            {/* se é post de comunidade, mostra nome da comunidade em cima */}
+            {post.communityId && (
+              <Link
+                to={`/comunidade/${post.communityId}`}
+                onClick={(e) => e.stopPropagation()}
+                className="text-xs font-bold text-[#e1903e] hover:underline truncate leading-tight"
+              >
+                c/{post.community?.name ?? post.communityId}
+              </Link>
+            )}
+            <Link
+              to={`/perfil/${post.authorId}`}
+              onClick={(e) => e.stopPropagation()}
+              className="text-slate-600 text-xs hover:underline truncate leading-tight"
+            >
+              u/{displayName}
+            </Link>
+          </div>
 
-          <span className="text-gray-500 text-xs shrink-0">• {createdAt}</span>
+          <span className="text-gray-400 text-xs shrink-0 ml-1">• {createdAt}</span>
 
           <div className="ml-auto flex items-center gap-1 md:gap-2 shrink-0">
             {!isOwnPost && (
@@ -237,7 +261,7 @@ export function Post({ post }: { post: PostType }) {
         {/* CONTEUDO */}
         <div className="w-full flex flex-col gap-2 px-2 md:px-4">
           {title && (
-            <h2 className="text-slate-900 font-bold text-base md:text-lg">{title}</h2>
+            <h2 className="text-slate-900 font-bold text-lg md:text-xl">{title}</h2>
           )}
 
           {content && (
@@ -245,7 +269,7 @@ export function Post({ post }: { post: PostType }) {
           )}
 
           {image && (
-            <div className="relative w-full h-[45vw] md:h-[60vh] max-h-[420px] overflow-hidden rounded-lg bg-black">
+            <div className="relative w-full h-[50vw] md:h-[65vh] max-h-[480px] overflow-hidden rounded-xl bg-black">
               <img
                 src={image}
                 alt="blur background"
@@ -319,12 +343,12 @@ function TextWithReadMore({ text, onOpenModal }: { text: string; onOpenModal: ()
   }, [text]);
 
   return (
-    <div className="flex flex-col gap-1 text-slate-700 text-sm">
+    <div className="flex flex-col gap-1 text-slate-700 text-sm md:text-base">
       <p ref={pRef} className="line-clamp-3">{text}</p>
       {isClamped && (
         <button
           onClick={(e) => { e.stopPropagation(); onOpenModal(); }}
-          className="text-xs hover:text-slate-950 text-slate-600 w-fit"
+          className="text-xs hover:text-slate-950 text-slate-500 w-fit"
         >
           ver mais
         </button>

@@ -31,6 +31,16 @@ function countAllComments(comments: CommentType[]): number {
   );
 }
 
+// remove um comentário (ou reply) em qualquer nível da árvore
+function removeComment(comments: CommentType[], id: string): CommentType[] {
+  return comments
+    .filter((c) => c.id !== id)
+    .map((c) => ({
+      ...c,
+      replies: removeComment((c as any).replies ?? [], id),
+    }));
+}
+
 export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModalProps) {
   const { user } = useAuth();
 
@@ -94,8 +104,7 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
     setMenuOpen(false);
     try {
       await postService.remove(post.id);
-      window.dispatchEvent(new CustomEvent("posts-updated"));
-      onOpenChange(false);
+      window.location.reload();
     } catch (err) {
       console.error("Erro ao deletar post:", err);
     }
@@ -330,7 +339,7 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
                         {...c}
                         postId={post.id}
                         onDeleted={(deletedId) =>
-                          setComments((prev) => prev.filter((x) => x.id !== deletedId))
+                          setComments((prev) => removeComment(prev, deletedId))
                         }
                         onReplyCreated={(reply, parentId) =>
                           setComments((prev) =>

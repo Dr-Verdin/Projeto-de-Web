@@ -7,15 +7,29 @@ import AddBanner from "./AddBanner";
 import AddTextCommunity from "./AddTextCommunity";
 import SelectDestination from "./SelectDestination";
 import SelectCommunity from "./SelectCommunity";
+import { communityService } from "../services/communityService";
+import { postService } from "../services/postService";
+import { communityPostService } from "../services/communityPostService";
 
-export default function Create({ onClose }: { onClose: () => void }) {
+export default function Create({ onClose, initialCommunityId }: { onClose: () => void; initialCommunityId?: string }) {
   const [activeTab, setActiveTab] = useState<'post' | 'community'>('post');
-  const [communityName, setCommunityName] = useState("");
-  const [postStep, setPostStep] = useState<1 | 2 | 3>(1);
+  // Se veio de uma comunidade, pula direto para o step de seleção de comunidade
+  const [postStep, setPostStep] = useState<1 | 2 | 3>(initialCommunityId ? 3 : 1);
 
+  // estado do post
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [image, setImage] = useState<string>("");
+  const [publishing, setPublishing] = useState(false);
+  const [publishError, setPublishError] = useState("");
+
+  // estado da comunidade
+  const [communityName, setCommunityName]             = useState("");
+  const [communityDescription, setCommunityDescription] = useState("");
+  const [communityAvatar, setCommunityAvatar]         = useState("");
+  const [communityWallpaper, setCommunityWallpaper]   = useState("");
+  const [creatingCommunity, setCreatingCommunity]     = useState(false);
+  const [communityError, setCommunityError]           = useState("");
 
   const { user } = useAuth();
 
@@ -26,21 +40,68 @@ export default function Create({ onClose }: { onClose: () => void }) {
 
   async function handlePublish() {
     const authorId = user?.id ?? user?.sub;
-    if (!authorId) return;
+    if (!authorId || !title.trim()) return;
+    setPublishing(true);
+    setPublishError("");
+    try {
+      await postService.create({
+        title: title.trim(),
+        content: content.trim(),
+        image: image || null,
+        authorId,
+      });
+      onClose();
+      window.location.reload();
+    } catch (err: any) {
+      setPublishError(err?.response?.data?.message ?? "Erro ao publicar.");
+    } finally {
+      setPublishing(false);
+    }
+  }
 
-    const token = localStorage.getItem("token");
+  async function handlePublishToCommunity(communityId: string) {
+    const authorId = user?.id ?? user?.sub;
+    if (!authorId || !title.trim()) return;
+    setPublishing(true);
+    setPublishError("");
+    try {
+      await communityPostService.create({
+        title: title.trim(),
+        content: content.trim() || undefined,
+        image: image || undefined,
+        authorId,
+        communityId,
+      });
+      onClose();
+      window.location.reload();
+    } catch (err: any) {
+      setPublishError(err?.response?.data?.message ?? "Erro ao publicar na comunidade.");
+    } finally {
+      setPublishing(false);
+    }
+  }
 
-    await fetch("http://localhost:3000/posts", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ title, content, image: image || null, authorId }),
-    });
+  async function handleCreateCommunity() {
+    const adminId = user?.id ?? user?.sub;
+    if (!adminId || !communityName.trim()) return;
 
-    onClose();
-    window.location.reload();
+    setCreatingCommunity(true);
+    setCommunityError("");
+    try {
+      await communityService.create({
+        name: communityName.trim(),
+        description: communityDescription.trim() || undefined,
+        image: communityAvatar || undefined,
+        wallpaper: communityWallpaper || undefined,
+        adminId,
+      });
+      onClose();
+      window.location.reload();
+    } catch (err: any) {
+      setCommunityError(err?.response?.data?.message ?? "Erro ao criar comunidade.");
+    } finally {
+      setCreatingCommunity(false);
+    }
   }
 
   return (
@@ -81,7 +142,8 @@ export default function Create({ onClose }: { onClose: () => void }) {
                 <div className="w-full flex justify-end mt-4 lg:mt-auto shrink-0">
                   <button
                     onClick={() => setPostStep(2)}
-                    className="w-full lg:w-auto px-6 py-2.5 bg-[#efce7b] hover:bg-[#e63946] text-white font-medium rounded-full transition-colors"
+                    disabled={!title.trim()}
+                    className="w-full lg:w-auto px-6 py-2.5 bg-[#efce7b] hover:bg-[#e63946] text-white font-medium rounded-full transition-colors disabled:opacity-40"
                   >
                     Avançar
                   </button>
@@ -93,24 +155,42 @@ export default function Create({ onClose }: { onClose: () => void }) {
               onBack={() => setPostStep(1)}
               onPublishPost={handlePublish}
               onAdvanceCommunity={() => setPostStep(3)}
+              publishing={publishing}
+              publishError={publishError}
             />
           ) : (
             <SelectCommunity
               onBack={() => setPostStep(2)}
-              onPublish={() => { onClose(); }}
+              onPublish={handlePublishToCommunity}
+              publishing={publishing}
+              publishError={publishError}
+              initialSelectedId={initialCommunityId}
             />
           )
         ) : (
           <div className="flex flex-col gap-6 w-full animate-in fade-in duration-300">
-            <AddBanner communityName={communityName} />
-            <AddTextCommunity communityName={communityName} setCommunityName={setCommunityName} />
+            <AddBanner
+              communityName={communityName}
+              onAvatarChange={setCommunityAvatar}
+              onWallpaperChange={setCommunityWallpaper}
+            />
+            <AddTextCommunity
+              communityName={communityName}
+              setCommunityName={setCommunityName}
+              description={communityDescription}
+              setDescription={setCommunityDescription}
+            />
+            {communityError && (
+              <p className="text-sm text-red-500 font-medium">{communityError}</p>
+            )}
             <div className="w-full flex justify-end mt-2 shrink-0">
               <button
-                onClick={onClose}
-                className="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-6 py-2.5 bg-[#efce7b] hover:bg-[#e63946] text-white font-medium rounded-full transition-colors"
+                onClick={handleCreateCommunity}
+                disabled={!communityName.trim() || creatingCommunity}
+                className="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-6 py-2.5 bg-[#efce7b] hover:bg-[#e63946] text-white font-medium rounded-full transition-colors disabled:opacity-40"
               >
-                Criar
-                <IconPlus size={20} />
+                {creatingCommunity ? "Criando..." : "Criar"}
+                {!creatingCommunity && <IconPlus size={20} />}
               </button>
             </div>
           </div>

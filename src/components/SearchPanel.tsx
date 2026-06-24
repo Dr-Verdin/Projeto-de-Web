@@ -1,7 +1,8 @@
 import { IconX } from "@tabler/icons-react";
 import { useState, useRef, useEffect } from "react";
-import { communities } from "../lib/mock";
 import { Link } from "react-router-dom";
+import api from "../services/api";
+import { communityService, type Community } from "../services/communityService";
 
 type SearchPanelProps = {
   open: boolean;
@@ -10,46 +11,47 @@ type SearchPanelProps = {
 
 export function SearchPanel({ open, onClose }: SearchPanelProps) {
   const [users, setUsers] = useState<any[]>([]);
+  const [communities, setCommunities] = useState<Community[]>([]);
   const [query, setQuery] = useState("");
 
   const painelRef = useRef<HTMLDivElement>(null);
 
-  // clique fora (corrigido)
+  // clique fora
   useEffect(() => {
     if (!open) return;
-
     function handleClickOutside(e: MouseEvent) {
-      if (
-        painelRef.current &&
-        !painelRef.current.contains(e.target as Node)
-      ) {
+      if (painelRef.current && !painelRef.current.contains(e.target as Node)) {
         onClose();
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [open, onClose]);
 
-  // busca no backend (sem mock de users)
+  // busca com debounce
   useEffect(() => {
-    if (!query) {
+    if (!query.trim()) {
       setUsers([]);
+      setCommunities([]);
       return;
     }
 
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(
-          `http://localhost:3000/users/search?q=${query}`
+        const [usersRes, allCommunities] = await Promise.all([
+          api.get(`/users/search?q=${encodeURIComponent(query)}`).then((r) => r.data).catch(() => []),
+          communityService.getAll().catch(() => []),
+        ]);
+        setUsers(Array.isArray(usersRes) ? usersRes : []);
+
+        function normalize(str: string) {
+          return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+        }
+        setCommunities(
+          allCommunities.filter((c: Community) =>
+            normalize(c.name).includes(normalize(query))
+          )
         );
-        console.log("STATUS:", res.status);
-        const data = await res.json();
-        console.log("DATA:", data);
-        setUsers(data);
       } catch (err) {
         console.error("Erro na busca:", err);
       }
@@ -57,17 +59,6 @@ export function SearchPanel({ open, onClose }: SearchPanelProps) {
 
     return () => clearTimeout(timer);
   }, [query]);
-
-  function normalize(str: string) {
-    return str
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .toLowerCase();
-  }
-
-  const filteredCommunities = Object.entries(communities).filter(([, c]) =>
-    normalize(c.name).startsWith(normalize(query))
-  );
 
   return (
     <div
@@ -98,15 +89,14 @@ export function SearchPanel({ open, onClose }: SearchPanelProps) {
       </div>
 
       {/* resultados */}
-      <div className="flex-1 overflow-y-auto px-4 flex-col gap-4">
-        {query && (
+      <div className="flex-1 overflow-y-auto px-4 flex flex-col gap-4">
+        {query.trim() && (
           <>
-            {/* USERS */}
-            <div className="mb-2">
+            {/* USUÁRIOS */}
+            <div>
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                 Usuários
               </h3>
-
               {users.length > 0 ? (
                 users.map((user) => (
                   <Link
@@ -116,58 +106,49 @@ export function SearchPanel({ open, onClose }: SearchPanelProps) {
                     onClick={onClose}
                   >
                     <img
-                      src={user.avatar || "/default.png"}
+                      src={user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=e1903e&color=fff&size=64`}
                       alt={user.name}
                       className="w-10 h-10 rounded-full object-cover"
                     />
                     <div>
                       <p className="font-medium text-gray-900">{user.name}</p>
-                      <p className="text-xs text-gray-500">
-                        {user.username}
-                      </p>
+                      <p className="text-xs text-gray-500">{user.username}</p>
                     </div>
                   </Link>
                 ))
               ) : (
-                <p className="text-sm text-gray-500 px-2 py-1">
-                  Nenhum usuário encontrado
-                </p>
+                <p className="text-sm text-gray-400 px-2 py-1">Nenhum usuário encontrado</p>
               )}
             </div>
 
-            {/* COMMUNITIES */}
-            <div className="mb-2">
+            {/* COMUNIDADES */}
+            <div>
               <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                 Comunidades
               </h3>
-
-              {filteredCommunities.length > 0 ? (
-                filteredCommunities.map(([id, community]) => (
+              {communities.length > 0 ? (
+                communities.map((c) => (
                   <Link
-                    key={id}
-                    to={`/comunidade/${id}`}
+                    key={c.id}
+                    to={`/comunidade/${c.id}`}
                     className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
                     onClick={onClose}
                   >
                     <img
-                      src={community.avatar}
-                      alt={community.name}
+                      src={c.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.name)}&background=b7bb86&color=fff&size=64`}
+                      alt={c.name}
                       className="w-10 h-10 rounded-full object-cover"
                     />
                     <div>
-                      <p className="font-medium text-gray-900">
-                        {community.name}
-                      </p>
+                      <p className="font-medium text-gray-900">{c.name}</p>
                       <p className="text-xs text-gray-500">
-                        {community.members} membros
+                        {c._count.members.toLocaleString("pt-BR")} membros
                       </p>
                     </div>
                   </Link>
                 ))
               ) : (
-                <p className="text-sm text-gray-500 px-2 py-1">
-                  Nenhuma comunidade encontrada
-                </p>
+                <p className="text-sm text-gray-400 px-2 py-1">Nenhuma comunidade encontrada</p>
               )}
             </div>
           </>

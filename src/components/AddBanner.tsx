@@ -4,9 +4,11 @@ import { IconCamera} from "@tabler/icons-react";
 
 interface AddBannerProps {
   communityName: string;
+  onAvatarChange?: (dataUrl: string) => void;
+  onWallpaperChange?: (dataUrl: string) => void;
 }
 
-export default function AddBanner({ communityName }: AddBannerProps) {
+export default function AddBanner({ communityName, onAvatarChange, onWallpaperChange }: AddBannerProps) {
   // ==========================================
   // ESTADOS DO BANNER (Iniciam vazios)
   // ==========================================
@@ -31,7 +33,12 @@ export default function AddBanner({ communityName }: AddBannerProps) {
 
   const handleBannerChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setBannerFile(file);
+    if (file) {
+      setBannerFile(file);
+      const reader = new FileReader();
+      reader.onload = () => onWallpaperChange?.(reader.result as string);
+      reader.readAsDataURL(file);
+    }
   };
 
   // ==========================================
@@ -58,7 +65,12 @@ export default function AddBanner({ communityName }: AddBannerProps) {
 
   const handleAvatarChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setAvatarFile(file);
+    if (file) {
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onload = () => onAvatarChange?.(reader.result as string);
+      reader.readAsDataURL(file);
+    }
   };
 
   // ==========================================

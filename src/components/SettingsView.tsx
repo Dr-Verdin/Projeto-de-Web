@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import type { User } from "../types/User";
 import { SettingsProfileSection } from "./settings/SettingsProfileSection";
 import { useAuth } from "../contexts/AuthContext";
+import { IconTrash } from "@tabler/icons-react";
 
 type SettingsViewProps = {
   user: User;
@@ -59,16 +60,21 @@ export function SettingsView({ user, onSave, onDeleteClick, isSaving = false }: 
           <p className="text-sm text-red-500 font-medium">{error}</p>
         )}
 
-        {/* Excluir conta */}
-        <div className="pt-2 pb-2">
+        {/* Excluir conta — zona de perigo */}
+        <div className="pt-2 pb-2 border border-red-100 rounded-2xl bg-red-50/50 overflow-hidden">
           <button
             type="button"
             onClick={onDeleteClick}
-            className="text-sm font-bold text-red-500 hover:underline"
+            className="w-full flex items-center gap-4 px-5 py-4 hover:bg-red-50 transition-colors text-left"
           >
-            Excluir conta
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-red-100">
+              <IconTrash size={20} className="text-red-500" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-red-500">Excluir conta</p>
+              <p className="text-xs text-red-400 mt-0.5">Todos os seus dados serão removidos.</p>
+            </div>
           </button>
-          <p className="text-xs text-gray-400 mt-0.5">Todos os seus dados serão removidos.</p>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import { IconReload, IconMaximize } from "@tabler/icons-react";
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../contexts/AuthContext";
+import { userService } from "../services/userService";
 
 type TimerMode = "pomodoro" | "short pause" | "long pause";
 
@@ -10,9 +11,9 @@ function Pomodoro() {
   const hasSavedRef = useRef(false);
 
   const modes: Record<TimerMode, number> = {
-    "pomodoro": 1 * 60,
-    "short pause": 5 * 60,
-    "long pause": 15 * 60,
+    "pomodoro": 40 * 60,
+    "short pause": 10 * 60,
+    "long pause": 20 * 60,
   };
 
   const [currentMode, setCurrentMode] = useState<TimerMode>("pomodoro");
@@ -68,13 +69,13 @@ function Pomodoro() {
   };
 
   async function saveStudyTime(hours: number) {
-    if (!user?.sub) return;
-    const token = localStorage.getItem("token");
-    await fetch(`http://localhost:3000/users/${user.sub}/study-time`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-      body: JSON.stringify({ hours }),
-    });
+    const userId = user?.id ?? user?.sub;
+    if (!userId) return;
+    try {
+      await userService.addStudyTime(userId, hours);
+    } catch (err) {
+      console.error("Erro ao salvar tempo de estudo:", err);
+    }
   }
 
   return (

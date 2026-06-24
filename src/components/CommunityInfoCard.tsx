@@ -1,60 +1,41 @@
-import type { Community } from "@/types/Community";
-import { IconCalendarEvent, IconGlobe } from "@tabler/icons-react";
+import { IconCalendarEvent, IconUsers } from "@tabler/icons-react";
+import type { Community } from "../services/communityService";
 
-type CommunityInfoProps = Pick<
-  Community,
-  "name" | "members" | "description" | "createdAt" | "visibility" | "rules"
->;
+type Props = Pick<Community, "name" | "description" | "createdAt" | "_count"> & {
+  adminName?: string;
+};
 
-export function CommunityInfoCard({
-  name,
-  description,
-  createdAt,
-  visibility,
-  members,
-  rules,
-}: CommunityInfoProps) {
+export function CommunityInfoCard({ name, description, createdAt, _count, adminName }: Props) {
   return (
-    <div className="w-72 h-auto rounded-2xl border border-slate-200 p-3 flex flex-col gap-3 text-sm text-slate-700">
+    <div className="w-full rounded-2xl border border-slate-200 p-4 flex flex-col gap-3 text-sm text-slate-700">
       <h2 className="font-bold text-base text-[#e1903e]">{name}</h2>
-      <p>{description}</p>
+
+      {description && <p className="text-slate-600 leading-relaxed">{description}</p>}
 
       <div className="flex flex-col gap-2 text-slate-500">
+        <span className="flex items-center gap-1.5 leading-none">
+          <IconUsers size={14} className="shrink-0" />
+          {_count.members.toLocaleString("pt-BR")} membros
+        </span>
 
-        <span className="flex items-center gap-1 leading-none">
-          <IconCalendarEvent size={14} className="shrink-0" /> Criada em{" "}
+        <span className="flex items-center gap-1.5 leading-none">
+          <IconCalendarEvent size={14} className="shrink-0" />
+          Criada em{" "}
           {new Date(createdAt).toLocaleDateString("pt-BR", {
             month: "long",
             year: "numeric",
           })}
         </span>
 
-        <span className="flex items-center gap-1 leading-none">
-          <IconGlobe size={14} className="shrink-0" /> {visibility}
-        </span>
-
+        {adminName && (
+          <span className="text-xs text-slate-400">
+            Admin: {adminName}
+          </span>
+        )}
       </div>
 
-      <div className="flex items-baseline gap-1 pt-2 border-t border-slate-100">
-        <p className="font-semibold text-slate-800">
-          {members.toLocaleString("pt-BR")}
-        </p>
-        <p className="text-xs text-slate-500">Membros</p>
-      </div>
-
-      <div className="pt-2 border-t border-slate-100 flex flex-col gap-2">
-
-        <p className="font-semibold text-slate-800">Regras</p>
-        
-        <ol className="list-decimal list-inside flex flex-col gap-1 text-slate-600">
-          {rules
-            ?.split("\n")
-            .filter(Boolean)
-            .map((rule, i) => (
-              <li key={i}>{rule.replace(/^\d+\.\s*/, "")}</li>
-            ))}
-        </ol>
-        
+      <div className="flex items-center gap-1 pt-2 border-t border-slate-100">
+        <span className="text-xs text-slate-400">{_count.posts} posts</span>
       </div>
     </div>
   );

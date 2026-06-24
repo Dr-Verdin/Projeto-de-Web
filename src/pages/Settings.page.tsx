@@ -16,7 +16,7 @@ type Section = "menu" | "profile" | "delete";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
-  const { user, logout, updateUser, deleteAccount } = useAuth();
+  const { user, updateUser, deleteAccount } = useAuth();
 
   const [section, setSection] = useState<Section>("menu");
   const [isSaving, setIsSaving] = useState(false);
@@ -143,6 +143,7 @@ export default function SettingsPage() {
                 <div className="bg-white rounded-3xl shadow-sm overflow-hidden">
                   <MenuRow icon={IconUser}  label="Editar perfil" subtitle="Nome, foto, bio, pronomes"      onClick={() => setSection("profile")} />
                 </div>    
+// Excluir conta — agora com o mesmo padrão visual de MenuRow
                 <div className="bg-white rounded-3xl shadow-sm overflow-hidden self-start">
                   <MenuRow icon={IconTrash} label="Excluir conta" subtitle="Ação permanente e irreversível" onClick={() => setSection("delete")} danger />
                 </div>

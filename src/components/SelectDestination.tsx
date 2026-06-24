@@ -5,9 +5,11 @@ interface SelectDestinationProps {
     onBack: () => void;
     onPublishPost: () => void;
     onAdvanceCommunity: () => void;
+    publishing?: boolean;
+    publishError?: string;
 }
 
-export default function SelectDestination({ onBack, onPublishPost, onAdvanceCommunity }: SelectDestinationProps) {
+export default function SelectDestination({ onBack, onPublishPost, onAdvanceCommunity, publishing, publishError }: SelectDestinationProps) {
     // Estado para controlar qual opção está selecionada
     const [selectedOption, setSelectedOption] = useState<'post' | 'community' | null>(null);
 
@@ -77,13 +79,17 @@ export default function SelectDestination({ onBack, onPublishPost, onAdvanceComm
             </div>
 
             {/* Rodapé Condicional com os botões de ação */}
-            <div className="w-full flex justify-end mt-4 border-t border-gray-100 pt-4 shrink-0 min-h-[60px]">
+            <div className="w-full flex flex-col items-end gap-2 mt-4 border-t border-gray-100 pt-4 shrink-0 min-h-[60px]">
+                {publishError && (
+                    <p className="text-sm text-red-500 font-medium w-full text-right">{publishError}</p>
+                )}
                 {selectedOption === 'post' && (
                     <button 
                         onClick={onPublishPost}
-                        className="w-full sm:w-auto px-8 py-2.5 bg-[#efce7b] hover:bg-[#e63946] text-white font-medium rounded-full transition-all animate-in fade-in zoom-in-95 duration-200"
+                        disabled={publishing}
+                        className="w-full sm:w-auto px-8 py-2.5 bg-[#efce7b] hover:bg-[#e63946] text-white font-medium rounded-full transition-all animate-in fade-in zoom-in-95 duration-200 disabled:opacity-40"
                     >
-                        Publicar
+                        {publishing ? "Publicando..." : "Publicar"}
                     </button>
                 )}
                 

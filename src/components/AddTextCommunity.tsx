@@ -1,21 +1,22 @@
 {/*Para adicionar o nome e a descrição da comunidade*/}
 
-import { useState, type ChangeEvent } from "react";
+import { type ChangeEvent } from "react";
 
 interface AddTextCommunityProps {
     communityName: string;
     setCommunityName: (name: string) => void;
+    description: string;
+    setDescription: (desc: string) => void;
 }
 
-export default function AddTextCommunity({ communityName, setCommunityName }: AddTextCommunityProps) {
-    const [content, setContent] = useState("");
+export default function AddTextCommunity({ communityName, setCommunityName, description, setDescription }: AddTextCommunityProps) {
 
     const handleTitleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
         setCommunityName(event.target.value); // Atualiza o estado lá no Pai
     };
 
     const handleContentChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
-        setContent(event.target.value);
+        setDescription(event.target.value);
     };
 
     return (
@@ -41,7 +42,7 @@ export default function AddTextCommunity({ communityName, setCommunityName }: Ad
                 
                 <textarea
                     id="contentInput"
-                    value={content}
+                    value={description}
                     onChange={handleContentChange}
                     placeholder="Adicione a descrição da comunidade"
                     className="w-full h-full bg-transparent text-zinc-800 text-md placeholder:text-slate-400 focus:outline-none resize-none overflow-y-auto"

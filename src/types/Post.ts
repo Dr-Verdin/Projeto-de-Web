@@ -16,6 +16,11 @@ export type Post = {
 
   authorId?: string;
   communityId?: string;
+  community?: {
+    id: string;
+    name: string;
+    image?: string;
+  };
 
   _count?: {
     comments: number;
