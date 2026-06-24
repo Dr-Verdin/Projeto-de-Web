@@ -239,7 +239,7 @@ export function PostModal({ open, onOpenChange, post, liked, likes, onCommentAdd
                     u/{displayName}
                   </Link>
                 </div>
-                {!isCommunityPost && (
+                {!isCommunityPost && !isOwnPost && (
                   <Button
                     onClick={handleFollow}
                     disabled={loadingFollow}
@@ -287,7 +287,7 @@ export function PostModal({ open, onOpenChange, post, liked, likes, onCommentAdd
                 </Link>
               </div>
               <div className="ml-auto flex items-center gap-1 shrink-0">
-                {!isCommunityPost && (
+                {!isCommunityPost && !isOwnPost && (
                   <Button
                     onClick={handleFollow}
                     disabled={loadingFollow}

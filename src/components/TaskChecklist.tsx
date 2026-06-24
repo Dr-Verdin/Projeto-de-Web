@@ -126,7 +126,7 @@ export function TaskChecklist({
               className="shrink-0 border-[#b7bb86] data-[state=checked]:bg-[#b7bb86] data-[state=checked]:border-[#b7bb86] data-[state=checked]:ring-1 data-[state=checked]:ring-gray-500"
             />
             <span
-              className={`flex-1 text-sm truncate ${
+              className={`flex-1 text-sm break-words whitespace-normal min-w-0 ${
                 task.done ? "line-through text-gray-400" : "text-gray-700"
               }`}
             >
