@@ -115,24 +115,26 @@ export default function CommunityPage() {
   }
 
   return (
-    <main className="flex flex-col min-h-screen">
+    <main className="w-full flex flex-col min-h-screen">
 
       {/* WALLPAPER */}
       <header className="w-full px-3 md:px-6 pt-4 pb-2">
-        <WallpaperCommunity
-          community={community}
-          isAdmin={isAdmin}
-          isMember={isMember}
-          onJoin={handleJoin}
-          onLeave={handleLeave}
-          onCommunityUpdate={(updated) => setCommunity(updated)}
-          onDelete={handleDeleteCommunity}
-        />
+        <div className="max-w-5xl mx-auto">
+          <WallpaperCommunity
+            community={community}
+            isAdmin={isAdmin}
+            isMember={isMember}
+            onJoin={handleJoin}
+            onLeave={handleLeave}
+            onCommunityUpdate={(updated) => setCommunity(updated)}
+            onDelete={handleDeleteCommunity}
+          />
+        </div>
       </header>
 
       {/* CORPO */}
       <div className="w-full flex-1 px-3 md:px-6 pb-24 md:pb-8">
-        <div className="flex gap-6 items-start">
+        <div className="flex gap-6 items-start max-w-5xl mx-auto">
 
           {/* FEED */}
           <section className="flex-1 min-w-0 flex flex-col">

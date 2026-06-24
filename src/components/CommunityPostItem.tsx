@@ -118,7 +118,7 @@ export function CommunityPostItem({ post, communityAdminId, communityName, onDel
     <>
       <div
         onClick={() => setModalOpen(true)}
-        className="cursor-pointer w-full flex flex-col gap-3 p-3 md:p-4 rounded-xl transition-colors duration-300 hover:bg-[#efce7b]/30"
+        className="cursor-pointer w-full flex flex-col gap-3 p-4 md:p-5 rounded-xl transition-colors duration-300 hover:bg-[#efce7b]/30"
       >
 
       {/* CABEÇALHO */}
@@ -186,15 +186,15 @@ export function CommunityPostItem({ post, communityAdminId, communityName, onDel
       {/* CONTEÚDO */}
       <div className="w-full flex flex-col gap-2 px-1">
         {post.title && (
-          <h2 className="text-slate-900 font-bold text-lg md:text-xl">{post.title}</h2>
+          <h2 className="text-slate-900 font-bold text-xl md:text-2xl">{post.title}</h2>
         )}
         {post.content && (
-          <p className="text-slate-700 text-sm md:text-base leading-relaxed line-clamp-3">{post.content}</p>
+          <p className="text-slate-700 text-sm md:text-base leading-relaxed line-clamp-4">{post.content}</p>
         )}
         {post.image && (
-          <div className="relative w-full overflow-hidden rounded-xl bg-black max-h-[480px]">
-            <img src={post.image} alt="blur" className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40" />
-            <img src={post.image} alt="post" className="relative z-10 w-full h-full object-contain max-h-[480px]" />
+          <div className="relative w-full overflow-hidden rounded-xl bg-black max-h-[600px]">
+            <img src={post.image} alt="blur" className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40 scale-110" />
+            <img src={post.image} alt="post" className="relative z-10 w-full h-full object-contain max-h-[600px]" />
           </div>
         )}
       </div>

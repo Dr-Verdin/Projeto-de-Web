@@ -149,7 +149,7 @@ function App() {
           ${showNav && !isMobile ? "pl-16" : ""}
           ${showMobileNav && !isPomodoro ? "pt-14 pb-20" : ""}
           ${showMobileNav && isPomodoro ? "pt-14" : ""}
-          ${isMobileFullPage ? "overflow-hidden flex flex-col" : "overflow-y-auto flex justify-center"}`}
+          ${isMobileFullPage ? "overflow-hidden flex flex-col" : "overflow-y-auto"}`}
       >
         <Routes>
           <Route path="/" element={<Feed />} />
