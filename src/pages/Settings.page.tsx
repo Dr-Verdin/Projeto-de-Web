@@ -5,47 +5,48 @@ import {
   IconArrowLeft,
   IconChevronRight,
   IconUser,
-  IconLock,
-  IconMail,
   IconTrash,
   IconCamera,
 } from "@tabler/icons-react";
 import { DeleteConfirmView } from "../components/DeleteConfirmView";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
-import type { User } from "../types/User";
 
-type Section = "menu" | "profile" | "account" | "delete";
+type Section = "menu" | "profile" | "delete";
 
 export default function SettingsPage() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser, deleteAccount } = useAuth();
 
   const [section, setSection] = useState<Section>("menu");
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState("");
 
-  const [avatar, setAvatar]       = useState(user?.avatar ?? "");
-  const [name, setName]           = useState(user?.name ?? "");
-  const [username, setUsername]   = useState((user?.username ?? "").replace(/^@/, ""));
-  const [bio, setBio]             = useState(user?.bio ?? "");
-  const [pronoun, setPronoun]     = useState(user?.pronoun ?? "");
+  const [avatar, setAvatar]     = useState(user?.avatar ?? "");
+  const [name, setName]         = useState(user?.name ?? "");
+  const [username, setUsername] = useState((user?.username ?? "").replace(/^@/, ""));
+  const [bio, setBio]           = useState(user?.bio ?? "");
+  const [pronoun, setPronoun]   = useState(user?.pronoun ?? "");
 
   function handleBack() {
     if (section === "menu") navigate(-1);
-    else setSection("menu");
+    else { setError(""); setSection("menu"); }
   }
 
   async function handleSave() {
+    setError("");
     setIsSaving(true);
     try {
-      const updatedUser = {
-        ...user, avatar, name,
+      await updateUser({
+        name,
         username: username.startsWith("@") ? username : `@${username}`,
-        bio, pronoun,
-      } as User;
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      window.dispatchEvent(new CustomEvent("user-updated", { detail: { userId: user?.id } }));
+        bio,
+        pronoun,
+        avatar,
+      });
       setSection("menu");
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? "Erro ao salvar.");
     } finally {
       setIsSaving(false);
     }
@@ -59,19 +60,24 @@ export default function SettingsPage() {
     reader.readAsDataURL(file);
   }
 
-  function handleDeleteAccount() {
-    logout();
-    navigate("/login");
+  async function handleDeleteAccount() {
+    setError("");
+    try {
+      await deleteAccount();
+      navigate("/login");
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? err?.message ?? "Erro ao excluir conta. Tente novamente.");
+      setSection("delete");
+    }
   }
 
   const sectionTitle: Record<Section, string> = {
-    menu:     "Configurações",
-    profile:  "Editar perfil",
-    account:  "Conta",
-    delete:   "Excluir conta",
+    menu:    "Configurações",
+    profile: "Editar perfil",
+    delete:  "Excluir conta",
   };
 
-  const showSave = section !== "menu" && section !== "delete";
+  const showSave = section === "profile";
 
   const avatarSrc =
     avatar ||
@@ -195,8 +201,11 @@ export default function SettingsPage() {
           {/* ── EXCLUIR ── */}
           {section === "delete" && (
             <div className="px-4 pt-8">
+              {error && (
+                <p className="mb-4 text-sm text-red-500 font-medium text-center">{error}</p>
+              )}
               <DeleteConfirmView
-                onCancel={() => setSection("menu")}
+                onCancel={() => { setError(""); setSection("menu"); }}
                 onConfirm={handleDeleteAccount}
               />
             </div>

@@ -1,44 +1,50 @@
 import api from "./api";
 
-export interface User {
-  id: number;
-  name: string;
-  email: string;
-}
-
-export interface CreateUserDTO {
-  name: string;
-  email: string;
-  password: string;
-}
-
 export interface UpdateUserDTO {
   name?: string;
+  username?: string;
   email?: string;
+  bio?: string;
+  pronoun?: string;
+  avatar?: string;
 }
 
 export const userService = {
-  async getAll(): Promise<User[]> {
+  async getAll() {
     const res = await api.get("/users");
     return res.data;
   },
 
-  async getById(id: string): Promise<User> {
+  async getById(id: string) {
     const res = await api.get(`/users/${id}`);
     return res.data;
   },
 
-  async create(data: CreateUserDTO): Promise<User> {
-    const res = await api.post("/users", data);
-    return res.data;
-  },
-
-  async update(id: number, data: UpdateUserDTO): Promise<User> {
+  async update(id: string, data: UpdateUserDTO) {
     const res = await api.put(`/users/${id}`, data);
     return res.data;
   },
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string) {
     await api.delete(`/users/${id}`);
+  },
+
+  async addStudyTime(id: string, hours: number) {
+    const res = await api.patch(`/users/${id}/study-time`, { hours });
+    return res.data;
+  },
+
+  // PATCH /users/:id/follow — { followerId }
+  async toggleFollow(targetId: string, followerId: string) {
+    const res = await api.patch(`/users/${targetId}/follow`, { followerId });
+    return res.data as { following: boolean };
+  },
+
+  // GET /users/:id/follow-status?userId=...
+  async getFollowStatus(targetId: string, userId: string) {
+    const res = await api.get(`/users/${targetId}/follow-status`, {
+      params: { userId },
+    });
+    return res.data as { following: boolean };
   },
 };

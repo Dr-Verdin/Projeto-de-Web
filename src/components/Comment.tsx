@@ -15,6 +15,7 @@ type CommentProps = {
   content: string;
   createdAt: string;
   postId?: string;
+  rootId?: string; // id do comentário raiz (para replies de replies)
   likes?: number;
   comments?: number;
   commentLikes?: { userId: string }[];
@@ -35,6 +36,7 @@ export function CommentItem({
   content,
   createdAt,
   postId,
+  rootId,
   likes: initialLikes = 0,
   commentLikes,
   replies = [],
@@ -107,7 +109,8 @@ export function CommentItem({
       });
       setReplyText("");
       setReplyOpen(false);
-      onReplyCreated?.(created, id);
+      // se este item já é um reply (tem rootId), sobe a reply para o comentário raiz
+      onReplyCreated?.(created, rootId ?? id);
     } catch (err) {
       console.error("Erro ao responder:", err);
     } finally {
@@ -241,6 +244,7 @@ export function CommentItem({
                 key={reply.id}
                 {...reply}
                 postId={postId}
+                rootId={rootId ?? id}
                 onDeleted={onDeleted}
                 onReplyCreated={onReplyCreated}
               />

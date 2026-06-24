@@ -20,6 +20,7 @@ import { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import { useAuth } from "../contexts/AuthContext";
 import { postService } from "../services/postService";
+import { userService } from "../services/userService";
 
 export function Post({ post }: { post: PostType }) {
   const [open, setOpen] = useState(false);
@@ -31,6 +32,13 @@ export function Post({ post }: { post: PostType }) {
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(post.likes ?? 0);
   const [commentCount, setCommentCount] = useState(post._count?.comments ?? 0);
+  const [following, setFollowing] = useState(false);
+  const [loadingFollow, setLoadingFollow] = useState(false);
+
+  // sincroniza o contador quando o objeto post mudar (ex: reload do feed)
+  useEffect(() => {
+    setCommentCount(post._count?.comments ?? 0);
+  }, [post.id, post._count?.comments]);
 
   const { id, title, content, image, author } = post;
 
@@ -53,12 +61,38 @@ export function Post({ post }: { post: PostType }) {
     : null;
   const isOwnPost = userId === currentUserId;
 
+  // busca status de follow para posts de outros usuários
+  useEffect(() => {
+    if (isOwnPost || !currentUserId || !post.authorId) return;
+    userService
+      .getFollowStatus(post.authorId, currentUserId)
+      .then((res) => setFollowing(res.following))
+      .catch(() => {});
+  }, [post.authorId, currentUserId, isOwnPost]);
+
+  async function handleFollow(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!currentUserId || loadingFollow) return;
+    setLoadingFollow(true);
+    const was = following;
+    setFollowing(!was);
+    try {
+      const res = await userService.toggleFollow(post.authorId, currentUserId);
+      setFollowing(res.following);
+    } catch {
+      setFollowing(was);
+    } finally {
+      setLoadingFollow(false);
+    }
+  }
+
   useEffect(() => {
     async function fetchLikeState() {
-      if (!user?.sub) return;
+      const userId = user?.id ?? user?.sub;
+      if (!userId) return;
       try {
         const res = await api.get(`/posts/${post.id}`, {
-          params: { userId: user.sub },
+          params: { userId },
         });
         setLiked(res.data.likedByMe);
         setLikes(res.data.likes);
@@ -67,7 +101,7 @@ export function Post({ post }: { post: PostType }) {
       }
     }
     fetchLikeState();
-  }, [post.id, user?.sub]);
+  }, [post.id, user?.id, user?.sub]);
 
   useEffect(() => {
     function handleCloseAll() { setOpen(false); }
@@ -88,14 +122,15 @@ export function Post({ post }: { post: PostType }) {
 
   async function handleLike(e: React.MouseEvent) {
     e.stopPropagation();
-    if (!user?.sub) return;
+    const userId = user?.id ?? user?.sub;
+    if (!userId) return;
 
     const wasLiked = liked;
     setLiked(!wasLiked);
     setLikes((prev) => (wasLiked ? prev - 1 : prev + 1));
 
     try {
-      const res = await api.patch(`/posts/${post.id}/like`, { userId: user.sub });
+      const res = await api.patch(`/posts/${post.id}/like`, { userId });
       setLiked(res.data.liked);
     } catch {
       setLiked(wasLiked);
@@ -154,10 +189,15 @@ export function Post({ post }: { post: PostType }) {
           <div className="ml-auto flex items-center gap-1 md:gap-2 shrink-0">
             {!isOwnPost && (
               <Button
-                onClick={(e) => e.stopPropagation()}
-                className="rounded-full px-3 md:px-4 h-7 md:h-8 text-xs text-white bg-[#b7bb86] hover:bg-[#e1903e]"
+                onClick={handleFollow}
+                disabled={loadingFollow}
+                className={`rounded-full px-3 md:px-4 h-7 md:h-8 text-xs font-bold transition-all disabled:opacity-50 ${
+                  following
+                    ? "bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-500"
+                    : "text-white bg-[#b7bb86] hover:bg-[#e1903e]"
+                }`}
               >
-                seguir
+                {following ? "Seguindo" : "Seguir"}
               </Button>
             )}
 
@@ -264,7 +304,7 @@ export function Post({ post }: { post: PostType }) {
         </footer>
       </div>
 
-      <PostModal open={modalOpen} onOpenChange={setOpen} post={post} onCommentAdded={() => setCommentCount((n) => n + 1)} />
+      <PostModal open={modalOpen} onOpenChange={setOpen} post={post} onCommentAdded={(total) => setCommentCount(total)} />
     </>
   );
 }

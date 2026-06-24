@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import type { User } from "../types/User";
 import { SettingsProfileSection } from "./settings/SettingsProfileSection";
+import { useAuth } from "../contexts/AuthContext";
+
 type SettingsViewProps = {
   user: User;
   onSave: (updatedUser: User) => void;
@@ -10,22 +12,29 @@ type SettingsViewProps = {
 };
 
 export function SettingsView({ user, onSave, onDeleteClick, isSaving = false }: SettingsViewProps) {
-  const [avatar, setAvatar] = useState(user.avatar);
-  const [name, setName] = useState(user.name);
-  const [username, setUsername] = useState(user.username.replace(/^@/, ""));
-  const [bio, setBio] = useState(user.bio);
+  const { updateUser } = useAuth();
+  const [avatar, setAvatar]   = useState(user.avatar ?? "");
+  const [name, setName]       = useState(user.name ?? "");
+  const [username, setUsername] = useState((user.username ?? "").replace(/^@/, ""));
+  const [bio, setBio]         = useState(user.bio ?? "");
   const [pronoun, setPronoun] = useState(user.pronoun ?? "");
+  const [error, setError]     = useState("");
 
-  function handleSubmit(event: React.FormEvent) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    onSave({
-      ...user,
-      avatar,
-      name,
-      username: username.startsWith("@") ? username : `@${username}`,
-      bio,
-      pronoun,
-    });
+    setError("");
+    try {
+      const updated = await updateUser({
+        name,
+        username: username.startsWith("@") ? username : `@${username}`,
+        bio,
+        pronoun,
+        avatar,
+      });
+      onSave(updated);
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? "Erro ao salvar. Tente novamente.");
+    }
   }
 
   return (
@@ -46,7 +55,11 @@ export function SettingsView({ user, onSave, onDeleteClick, isSaving = false }: 
           onPronounChange={setPronoun} onBioChange={setBio}
         />
 
-        {/* Excluir conta — dentro do scroll, no fim */}
+        {error && (
+          <p className="text-sm text-red-500 font-medium">{error}</p>
+        )}
+
+        {/* Excluir conta */}
         <div className="pt-2 pb-2">
           <button
             type="button"
@@ -71,7 +84,6 @@ export function SettingsView({ user, onSave, onDeleteClick, isSaving = false }: 
           </Button>
         </form>
       </div>
-
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { TaskChecklist } from "@/components/TaskChecklist";
 import { userService } from "@/services/userService";
 import { postService } from "@/services/postService";
 import { useAuth } from "../contexts/AuthContext";
+import { IconChecklist } from "@tabler/icons-react";
 
 export default function Profile() {
   const { id } = useParams();
@@ -15,22 +16,36 @@ export default function Profile() {
   const [userPosts, setUserPosts] = useState<any[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [activeTab, setActiveTab] = useState<"posts" | "comunidades">("posts");
+  const [taskModalOpen, setTaskModalOpen] = useState(false);
+
+  // recarrega silenciosamente sem exibir tela de loading
+  async function reloadUser(silent = false) {
+    if (!id) return;
+    if (!silent) setLoadingUser(true);
+    try {
+      const data = await userService.getById(id);
+      setUser(data);
+    } catch (err) {
+      console.error(err);
+      if (!silent) setUser(null);
+    } finally {
+      if (!silent) setLoadingUser(false);
+    }
+  }
 
   useEffect(() => {
-    async function loadUser() {
-      if (!id) return;
-      setLoadingUser(true);
-      try {
-        const data = await userService.getById(id);
-        setUser(data);
-      } catch (err) {
-        console.error(err);
-        setUser(null);
-      } finally {
-        setLoadingUser(false);
+    reloadUser();
+
+    // recarrega quando o próprio usuário salva as configurações
+    function handleUserUpdated(e: Event) {
+      const detail = (e as CustomEvent).detail;
+      // só recarrega se o id atualizado é o mesmo perfil sendo exibido
+      if (!detail?.userId || detail.userId === id) {
+        reloadUser(true); // silencioso — sem loading screen
       }
     }
-    loadUser();
+    window.addEventListener("user-updated", handleUserUpdated);
+    return () => window.removeEventListener("user-updated", handleUserUpdated);
   }, [id]);
 
   useEffect(() => {
@@ -100,6 +115,17 @@ export default function Profile() {
             >
               Posts
             </button>
+
+            {/* botão Tarefas — só no próprio perfil, some em xl (onde a coluna direita aparece) */}
+            {isOwnProfile && (
+              <button
+                onClick={() => setTaskModalOpen(true)}
+                className="xl:hidden flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold text-gray-500 hover:bg-gray-100 transition-colors"
+              >
+                <IconChecklist size={15} />
+                Tarefas
+              </button>
+            )}
           </div>
 
           {/* LISTA DE POSTS */}
@@ -122,6 +148,25 @@ export default function Profile() {
         )}
 
       </div>
+
+      {/* MODAL DE TAREFAS — janela centralizada */}
+      {isOwnProfile && taskModalOpen && (
+        <>
+          {/* overlay + área de clique para fechar */}
+          <div
+            className="fixed inset-0 z-[60] bg-black/50 backdrop-blur-sm xl:hidden flex items-center justify-center px-4"
+            onClick={() => setTaskModalOpen(false)}
+          >
+            {/* card — para propagação para não fechar ao clicar dentro */}
+            <div
+              className="w-full max-w-sm animate-in fade-in zoom-in-95 duration-150"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <TaskChecklist onClose={() => setTaskModalOpen(false)} />
+            </div>
+          </div>
+        </>
+      )}
     </main>
   );
 }

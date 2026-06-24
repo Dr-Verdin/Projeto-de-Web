@@ -14,13 +14,22 @@ import { CommentItem } from "./Comment";
 import { useAuth } from "../contexts/AuthContext";
 import api from "../services/api";
 import { postService } from "../services/postService";
+import { userService } from "../services/userService";
 
 type PostModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   post: PostType;
-  onCommentAdded?: () => void;
+  onCommentAdded?: (total: number) => void;
 };
+
+// conta comentários raiz + todas as replies recursivamente
+function countAllComments(comments: CommentType[]): number {
+  return comments.reduce(
+    (acc, c) => acc + 1 + countAllComments((c as any).replies ?? []),
+    0,
+  );
+}
 
 export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModalProps) {
   const { user } = useAuth();
@@ -28,12 +37,39 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(post.likes ?? 0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [following, setFollowing] = useState(false);
+  const [loadingFollow, setLoadingFollow] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   const isCommunityPost = !!post.communityId;
   const storedUser = localStorage.getItem("user");
   const currentUserId = storedUser ? (JSON.parse(storedUser)?.id ?? JSON.parse(storedUser)?.sub) : null;
   const isOwnPost = post.authorId === currentUserId;
+
+  // busca status de follow
+  useEffect(() => {
+    if (isOwnPost || !currentUserId || !post.authorId || isCommunityPost) return;
+    userService
+      .getFollowStatus(post.authorId, currentUserId)
+      .then((res) => setFollowing(res.following))
+      .catch(() => {});
+  }, [post.authorId, currentUserId, isOwnPost, isCommunityPost]);
+
+  async function handleFollow(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!currentUserId || loadingFollow) return;
+    setLoadingFollow(true);
+    const was = following;
+    setFollowing(!was);
+    try {
+      const res = await userService.toggleFollow(post.authorId, currentUserId);
+      setFollowing(res.following);
+    } catch {
+      setFollowing(was);
+    } finally {
+      setLoadingFollow(false);
+    }
+  }
 
   // fecha menu ao clicar fora
   useEffect(() => {
@@ -91,10 +127,11 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
 
   useEffect(() => {
     async function fetchLikeState() {
-      if (!user?.sub) return;
+      const userId = user?.id ?? user?.sub;
+      if (!userId) return;
       try {
         const res = await api.get(`/posts/${post.id}`, {
-          params: { userId: user.sub },
+          params: { userId },
         });
         setLiked(res.data.likedByMe);
         setLikes(res.data.likes);
@@ -103,20 +140,23 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
       }
     }
     fetchLikeState();
-  }, [post.id, user?.sub]);
+  }, [post.id, user?.id, user?.sub]);
 
   async function handleSendComment() {
-    if (!newComment.trim() || !user?.sub) return;
+    const authorId = user?.id ?? user?.sub;
+    if (!newComment.trim() || !authorId) return;
     setLoading(true);
     try {
       const created = await commentService.create({
         content: newComment,
-        authorId: user.sub,
+        authorId,
         postId: post.id,
       });
       setNewComment("");
-      setComments((prev) => [created, ...prev]);
-      onCommentAdded?.();
+      const updated = [created, ...comments];
+      setComments(updated);
+      // passa o total real de comentários (raiz + replies)
+      onCommentAdded?.(countAllComments(updated));
     } catch (err) {
       console.error(err);
     } finally {
@@ -126,14 +166,15 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
 
   async function handleLike(e: React.MouseEvent<HTMLButtonElement>) {
     e.stopPropagation();
-    if (!user?.sub) return;
+    const userId = user?.id ?? user?.sub;
+    if (!userId) return;
 
     const wasLiked = liked;
     setLiked(!wasLiked);
     setLikes((prev) => (wasLiked ? prev - 1 : prev + 1));
 
     try {
-      const res = await api.patch(`/posts/${post.id}/like`, { userId: user.sub });
+      const res = await api.patch(`/posts/${post.id}/like`, { userId });
       setLiked(res.data.liked);
     } catch (err) {
       console.error(err);
@@ -182,9 +223,16 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
                   {isCommunityPost ? "c/" : "u/"}{displayName}
                 </Link>
                 {!isCommunityPost && (
-                  <Button onClick={(e) => e.stopPropagation()}
-                    className="rounded-full px-3 h-7 text-xs text-white bg-white/20 hover:bg-white/40 border border-white/40 shrink-0">
-                    seguir
+                  <Button
+                    onClick={handleFollow}
+                    disabled={loadingFollow}
+                    className={`rounded-full px-3 h-7 text-xs font-bold transition-all shrink-0 disabled:opacity-50 ${
+                      following
+                        ? "bg-white/10 text-white border border-white/40 hover:bg-red-500/30"
+                        : "text-white bg-white/20 hover:bg-white/40 border border-white/40"
+                    }`}
+                  >
+                    {following ? "Seguindo" : "Seguir"}
                   </Button>
                 )}
               </div>
@@ -222,9 +270,16 @@ export function PostModal({ open, onOpenChange, post, onCommentAdded }: PostModa
                 )}
               </div>
               <div className="ml-auto flex items-center gap-1 shrink-0">
-                <Button onClick={(e) => e.stopPropagation()}
-                  className="rounded-full px-3 h-7 text-xs text-white bg-[#b7bb86] hover:bg-[#e1903e]">
-                  seguir
+                <Button
+                  onClick={handleFollow}
+                  disabled={loadingFollow}
+                  className={`rounded-full px-3 h-7 text-xs font-bold transition-all disabled:opacity-50 ${
+                    following
+                      ? "bg-gray-100 text-gray-700 hover:bg-red-50 hover:text-red-500"
+                      : "text-white bg-[#b7bb86] hover:bg-[#e1903e]"
+                  }`}
+                >
+                  {following ? "Seguindo" : "Seguir"}
                 </Button>
                 <div ref={menuRef} className="relative" onClick={(e) => e.stopPropagation()}>
                   <Button
