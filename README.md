@@ -36,6 +36,8 @@ A plataforma combina funcionalidades de redes sociais e ferramentas de organiza�
 * **PostgreSQL**
 * **bcrypt**
 
+🔗 Backend: https://github.com/Matheus-Learte/Projeto-de-Web-Backend-
+
 ## 🧩 Estrutura do projeto
 
 O Capys foi desenvolvido como uma aplicação web com separação entre front-end e back-end.
