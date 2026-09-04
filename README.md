@@ -1,73 +1,67 @@
-# React + TypeScript + Vite
+# 🌱 Capys — Rede Social para Estudantes
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+O **Capys** é uma rede social desenvolvida com foco em estudantes e pessoas interessadas em aprender e compartilhar conhecimento.
 
-Currently, two official plugins are available:
+A plataforma combina funcionalidades de redes sociais e ferramentas de organização dos estudos, permitindo que os usuários interajam por meio de comunidades, compartilhem conteúdos e acompanhem suas próprias atividades de estudo.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## ✨ Funcionalidades
 
-## React Compiler
+### 👥 Rede social
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* Cadastro e login de usuários
+* Perfis de usuários
+* Criação de posts
+* Comentários
+* Curtidas
+* Comunidades para interação e compartilhamento de conhecimento
 
-## Expanding the ESLint configuration
+### 📚 Organização dos estudos
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+* Pomodoro para gerenciamento do tempo de estudo
+* Checklist individual para organização de tarefas
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠️ Tecnologias
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Front-end
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+* **React**
+* **TypeScript**
+* **Axios**
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Back-end
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+* **Node.js**
+* **NestJS**
+* **Prisma**
+* **PostgreSQL**
+* **bcrypt**
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+## 🧩 Estrutura do projeto
+
+O Capys foi desenvolvido como uma aplicação web com separação entre front-end e back-end.
+
+* **Front-end:** interface e interação com o usuário, desenvolvida com React e TypeScript.
+* **Back-end:** responsável pela lógica da aplicação, gerenciamento dos dados e comunicação com o banco de dados.
+* **Banco de dados:** PostgreSQL, utilizando Prisma para gerenciamento e acesso aos dados.
+* **Autenticação:** utilização de bcrypt para segurança das credenciais dos usuários.
+* **Comunicação:** utilização de Axios para realizar requisições entre o front-end e o back-end.
+
+## 👩‍💻 Desenvolvimento
+
+O projeto foi desenvolvido em uma equipe de **3 pessoas**.
+
+Atuei em diversas partes do desenvolvimento da aplicação, contribuindo para a construção da interface, implementação de funcionalidades e integração entre os diferentes componentes do sistema.
+
+## 📸 Interface
+
+Algumas das telas desenvolvidas para o Capys:
+
+<!-- Adicione aqui screenshots da aplicação -->
+
+## 🚀 Objetivo
+
+O projeto teve como objetivo desenvolver uma plataforma que unisse **interação social, compartilhamento de conhecimento e organização dos estudos**, proporcionando um ambiente no qual estudantes pudessem aprender, trocar experiências e organizar sua rotina.
+
+## 📌 Projeto acadêmico
+
+Projeto desenvolvido no contexto acadêmico, com foco na aplicação prática de conceitos de **desenvolvimento web, desenvolvimento de APIs, bancos de dados e arquitetura de aplicações**.
